@@ -33,7 +33,7 @@
         }
 
         /* --- PANTALLA DE CREACIÓN Y MODALES --- */
-        #setup-container, #market-modal, #season-summary-modal {
+        #setup-container, #market-modal, #season-summary-modal, #shop-modal {
             max-width: 600px;
             width: 100%;
             background-color: var(--panel-bg);
@@ -46,7 +46,7 @@
             margin: auto;
         }
 
-        #market-modal, #season-summary-modal {
+        #market-modal, #season-summary-modal, #shop-modal {
             display: none;
             position: fixed;
             top: 50%;
@@ -147,7 +147,7 @@
         .drs-tile { background: #181820; border: 2px solid #2a2a35; height: 70px; border-radius: 8px; font-size: 1.5em; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
         .drs-tile:hover { background: #22222d; }
 
-        /* Tarjetas de ofertas de fichajes */
+        /* Tarjetas de ofertas de fichajes y tienda */
         .offer-card { background: #181820; border: 2px solid #2a2a35; border-radius: 10px; padding: 15px; margin-bottom: 15px; text-align: left; }
         .offer-card h4 { margin: 0 0 8px 0; color: var(--accent); }
         .offer-card p { margin: 4px 0; font-size: 0.9em; color: var(--text-muted); }
@@ -228,6 +228,20 @@
     <div id="offers-list"></div>
 </div>
 
+<!-- MODAL DE TIENDA R&D & CONSUMIBLES -->
+<div id="shop-modal">
+    <h2 style="color: var(--accent); text-transform: uppercase; margin-top: 0;">🛒 Tienda del Equipo & R&D</h2>
+    <p style="color: var(--text-muted); margin-bottom: 20px;">Utiliza tus fondos para adquirir consumibles temporales (para el siguiente evento) o mejoras permanentes en el monoplaza.</p>
+    
+    <h3 style="color: var(--text-main); text-align: left; border-bottom: 1px solid #222; padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">Consumibles Temporales (Próximo Evento)</h3>
+    <div id="shop-temp-list" style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;"></div>
+
+    <h3 style="color: var(--text-main); text-align: left; border-bottom: 1px solid #222; padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">Mejoras Permanentes (Inversión Alta)</h3>
+    <div id="shop-perm-list" style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px;"></div>
+
+    <button class="start-btn" style="background: #2a2a35;" onclick="closeShopModal()">Cerrar Tienda</button>
+</div>
+
 <!-- INTERFAZ PRINCIPAL -->
 <div id="game-container">
     <header>
@@ -249,6 +263,10 @@
             <div class="stat-badge">Reputación<span id="stat-rep">0</span></div>
             <div class="stat-badge">Fondos<span id="stat-money" class="money">0</span></div>
             <div class="stat-badge">Eventos<span id="stat-events">0/6</span></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1a1a22; padding-top: 10px;">
+            <span style="font-size: 0.85em; color: var(--text-muted);">Inversión de capital disponible</span>
+            <button class="start-btn" style="padding: 8px 16px; font-size: 0.85em; width: auto; background-color: var(--accent); color: #000; font-weight: 900;" onclick="openShopModal()">🛒 Abrir Tienda R&D</button>
         </div>
     </header>
 
@@ -292,10 +310,11 @@
         team: "Prema F3 (Academy)",
         season: 1,
         eventsCompleted: 0,
-        money: 50000,
+        money: 80000,
         reputation: 15,
         devPoints: 1,
         attributes: { pace: 45, aggression: 45, tires: 45, rain: 45 },
+        temporaryBoosts: { pace: 0, aggression: 0, tires: 0, rain: 0 },
         statsRecord: { wins: 0, podiums: 0, crashes: 0 }
     };
 
@@ -310,6 +329,12 @@
 
     function getFlagUrl(code) {
         return `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
+    }
+
+    function getStat(statName) {
+        const base = state.attributes[statName] || 0;
+        const temp = state.temporaryBoosts && state.temporaryBoosts[statName] ? state.temporaryBoosts[statName] : 0;
+        return base + temp;
     }
 
     function initGame() {
@@ -331,7 +356,7 @@
         triggerRandomEvent();
     }
 
-    // --- BANCO MASIVO DE EVENTOS Y MINIJUEGOS (VARIEDAD GARANTIZADA) ---
+    // --- BANCO MASIVO DE EVENTOS Y MINIJUEGOS ---
     const randomEvents = [
         {
             title: "Semáforo en Blanco: La Salida",
@@ -350,7 +375,7 @@
         {
             title: "Salida fulgurante: Cambio de Marchas",
             image: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=1000&auto=format&fit=crop",
-            description: "Es momento de engranar marchas con precisión milimétrica. Prepara el motor y pulsa cuando te veas listo para acelerar la barra de revoluciones.",
+            description: "Es momento de engranar marchas con precisión milimétrica. Pulsa 'Iniciar Aceleración' y sube de marcha en el momento óptimo.",
             isMinigame: true,
             minigameType: "shiftTiming"
         },
@@ -369,7 +394,7 @@
                 {
                     text: "Tirarme por el exterior arriesgando el monoplaza",
                     action: () => {
-                        if(state.attributes.aggression > 55) {
+                        if(getStat('aggression') > 55) {
                             state.reputation += 15; state.statsRecord.wins++;
                             addLog("¡Maniobra brillante y valiente por fuera! Mantienes el coche y ganas la posición.", "success");
                         } else {
@@ -397,7 +422,7 @@
                 {
                     text: "Quedarme en pista con slicks confiando en mi tacto",
                     action: () => {
-                        if(state.attributes.rain > 60) {
+                        if(getStat('rain') > 60) {
                             state.reputation += 20; state.money += 35000; state.statsRecord.wins++;
                             addLog("¡Espectáculo puro bajo el diluvio! Controlas el coche a la perfección.", "success");
                         } else {
@@ -464,14 +489,14 @@
             ]
         },
         {
-            title: "Fallo Mecánico Critico en Clasificación",
+            title: "Fallo Mecánico Crítico en Clasificación",
             image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1000&auto=format&fit=crop",
             description: "A falta de dos minutos para terminar la sesión de clasificación, notas una pérdida grave de presión hidráulica en la dirección asistida.",
             choices: [
                 {
                     text: "Arriesgar y salir a marcar un último tiempo a ciegas",
                     action: () => {
-                        if(state.attributes.pace > 55) {
+                        if(getStat('pace') > 55) {
                             state.reputation += 12; state.statsRecord.wins++;
                             addLog("¡Vuelta heroica sin dirección asistida! Te metes entre los tres primeros.", "success");
                         } else {
@@ -582,18 +607,130 @@
         document.getElementById('ui-driver-name').innerText = state.name;
         document.getElementById('ui-driver-flag').src = getFlagUrl(state.countryCode);
         document.getElementById('ui-driver-country-name').innerText = countryInfo.name;
-        document.getElementById('stat-pace').innerText = state.attributes.pace;
-        document.getElementById('stat-aggro').innerText = state.attributes.aggression;
-        document.getElementById('stat-tires').innerText = state.attributes.tires;
-        document.getElementById('stat-rain').innerText = state.attributes.rain;
+        document.getElementById('stat-pace').innerText = getStat('pace');
+        document.getElementById('stat-aggro').innerText = getStat('aggression');
+        document.getElementById('stat-tires').innerText = getStat('tires');
+        document.getElementById('stat-rain').innerText = getStat('rain');
         document.getElementById('stat-season').innerText = state.season;
         document.getElementById('stat-rep').innerText = state.reputation;
         document.getElementById('stat-money').innerText = formatMoney(state.money);
         document.getElementById('stat-events').innerText = `${state.eventsCompleted}/6`;
     }
 
+    // --- TIENDA Y R&D ---
+    function openShopModal() {
+        document.getElementById('shop-modal').style.display = 'block';
+        renderShopItems();
+    }
+
+    function closeShopModal() {
+        document.getElementById('shop-modal').style.display = 'none';
+        updateUI();
+    }
+
+    function renderShopItems() {
+        const tempContainer = document.getElementById('shop-temp-list');
+        const permContainer = document.getElementById('shop-perm-list');
+        
+        tempContainer.innerHTML = `
+            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h4 style="margin:0; color:var(--accent);">Gasolina de Alto Octanaje (+15 Ritmo)</h4>
+                    <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
+                </div>
+                <div style="text-align:right;">
+                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">12.000$</span>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'pace', 15, 12000)">Comprar</button>
+                </div>
+            </div>
+            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h4 style="margin:0; color:var(--accent);">Aditivo de Neumáticos (+15 Agresividad)</h4>
+                    <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
+                </div>
+                <div style="text-align:right;">
+                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">10.000$</span>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'aggression', 15, 10000)">Comprar</button>
+                </div>
+            </div>
+            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h4 style="margin:0; color:var(--accent);">Visera Hidrófuga Especial (+15 Lluvia)</h4>
+                    <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
+                </div>
+                <div style="text-align:right;">
+                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">10.000$</span>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'rain', 15, 10000)">Comprar</button>
+                </div>
+            </div>
+        `;
+
+        permContainer.innerHTML = `
+            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h4 style="margin:0; color:#ffb703;">Simulador Avanzado de Fábrica (+2 Ritmo Perm.)</h4>
+                    <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
+                </div>
+                <div style="text-align:right;">
+                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">60.000$</span>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:#ffb703; color:#000;" onclick="buyItem('perm', 'pace', 2, 60000)">Comprar</button>
+                </div>
+            </div>
+            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h4 style="margin:0; color:#ffb703;">Entrenamiento Psicológico & Reflejos (+2 Agres. Perm.)</h4>
+                    <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
+                </div>
+                <div style="text-align:right;">
+                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">55.000$</span>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:#ffb703; color:#000;" onclick="buyItem('perm', 'aggression', 2, 55000)">Comprar</button>
+                </div>
+            </div>
+            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h4 style="margin:0; color:#ffb703;">Especialista en Degradación de Gomas (+2 Gomas Perm.)</h4>
+                    <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
+                </div>
+                <div style="text-align:right;">
+                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">60.000$</span>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:#ffb703; color:#000;" onclick="buyItem('perm', 'tires', 2, 60000)">Comprar</button>
+                </div>
+            </div>
+            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h4 style="margin:0; color:#ffb703;">Túnel de Viento para Pista Mojada (+2 Lluvia Perm.)</h4>
+                    <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
+                </div>
+                <div style="text-align:right;">
+                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">65.000$</span>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:#ffb703; color:#000;" onclick="buyItem('perm', 'rain', 2, 65000)">Comprar</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function buyItem(type, stat, value, cost) {
+        if(state.money < cost) {
+            addLog("Fondos insuficientes para realizar esta inversión en la tienda.", "danger");
+            return;
+        }
+        state.money -= cost;
+        if(type === 'temp') {
+            state.temporaryBoosts[stat] = (state.temporaryBoosts[stat] || 0) + value;
+            addLog(`Has adquirido consumible temporal: +${value} en ${stat.toUpperCase()}. Se aplicará en el próximo evento.`, "success");
+        } else {
+            state.attributes[stat] += value;
+            addLog(`¡Mejora permanente instalada! +${value} en ${stat.toUpperCase()} de base.`, "success");
+        }
+        updateUI();
+        renderShopItems();
+    }
+
     // --- PROGRESIÓN Y CONTROL DE TEMPORADA ---
     function progressEvent() {
+        // Limpiar consumibles temporales tras resolverse el evento actual
+        state.temporaryBoosts = { pace: 0, aggression: 0, tires: 0, rain: 0 };
+
         state.eventsCompleted++;
         if(state.eventsCompleted >= 6) {
             triggerSeasonSummary();
@@ -872,7 +1009,7 @@
                 window.rpmProgress = 100;
                 window.isShiftingActive = false;
                 clearInterval(window.shiftInterval);
-                executeShift(); // Si llega al 100% solo, se pasa de rosca
+                executeShift();
             }
             const fillEl = document.getElementById('rpm-fill');
             if(fillEl) fillEl.style.width = window.rpmProgress + "%";
@@ -880,7 +1017,7 @@
     }
 
     function executeShift() {
-        if(!window.isShiftingActive && window.rpmProgress < 75) return; // Evita doble ejecución
+        if(!window.isShiftingActive && window.rpmProgress < 75) return;
         window.isShiftingActive = false;
         clearInterval(window.shiftInterval);
         const container = document.getElementById('minigame-panel');
