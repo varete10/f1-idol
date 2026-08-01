@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leyenda de la F1 - RPG Edition</title>
+    <title>Leyenda de la F1 - Infinite Career</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -28,7 +28,6 @@
             min-height: 100vh;
         }
 
-        /* --- PANTALLA DE CREACIÓN --- */
         #setup-container {
             max-width: 600px;
             width: 100%;
@@ -40,115 +39,39 @@
             text-align: center;
         }
 
-        .form-group {
-            margin-bottom: 25px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: var(--text-muted);
-        }
-
+        .form-group { margin-bottom: 25px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--text-muted); }
         .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            background-color: #0a0a0a;
-            color: white;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1em;
-            box-sizing: border-box;
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333;
+            background-color: #0a0a0a; color: white; font-family: 'Montserrat', sans-serif; font-size: 1em; box-sizing: border-box;
         }
 
-        .archetypes {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
+        .archetypes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 30px; }
         .archetype-card {
-            background: #222;
-            border: 2px solid #333;
-            padding: 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
+            background: #222; border: 2px solid #333; padding: 15px; border-radius: 10px; cursor: pointer; transition: all 0.2s;
         }
-
         .archetype-card:hover { border-color: var(--text-muted); }
         .archetype-card.selected { border-color: var(--primary); background: #3a0808; }
         .archetype-card h4 { margin: 0 0 5px 0; color: var(--primary); }
         .archetype-card p { margin: 0; font-size: 0.8em; color: var(--text-muted); }
 
         .start-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.3s;
+            background-color: var(--primary); color: white; border: none; padding: 15px 30px;
+            font-size: 1.2em; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; transition: background 0.3s;
         }
-
         .start-btn:hover { background-color: var(--primary-hover); }
 
-        /* --- CONTENEDOR DEL JUEGO (Oculto al inicio) --- */
         #game-container {
-            display: none; /* Se activa con JS */
-            max-width: 850px;
-            width: 100%;
-            background-color: var(--panel-bg);
-            border-radius: 16px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-            overflow: hidden;
-            border: 1px solid #333;
-            flex-direction: column;
+            display: none; max-width: 850px; width: 100%; background-color: var(--panel-bg);
+            border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); overflow: hidden; border: 1px solid #333; flex-direction: column;
         }
 
         header {
-            background-color: #000;
-            border-bottom: 4px solid var(--primary);
-            padding: 15px 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            background-color: #000; border-bottom: 4px solid var(--primary); padding: 15px 25px; display: flex; flex-direction: column; gap: 15px;
         }
-
-        .driver-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1.2em;
-            font-weight: 900;
-            text-transform: uppercase;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-        }
-
-        .stats-grid {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .stat-badge {
-            background: #222;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.85em;
-            font-weight: 700;
-            border: 1px solid #333;
-        }
-
+        .driver-info { display: flex; justify-content: space-between; align-items: center; font-size: 1.2em; font-weight: 900; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .stats-grid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        .stat-badge { background: #222; padding: 8px 12px; border-radius: 8px; font-size: 0.85em; font-weight: 700; border: 1px solid #333; }
         .stat-badge span { color: var(--accent); font-size: 1.1em; }
         .stat-badge .money { color: #4cd137; }
         .stat-badge .points { color: #fbc531; }
@@ -161,22 +84,13 @@
         #choices-panel { padding: 0 30px 30px 30px; display: flex; flex-direction: column; gap: 12px; }
         
         button.choice-btn {
-            background: linear-gradient(90deg, #1e1e1e 0%, #252525 100%);
-            color: var(--text-main);
-            border: 1px solid #444;
-            padding: 16px 20px;
-            font-size: 1em;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            border-radius: 10px;
-            cursor: pointer;
-            text-align: left;
-            display: flex;
-            justify-content: space-between;
+            background: linear-gradient(90deg, #1e1e1e 0%, #252525 100%); color: var(--text-main); border: 1px solid #444;
+            padding: 16px 20px; font-size: 1em; font-family: 'Montserrat', sans-serif; font-weight: 700; border-radius: 10px;
+            cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center;
         }
         button.choice-btn:hover { background: var(--primary); border-color: var(--primary-hover); transform: translateY(-2px); }
         
-        #log-panel { background-color: #0a0a0a; padding: 15px 30px; font-size: 0.85em; color: #666; height: 100px; overflow-y: auto; border-top: 1px solid #222; }
+        #log-panel { background-color: #0a0a0a; padding: 15px 30px; font-size: 0.85em; color: #666; height: 120px; overflow-y: auto; border-top: 1px solid #222; }
         #log-list { list-style: none; padding: 0; margin: 0; }
         #log-list li { margin-bottom: 8px; border-left: 3px solid #444; padding-left: 10px; }
         #log-list li.success { border-left-color: #4cd137; color: #a0f098; }
@@ -185,27 +99,25 @@
 </head>
 <body>
 
-<!-- PANTALLA DE CREACIÓN DE PILOTO -->
 <div id="setup-container">
     <h1 style="color: var(--primary); text-transform: uppercase; margin-top: 0;">Firma tu Contrato</h1>
-    <p style="color: var(--text-muted);">Crea tu piloto antes de comenzar tu carrera hacia la F1.</p>
+    <p style="color: var(--text-muted);">Elige tu perfil para la lucha por el título.</p>
     
     <div class="form-group">
         <label>Nombre del Piloto</label>
-        <input type="text" id="input-name" placeholder="Ej: Carlos Sainz" autocomplete="off">
+        <input type="text" id="input-name" placeholder="Ej: Franco Colapinto" autocomplete="off">
     </div>
 
     <div class="form-group">
         <label>Nacionalidad</label>
         <select id="input-country">
+            <option value="🇦🇷 ARG">🇦🇷 Argentina</option>
             <option value="🇪🇸 ESP">🇪🇸 España</option>
             <option value="🇲🇽 MEX">🇲🇽 México</option>
-            <option value="🇦🇷 ARG">🇦🇷 Argentina</option>
             <option value="🇨🇴 COL">🇨🇴 Colombia</option>
-            <option value="🇨🇱 CHI">🇨🇱 Chile</option>
+            <option value="🇧🇷 BRA">🇧🇷 Brasil</option>
             <option value="🇬🇧 GBR">🇬🇧 Reino Unido</option>
             <option value="🇮🇹 ITA">🇮🇹 Italia</option>
-            <option value="🇯🇵 JPN">🇯🇵 Japón</option>
         </select>
     </div>
 
@@ -214,7 +126,7 @@
         <div class="archetypes">
             <div class="archetype-card selected" onclick="selectArchetype(this, 'agresivo')">
                 <h4>Kamikaze</h4>
-                <p>+ Agresividad<br>- Gestión de Gomas</p>
+                <p>+ Agresividad<br>- Cuidado de Gomas</p>
             </div>
             <div class="archetype-card" onclick="selectArchetype(this, 'calculador')">
                 <h4>Calculador</h4>
@@ -234,23 +146,23 @@
     <button class="start-btn" onclick="initGame()">Comenzar Carrera</button>
 </div>
 
-<!-- INTERFAZ PRINCIPAL DEL JUEGO -->
 <div id="game-container">
     <header>
         <div class="driver-info">
             <span id="ui-driver-name">Piloto</span>
-            <span id="ui-driver-country">🇪🇸 ESP</span>
+            <span id="ui-driver-country">🇦🇷 ARG</span>
         </div>
         <div class="stats-grid">
-            <div class="stat-badge" title="Ritmo base en pista seca">Ritmo: <span id="stat-pace">0</span></div>
-            <div class="stat-badge" title="Capacidad de adelantar y defender">Agresividad: <span id="stat-aggro">0</span></div>
-            <div class="stat-badge" title="Cuidado de los neumáticos">Gomas: <span id="stat-tires">0</span></div>
-            <div class="stat-badge" title="Habilidad en pista mojada">Lluvia: <span id="stat-rain">0</span></div>
+            <div class="stat-badge">Ritmo: <span id="stat-pace">0</span></div>
+            <div class="stat-badge">Agresividad: <span id="stat-aggro">0</span></div>
+            <div class="stat-badge">Gomas: <span id="stat-tires">0</span></div>
+            <div class="stat-badge">Lluvia: <span id="stat-rain">0</span></div>
         </div>
         <div class="stats-grid" style="border-top: 1px solid #333; padding-top: 10px;">
+            <div class="stat-badge">Categoría: <span id="stat-cat" style="color:white;">Fórmula 3</span></div>
             <div class="stat-badge">Reputación: <span id="stat-rep">0</span></div>
             <div class="stat-badge">Fondos: <span id="stat-money" class="money">0</span></div>
-            <div class="stat-badge" title="Puntos para mejorar atributos">Puntos Dev: <span id="stat-dev" class="points">0</span></div>
+            <div class="stat-badge">Puntos Dev: <span id="stat-dev" class="points">0</span></div>
         </div>
     </header>
 
@@ -271,25 +183,18 @@
 </div>
 
 <script>
-    // --- ESTADO GLOBAL ---
     let state = {
         name: "Rookie",
-        country: "🇪🇸 ESP",
+        country: "🇦🇷 ARG",
         category: "Fórmula 3",
-        money: 50000,
-        reputation: 10,
-        devPoints: 0, // Puntos para subir estadísticas
-        attributes: {
-            pace: 40,
-            aggression: 40,
-            tires: 40,
-            rain: 40
-        }
+        money: 60000,
+        reputation: 15,
+        devPoints: 2,
+        attributes: { pace: 45, aggression: 45, tires: 45, rain: 45 }
     };
 
     let selectedArchetype = 'agresivo';
 
-    // --- LÓGICA DE CREACIÓN DE PILOTO ---
     function selectArchetype(element, type) {
         document.querySelectorAll('.archetype-card').forEach(c => c.classList.remove('selected'));
         element.classList.add('selected');
@@ -301,144 +206,191 @@
         state.name = nameInput === "" ? "Rookie" : nameInput;
         state.country = document.getElementById('input-country').value;
 
-        // Aplicar bonificadores según el arquetipo elegido
-        if(selectedArchetype === 'agresivo') {
-            state.attributes.aggression += 20;
-            state.attributes.tires -= 10;
-        } else if(selectedArchetype === 'calculador') {
-            state.attributes.tires += 15;
-            state.attributes.pace += 5;
-            state.attributes.aggression -= 5;
-        } else if(selectedArchetype === 'lluvia') {
-            state.attributes.rain += 25;
-            state.attributes.pace -= 5;
-        } else if(selectedArchetype === 'puro') {
-            state.attributes.pace += 20;
-            state.attributes.aggression -= 10;
-        }
+        if(selectedArchetype === 'agresivo') { state.attributes.aggression += 25; state.attributes.tires -= 10; }
+        else if(selectedArchetype === 'calculador') { state.attributes.tires += 20; state.attributes.pace += 5; }
+        else if(selectedArchetype === 'lluvia') { state.attributes.rain += 30; state.attributes.pace -= 5; }
+        else if(selectedArchetype === 'puro') { state.attributes.pace += 25; state.attributes.aggression -= 10; }
 
-        // Transición de interfaz
         document.getElementById('setup-container').style.display = 'none';
         document.getElementById('game-container').style.display = 'flex';
 
         updateUI();
-        addLog(`Bienvenido al paddock, ${state.name}.`);
-        renderEvent("intro");
+        addLog(`Bienvenido al gran circo, ${state.name}.`);
+        triggerRandomEvent();
     }
 
-    // --- BASE DE DATOS DE EVENTOS ---
-    const eventsDB = {
-        "intro": {
-            title: "El Debut en F3",
-            image: "https://images.unsplash.com/photo-1541443131876-44b032227854?q=80&w=1000&auto=format&fit=crop", 
-            description: () => `Es tu primer día en la ${state.category}. Has estado practicando en el simulador y tu mánager te recibe en el box. "Hoy solo queremos que te hagas al coche, ${state.name}, no hagas locuras".`,
+    // --- BANCO DE MULTIPLES EVENTOS ALEATORIOS (SISTEMA DE INFINITAS POSIBILIDADES) ---
+    const randomEvents = [
+        {
+            title: "Duelo al límite en la Curva 1",
+            image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1000&auto=format&fit=crop",
+            description: "Te estás jugando la posición de podio con tu mayor rival. Al llegar a la frenada fuerte, te deja un hueco muy ajustado por el interior.",
             choices: [
                 {
-                    text: "Dar vueltas constantes para conocer el coche (Prudente)",
+                    text: "Tirarme sin dudar (Requiere alta Agresividad)",
                     action: () => {
-                        state.devPoints += 2; // Ganas puntos de desarrollo
-                        addLog("Completas el programa. Tus ingenieros obtienen buenos datos (+2 Puntos Dev).", "success");
-                        return "upgrade_screen";
+                        if(state.attributes.aggression > 60) {
+                            state.reputation += 15;
+                            addLog("¡Adelantamiento por orejas! Tu rival frena antes y te metes al podio.", "success");
+                        } else {
+                            state.money -= 15000;
+                            state.reputation -= 5;
+                            addLog("Calculas mal la frenada, golpeas a tu rival y rompes la suspensión.", "danger");
+                        }
+                        triggerRandomEvent();
                     }
                 },
                 {
-                    text: "Ir a fondo desde la vuelta 1 para impresionar (Arriesgado)",
+                    text: "Levantar el pie y asegurar puntos (Juego Limpio)",
                     action: () => {
-                        // Utiliza el atributo de agresión y ritmo
-                        let check = (Math.random() * 50) + state.attributes.pace;
-                        if(check > 70) {
+                        state.money += 10000;
+                        state.reputation += 5;
+                        addLog("Decisión madura. Terminas la carrera limpiamente y sumas buenos puntos.");
+                        triggerRandomEvent();
+                    }
+                }
+            ]
+        },
+        {
+            title: "Llamada de último minuto del Ingeniero",
+            image: "https://images.unsplash.com/photo-1541443131876-44b032227854?q=80&w=1000&auto=format&fit=crop",
+            description: "Por radio se escucha: 'Los neumáticos traseros están al límite. Si seguimos así pincharemos, pero si bajamos el ritmo nos van a adelantar dos coches'.",
+            choices: [
+                {
+                    text: "Confiar en mi técnica de conservación (Requiere Gomas altas)",
+                    action: () => {
+                        if(state.attributes.tires > 55) {
                             state.reputation += 10;
                             state.devPoints += 1;
-                            addLog("¡Marcas el mejor tiempo de los libres! Todos en el paddock hablan de ti.", "success");
+                            addLog("Controlas el desgaste a la perfección y mantienes la posición.", "success");
                         } else {
-                            state.money -= 10000;
-                            addLog("Pierdes el control y rompes el alerón delantero. Los mecánicos te odian (-10k$).", "danger");
+                            state.attributes.pace -= 2;
+                            addLog("Destrozas las gomas del todo. Te adelantan en la última recta.");
                         }
-                        return "upgrade_screen";
+                        triggerRandomEvent();
+                    }
+                },
+                {
+                    text: "Entrar a boxes a cambiar gomas de inmediato",
+                    action: () => {
+                        state.money -= 8000;
+                        state.devPoints += 2;
+                        addLog("Parada rápida. Vuelas con gomas nuevas y aprendes valiosos datos (+2 Puntos Dev).");
+                        triggerRandomEvent();
                     }
                 }
             ]
         },
-        "upgrade_screen": {
-            title: "Simulador y Gimnasio",
+        {
+            title: "Trampa de la Prensa en el Paddock",
             image: "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1000&auto=format&fit=crop",
-            description: () => `Tienes ${state.devPoints} Puntos de Desarrollo. Pasa tiempo con tus ingenieros para mejorar tus habilidades antes de la primera carrera real.`,
+            description: "Un periodista sensacionalista te intercepta: 'Todo el mundo dice que tu compañero de equipo es mucho más rápido que tú y que el coche ganador lo lleva él. ¿Qué opinas?'.",
             choices: [
                 {
-                    condition: () => state.devPoints > 0,
-                    text: "Entrenar Ritmo de Clasificación (Cuesta 1 Punto)",
+                    text: "Atacar a la prensa: 'Mi compañero lleva el mismo coche, si no gano es porque el equipo me boicotea'.",
                     action: () => {
-                        state.devPoints -= 1;
-                        state.attributes.pace += 5;
-                        addLog("Mejoras tu ritmo a una vuelta.", "success");
-                        return "upgrade_screen"; // Vuelve a cargar esta pantalla hasta quedarse sin puntos
+                        state.reputation -= 15;
+                        addLog("Escándalo mediático. El jefe de equipo te llama la atención en su despacho.", "danger");
+                        triggerRandomEvent();
                     }
                 },
                 {
-                    condition: () => state.devPoints > 0,
-                    text: "Estudiar Telemetría de Gomas (Cuesta 1 Punto)",
+                    text: "Elegancia pura: 'Trabajamos en equipo, yo solo tengo que demostrar mi velocidad en la pista'.",
                     action: () => {
-                        state.devPoints -= 1;
-                        state.attributes.tires += 5;
-                        addLog("Aprendes a no sobrecalentar los neumáticos.", "success");
-                        return "upgrade_screen";
-                    }
-                },
-                {
-                    condition: () => state.devPoints === 0, // Solo aparece cuando gastas todo
-                    text: "Ir a la Carrera",
-                    action: () => {
-                        return "race_1";
+                        state.reputation += 10;
+                        state.money += 15000;
+                        addLog("Los patrocinadores adoran tu templanza y te dan una prima económica extra.", "success");
+                        triggerRandomEvent();
                     }
                 }
             ]
         },
-        "race_1": {
-            title: "Gran Premio: Día de Lluvia",
+        {
+            title: "Tormenta Inesperada",
             image: "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?q=80&w=1000&auto=format&fit=crop",
-            description: "A falta de 10 vueltas empieza a llover con fuerza. Vas 5º. Tus neumáticos de seco resbalan muchísimo.",
+            description: "El cielo se vuelve completamente negro en el circuito. Empiezan a caer gotas dispersas en el sector 2.",
             choices: [
                 {
-                    text: "Confiar en mi habilidad en lluvia y seguir en pista con neumáticos de seco.",
+                    text: "Arriesgar y quedarme en pista con slicks (Requiere alto nivel de Lluvia)",
                     action: () => {
-                        // Verifica el atributo específico de Lluvia
-                        if(state.attributes.rain > 60) {
-                            state.reputation += 20;
-                            addLog("¡Control absoluto! Haces magia sobre el asfalto mojado y ganas la carrera.", "success");
+                        if(state.attributes.rain > 65) {
+                            state.reputation += 25;
+                            state.money += 50000;
+                            addLog("¡Espectacular! Demuestras reflejos de cirujano bajo el agua y ganas posiciones clave.", "success");
                         } else {
-                            state.reputation -= 5;
-                            addLog("Te sales a la grava. No tienes la habilidad necesaria para domar el coche en lluvia.", "danger");
+                            state.money -= 20000;
+                            addLog("Te estampas contra las protecciones al pisar un charco con slicks.", "danger");
                         }
-                        return "end_demo";
+                        triggerRandomEvent();
                     }
                 },
                 {
-                    text: "Entrar a boxes a poner neumáticos de lluvia.",
+                    text: "Entrar a poner gomas de lluvia intermedia inmediatamente",
                     action: () => {
-                        state.money += 20000;
-                        addLog("Decisión lógica. Terminas 3º y te llevas un buen premio económico.");
-                        return "end_demo";
+                        state.devPoints += 1;
+                        addLog("Decisión conservadora pero segura. Acabas la carrera sin incidentes.");
+                        triggerRandomEvent();
                     }
                 }
             ]
         },
-        "end_demo": {
-            title: "Fin del Prototipo",
+        {
+            title: "Día de Entrenamiento en el Simulador",
             image: "https://images.unsplash.com/photo-1538561558231-1e967a5b3a44?q=80&w=1000&auto=format&fit=crop",
-            description: "¡Has completado esta prueba del sistema de atributos y creación de personaje! A partir de aquí puedes expandir tus propias historias basadas en el Ritmo, Agresividad y demás atributos.",
+            description: "Tienes un día libre entre carreras. Puedes elegir en qué enfocar tus horas en la fábrica para mejorar tu perfil como piloto.",
             choices: [
                 {
-                    text: "Volver a crear piloto",
+                    text: "Entrenar Ritmo Puro (+5 Ritmo)",
                     action: () => {
-                        location.reload(); 
-                        return "intro";
+                        state.attributes.pace += 5;
+                        addLog("Analizas cada milisegundo de telemetría. Tu ritmo mejora.", "success");
+                        triggerRandomEvent();
+                    }
+                },
+                {
+                    text: "Trabajar en Reflejos y Agresividad (+5 Agresividad)",
+                    action: () => {
+                        state.attributes.aggression += 5;
+                        addLog("Practicas adelantamientos al límite en el simulador.", "success");
+                        triggerRandomEvent();
+                    }
+                },
+                {
+                    text: "Descansar y estudiar telemetría de frenada (+5 Gomas)",
+                    action: () => {
+                        state.attributes.tires += 5;
+                        addLog("Comprendes mejor cómo alargar la vida útil de los compuestos.", "success");
+                        triggerRandomEvent();
+                    }
+                }
+            ]
+        },
+        {
+            title: "Oferta de Patrocinador Personal",
+            image: "https://images.unsplash.com/photo-1629824647363-23df2a7bc018?q=80&w=1000&auto=format&fit=crop",
+            description: "Una marca de bebidas energéticas quiere patrocinarte, pero te exigen postear contenido polémico en redes sociales sobre tus rivales.",
+            choices: [
+                {
+                    text: "Aceptar el contrato (+30,000$, -10 Reputación)",
+                    action: () => {
+                        state.money += 30000;
+                        state.reputation -= 10;
+                        addLog("Dinero rápido en el banco, aunque la vieja guardia te critica por payaso en redes.", "success");
+                        triggerRandomEvent();
+                    }
+                },
+                {
+                    text: "Rechazarlo. Mantener la deportividad",
+                    action: () => {
+                        state.reputation += 5;
+                        addLog("Rechazas el dinero fácil por cuidar tu imagen profesional.");
+                        triggerRandomEvent();
                     }
                 }
             ]
         }
-    };
+    ];
 
-    // --- FUNCIONES DEL MOTOR ---
     function formatMoney(num) {
         if(num >= 1000000) return (num / 1000000).toFixed(1) + "M$";
         if(num >= 1000) return (num / 1000).toFixed(0) + "k$";
@@ -455,29 +407,36 @@
     }
 
     function updateUI() {
-        // Stats Superiores
         document.getElementById('ui-driver-name').innerText = state.name;
         document.getElementById('ui-driver-country').innerText = state.country;
-        
-        // Atributos de Piloto
         document.getElementById('stat-pace').innerText = state.attributes.pace;
         document.getElementById('stat-aggro').innerText = state.attributes.aggression;
         document.getElementById('stat-tires').innerText = state.attributes.tires;
         document.getElementById('stat-rain').innerText = state.attributes.rain;
-
-        // Recursos
+        document.getElementById('stat-cat').innerText = state.category;
         document.getElementById('stat-rep').innerText = state.reputation;
         document.getElementById('stat-money').innerText = formatMoney(state.money);
         document.getElementById('stat-dev').innerText = state.devPoints;
     }
 
-    function renderEvent(eventId) {
-        updateUI(); // Refrescar siempre la UI antes de cargar un evento
+    // Mecanismo selector aleatorio infinito
+    function triggerRandomEvent() {
+        updateUI();
 
-        const event = eventsDB[eventId];
-        
-        // Visuales
-        const imgEl = document.getElementById('event-image');
+        // Control de progresión para cambiar de categoría automáticamente si cumples requisitos
+        if(state.reputation >= 40 && state.category === "Fórmula 3") {
+            state.category = "Fórmula 2";
+            addLog("¡Ascenso oficial a la Fórmula 2 por tu gran reputación!", "success");
+        } else if(state.reputation >= 90 && state.category === "Fórmula 2") {
+            state.category = "Fórmula 1";
+            addLog("¡HAS LLEGADO A LA FÓRMULA 1! El sueño es una realidad.", "success");
+        }
+
+        // Elegir un evento al azar de la lista
+        const randomIndex = Math.floor(Math.random() * randomEvents.length);
+        const event = randomEvents[randomIndex];
+
+        const imgEl = document.getElementById('image-image') || document.getElementById('event-image');
         if(event.image) {
             imgEl.src = event.image;
             imgEl.style.display = 'block';
@@ -485,31 +444,23 @@
             imgEl.style.display = 'none';
         }
 
-        const titleText = typeof event.title === 'function' ? event.title() : event.title;
-        const descText = typeof event.description === 'function' ? event.description() : event.description;
-        
-        document.getElementById('event-title').innerText = titleText;
-        document.getElementById('event-description').innerText = descText;
+        document.getElementById('event-title').innerText = event.title;
+        document.getElementById('event-description').innerText = event.description;
 
-        // Botones
         const choicesPanel = document.getElementById('choices-panel');
         choicesPanel.innerHTML = ''; 
 
         event.choices.forEach(choice => {
-            if (choice.condition && !choice.condition()) return;
-
             const btn = document.createElement('button');
             btn.className = 'choice-btn';
-            btn.innerHTML = `<span>${typeof choice.text === 'function' ? choice.text() : choice.text}</span> <span>➜</span>`;
+            btn.innerHTML = `<span>${choice.text}</span> <span>➜</span>`;
             
             btn.onclick = () => {
-                const nextEventId = choice.action();
-                if(nextEventId) renderEvent(nextEventId);
+                choice.action();
             };
             choicesPanel.appendChild(btn);
         });
     }
-
 </script>
 </body>
 </html>
