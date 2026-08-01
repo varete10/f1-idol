@@ -157,6 +157,7 @@
         #game-container {
             display: none; max-width: 900px; width: 100%; background-color: var(--panel-bg);
             border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); overflow: hidden; border: 1px solid #222; flex-direction: column; margin: auto;
+            transition: border-color 0.2s;
         }
 
         header {
@@ -175,17 +176,46 @@
             vertical-align: middle;
         }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
         .stat-badge { background: #16161d; padding: 10px; border-radius: 8px; font-size: 0.8em; font-weight: 700; border: 1px solid #222; text-align: center; }
         .stat-badge span { display: block; color: var(--accent); font-size: 1.2em; margin-top: 3px; font-weight: 900; }
         .stat-badge .money { color: var(--success); }
         .stat-badge .points { color: var(--warning); }
         .stat-badge .consumable-active { color: var(--success); font-size: 0.95em; }
 
-        /* --- IMAGEN Y MULTIMEDIA --- */
+        /* --- IMAGEN Y MULTIMEDIA CON GAME FEEL --- */
         #image-container { width: 100%; height: 240px; background-color: #000; overflow: hidden; position: relative; }
         #event-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: transform 0.5s; }
         #image-container:hover #event-image { transform: scale(1.03); }
+        
+        .weather-rain-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 180, 216, 0.3), rgba(0, 0, 0, 0.7));
+            pointer-events: none;
+            display: none;
+        }
+
+        /* --- ANIMACIÓN SCREEN SHAKE --- */
+        @keyframes screenShake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-2px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        .shake-active {
+            animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 30px rgba(255, 24, 1, 0.5) !important;
+        }
 
         /* --- HISTORIA Y PANEL DE ACCIÓN --- */
         #story-panel { padding: 30px; font-size: 1.05em; line-height: 1.7; }
@@ -213,1234 +243,809 @@
 
         .brake-track { width: 100%; height: 30px; background: #222; border-radius: 15px; position: relative; overflow: hidden; margin: 20px 0; }
         .brake-target { position: absolute; height: 100%; background: rgba(0, 230, 118, 0.4); border-left: 2px dashed var(--success); border-right: 2px dashed var(--success); }
-        .brake-cursor { position: absolute; width: 6px; height: 100%; background: white; top: 0; left: 0; box-shadow: 0 0 10px white; }
+        .brake-cursor { position: absolute; width: 6px; height: 100%; background: white; top: 0; box-shadow: 0 0 10px white; }
 
-        .rpm-bar { width: 100%; height: 25px; background: #222; border-radius: 12px; position: relative; overflow: hidden; margin: 20px 0; }
-        .rpm-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--success), var(--warning), var(--primary)); transition: width 0.05s linear; }
-
-        .drs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-        .drs-tile { background: #181820; border: 2px solid #2a2a35; height: 70px; border-radius: 8px; font-size: 1.5em; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; color: var(--accent); }
-        .drs-tile:hover { background: #22222d; border-color: var(--accent); }
-
-        /* Elemento de feedback visual integrado dentro del minijuego */
-        .mg-feedback {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.95em;
-            display: none;
-            text-align: center;
-        }
-        .mg-feedback.success { background: rgba(0, 230, 118, 0.15); border: 1px solid var(--success); color: #8cf5bf; }
-        .mg-feedback.danger { background: rgba(255, 24, 1, 0.15); border: 1px solid var(--primary); color: #ff9999; }
-        .mg-feedback.warning { background: rgba(255, 183, 3, 0.15); border: 1px solid var(--warning); color: #ffe680; }
-
-        /* Tarjetas de ofertas de fichajes y tienda */
-        .offer-card { background: #181820; border: 2px solid #2a2a35; border-radius: 10px; padding: 15px; margin-bottom: 15px; text-align: left; transition: all 0.2s; }
-        .offer-card h4 { margin: 0 0 8px 0; color: var(--accent); display: flex; align-items: center; gap: 8px; }
-        .offer-card p { margin: 4px 0; font-size: 0.9em; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
-        .offer-card.renewal { border-color: var(--success); background: rgba(0, 230, 118, 0.05); }
+        .gear-display { font-size: 3em; font-weight: 900; color: var(--accent); font-family: monospace; }
         
-        /* Estilos específicos para consumibles comprados o sin fondos */
-        .offer-card.purchased {
-            border-color: var(--success);
-            background: rgba(0, 230, 118, 0.06);
-            opacity: 0.85;
+        .drs-zone { font-size: 1.2em; font-weight: bold; margin: 15px 0; color: var(--warning); padding: 10px; border: 1px solid var(--warning); border-radius: 8px; display: inline-block;}
+
+        .action-btn { background: var(--text-main); color: var(--bg-dark); border: none; padding: 12px 25px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: transform 0.1s; }
+        .action-btn:active { transform: scale(0.95); }
+
+        /* --- MERCADO Y CONTRATOS --- */
+        .contract-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; text-align: left; }
+        .contract-card { background: #16161d; padding: 15px; border-radius: 8px; border: 1px solid #2a2a35; display: flex; justify-content: space-between; align-items: center; }
+        .contract-card h4 { margin: 0 0 5px 0; font-size: 1.1em; color: var(--accent); }
+        .contract-card p { margin: 0; font-size: 0.85em; color: var(--text-muted); }
+        .contract-btn { background: var(--success); color: #000; border: none; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .contract-btn.disabled { background: #333; color: #666; cursor: not-allowed; }
+
+        /* --- TIENDA I+D --- */
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; margin-bottom: 25px;}
+        .shop-item { background: #181820; padding: 15px; border-radius: 8px; border: 1px solid #2a2a35; display: flex; flex-direction: column; justify-content: space-between; }
+        .shop-item.dev-item { border-left: 4px solid var(--accent); }
+        .shop-item h4 { margin: 0 0 5px 0; display: flex; justify-content: space-between; align-items: center; }
+        .shop-item p { font-size: 0.8em; color: var(--text-muted); margin: 0 0 10px 0; }
+        .buy-btn { background: var(--success); color: #000; border: none; padding: 8px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .buy-btn.dev-btn { background: var(--accent); }
+        .buy-btn.disabled { background: #333; color: #666; cursor: not-allowed; }
+
+        .dev-points-header { margin-top: 20px; margin-bottom: 15px; color: var(--accent); border-bottom: 1px solid #333; padding-bottom: 5px; text-align: left;}
+
+        #notification {
+            position: fixed; top: 20px; right: 20px; background: rgba(0, 240, 255, 0.9); color: #000;
+            padding: 15px 25px; border-radius: 8px; font-weight: bold; transform: translateX(150%);
+            transition: transform 0.3s; z-index: 2000; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
-        .offer-card.no-funds {
-            border-color: #3a2225;
-            background: rgba(255, 24, 1, 0.03);
-            opacity: 0.65;
+        #notification.show { transform: translateX(0); }
+        #notification.danger { background: rgba(255, 24, 1, 0.9); color: white; }
+
+        /* --- SALÓN DE LA FAMA (RETIRO) --- */
+        .hall-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0; }
+        .hall-stat-box { background: #121216; padding: 15px; border: 1px solid #333; border-radius: 8px; }
+        .hall-stat-box span { display: block; font-size: 2em; color: var(--primary); font-weight: 900; }
+        
+        .history-timeline { text-align: left; margin-top: 20px; max-height: 200px; overflow-y: auto; background: #08080a; padding: 15px; border-radius: 8px; border: 1px solid #222; }
+        .history-item { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #222; font-size: 0.9em; }
+        .history-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 999; backdrop-filter: blur(5px);
         }
 
-        /* Consola de logs inferior */
-        #log-panel { background-color: #050507; padding: 15px 30px; font-size: 0.85em; color: #777; height: 110px; overflow-y: auto; border-top: 1px solid #1a1a22; }
-        #log-list { list-style: none; padding: 0; margin: 0; }
-        #log-list li { margin-bottom: 6px; border-left: 3px solid #333; padding-left: 10px; }
-        #log-list li.success { border-left-color: var(--success); color: #8cf5bf; }
-        #log-list li.danger { border-left-color: var(--primary); color: #ff9999; }
-        #log-list li.warning { border-left-color: var(--warning); color: #ffe680; }
     </style>
 </head>
 <body>
 
-<!-- PANTALLA DE CREACIÓN -->
-<div id="setup-container">
-    <div class="app-logo-container">
-        <div class="f1-logo-badge">
-            <span class="f1-logo-text">F1</span>
-        </div>
-        <div class="app-title-group">
-            <h1>Apex Legend</h1>
-            <span>Gestión & Paddock</span>
-        </div>
-    </div>
+    <div id="notification"></div>
+    <div id="modal-overlay" class="modal-overlay"></div>
 
-    <p style="color: var(--text-muted); margin-bottom: 25px;"><i class="fa-solid id-card"></i> Define tu identidad y edad inicial antes de entrar al Paddock.</p>
-    
-    <div class="form-group">
-        <label><i class="fa-solid fa-user"></i> Nombre del Piloto</label>
-        <input type="text" id="input-name" placeholder="Ej: Fernando Alonso" autocomplete="off">
-    </div>
-
-    <div class="form-group">
-        <label><i class="fa-solid fa-earth-americas"></i> País de Origen</label>
-        <select id="input-country">
-            <option value="es">España</option>
-            <option value="ar">Argentina</option>
-            <option value="mx">México</option>
-            <option value="co">Colombia</option>
-            <option value="br">Brasil</option>
-            <option value="gb">Reino Unido</option>
-            <option value="it">Italia</option>
-            <option value="fr">Francia</option>
-            <option value="de">Alemania</option>
-            <option value="nl">Países Bajos</option>
-            <option value="mc">Mónaco</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label><i class="fa-solid fa-cake-candles"></i> Edad de Inicio</label>
-        <select id="input-age">
-            <option value="18">18 Años (Joven Promesa - Larga carrera)</option>
-            <option value="22" selected>22 Años (Estándar - Equilibrio ideal)</option>
-            <option value="28">28 Años (Veterano en Plenitud - Experiencia alta)</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label><i class="fa-solid fa-gauge-high"></i> Estilo de Pilotaje</label>
-        <div class="archetypes">
-            <div class="archetype-card selected" onclick="selectArchetype(this, 'agresivo')">
-                <h4><i class="fa-solid fa-fire text-danger" style="color:var(--primary);"></i> Kamikaze</h4>
-                <p>Alto riesgo, adelantamientos imposibles y máxima garra.</p>
-            </div>
-            <div class="archetype-card" onclick="selectArchetype(this, 'calculador')">
-                <h4><i class="fa-solid fa-brain" style="color:var(--accent);"></i> Calculador</h4>
-                <p>Estratega de gomas, excelente gestión a distancia.</p>
-            </div>
-            <div class="archetype-card" onclick="selectArchetype(this, 'lluvia')">
-                <h4><i class="fa-solid fa-cloud-rain" style="color:#00b4d8;"></i> Mago del Agua</h4>
-                <p>Maestría absoluta en condiciones de asfalto mojado.</p>
-            </div>
-            <div class="archetype-card" onclick="selectArchetype(this, 'puro')">
-                <h4><i class="fa-solid fa-bolt" style="color:var(--warning);"></i> Talento Puro</h4>
-                <p>Velocidad explosiva a una vuelta en clasificación.</p>
+    <!-- PANTALLA DE CREACIÓN -->
+    <div id="setup-container">
+        <div class="app-logo-container">
+            <div class="f1-logo-badge"><span class="f1-logo-text">F1</span></div>
+            <div class="app-title-group">
+                <h1>F1 Legend</h1>
+                <span>Arcade Simulator</span>
             </div>
         </div>
-    </div>
-
-    <button class="start-btn" onclick="initGame()"><i class="fa-solid fa-flag-checkered"></i> Comenzar Trayectoria</button>
-</div>
-
-<!-- MODAL DE RESUMEN DE TEMPORADA -->
-<div id="season-summary-modal">
-    <h2 id="summary-title" style="color: var(--primary); text-transform: uppercase; margin-top: 0; display:flex; align-items:center; justify-content:center; gap:10px;"><i class="fa-solid fa-trophy"></i> Fin de Temporada</h2>
-    <p id="summary-text" style="color: var(--text-muted); text-align: left; line-height: 1.6;"></p>
-    <button class="start-btn" onclick="openMarketWindow()"><i class="fa-solid fa-handshake"></i> Ir al Mercado de Fichajes</button>
-</div>
-
-<!-- MODAL DE MERCADO DE FICHAJES -->
-<div id="market-modal">
-    <h2 style="color: var(--accent); text-transform: uppercase; margin-top: 0; display:flex; align-items:center; justify-content:center; gap:10px;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Mercado de Fichajes & Renovaciones</h2>
-    <p style="color: var(--text-muted); margin-bottom: 20px;">Tu contrato actual ha expirado. Tu escudería actual te ofrece renovar directamente, o puedes valorar otras opciones en el paddock:</p>
-    <div id="offers-list"></div>
-</div>
-
-<!-- MODAL DE TIENDA R&D & CONSUMIBLES -->
-<div id="shop-modal">
-    <h2 style="color: var(--accent); text-transform: uppercase; margin-top: 0; display:flex; align-items:center; justify-content:center; gap:10px;"><i class="fa-solid fa-shop"></i> Tienda del Equipo & R&D</h2>
-    <p style="color: var(--text-muted); margin-bottom: 20px;">Utiliza tus fondos para adquirir consumibles temporales (para el siguiente evento) o mejoras permanentes en el monoplaza.</p>
-    
-    <h3 style="color: var(--text-main); text-align: left; border-bottom: 1px solid #222; padding-bottom: 5px; font-size: 1em; text-transform: uppercase; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-bolt-lightning text-warning" style="color:var(--warning);"></i> Consumibles Temporales (Próximo Evento)</h3>
-    <div id="shop-temp-list" style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;"></div>
-
-    <h3 style="color: var(--text-main); text-align: left; border-bottom: 1px solid #222; padding-bottom: 5px; font-size: 1em; text-transform: uppercase; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-gears" style="color:var(--accent);"></i> Mejoras Permanentes (Inversión Alta)</h3>
-    <div id="shop-perm-list" style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px;"></div>
-
-    <button class="start-btn" style="background: #2a2a35;" onclick="closeShopModal()"><i class="fa-solid fa-xmark"></i> Cerrar Tienda</button>
-</div>
-
-<!-- MODAL DE SALÓN DE LA FAMA / HISTORIAL DE CARRERA (FIN DE JUEGO) -->
-<div id="career-hall-modal">
-    <h2 style="color: var(--warning); text-transform: uppercase; margin-top: 0; display:flex; align-items:center; justify-content:center; gap:10px;"><i class="fa-solid fa-medal"></i> Leyenda del Automovilismo: Retirada</h2>
-    <p id="hall-subtitle" style="color: var(--text-muted); margin-bottom: 15px;"></p>
-    <div id="hall-content" style="text-align: left; max-height: 50vh; overflow-y: auto; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;"></div>
-    <button class="start-btn" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> Iniciar Nueva Carrera</button>
-</div>
-
-<!-- INTERFAZ PRINCIPAL -->
-<div id="game-container">
-    <header>
-        <div class="driver-info">
-            <span id="ui-driver-name"><i class="fa-solid fa-user-helmet-safety"></i> Piloto</span>
-            <div class="country-display">
-                <img id="ui-driver-flag" class="flag-icon" src="" alt="Bandera">
-                <span id="ui-driver-country-name">España</span>
-            </div>
-        </div>
-        <div class="stats-grid">
-            <div class="stat-badge"><i class="fa-solid fa-gauge"></i> Ritmo<span id="stat-pace">0</span></div>
-            <div class="stat-badge"><i class="fa-solid fa-fire"></i> Agresividad<span id="stat-aggro">0</span></div>
-            <div class="stat-badge"><i class="fa-solid fa-car-burst"></i> Gomas<span id="stat-tires">0</span></div>
-            <div class="stat-badge"><i class="fa-solid fa-cloud-rain"></i> Lluvia<span id="stat-rain">0</span></div>
-        </div>
-        <!-- Panel de consumibles activos en estadísticas -->
-        <div class="stats-grid" style="border-top: 1px solid #1a1a22; padding-top: 10px;">
-            <div class="stat-badge"><i class="fa-solid fa-gas-pump"></i> Gasolina<span id="consumable-stat-pace" class="consumable-active">Ninguno</span></div>
-            <div class="stat-badge"><i class="fa-solid fa-fire-flame-curved"></i> Aditivo<span id="consumable-stat-aggro" class="consumable-active">Ninguno</span></div>
-            <div class="stat-badge"><i class="fa-solid fa-glasses"></i> Visera<span id="consumable-stat-rain" class="consumable-active">Ninguno</span></div>
-            <div class="stat-badge"><i class="fa-solid fa-wallet"></i> Fondos<span id="stat-money" class="money">0</span></div>
-        </div>
-        <div class="stats-grid" style="border-top: 1px solid #1a1a22; padding-top: 10px;">
-            <div class="stat-badge"><i class="fa-solid fa-cake-candles"></i> Edad<span id="stat-age">0</span></div>
-            <div class="stat-badge"><i class="fa-solid fa-calendar-days"></i> Temporada<span id="stat-season">1</span></div>
-            <div class="stat-badge"><i class="fa-solid fa-star"></i> Reputación<span id="stat-rep">0</span></div>
-            <div class="stat-badge" style="display:flex; align-items:center; justify-content:center;"><button class="start-btn" style="padding: 6px 10px; font-size: 0.75em; width: 100%; background-color: var(--accent); color: #000; font-weight: 900;" onclick="openShopModal()"><i class="fa-solid fa-shop"></i> Tienda R&D</button></div>
-        </div>
-    </header>
-
-    <div id="image-container">
-        <img id="event-image" src="" alt="F1 Visual">
-    </div>
-
-    <div id="story-panel">
-        <h2 id="event-title">Cargando...</h2>
-        <p id="event-description">...</p>
-    </div>
-
-    <!-- PANEL DE MINIJUEGOS INTERACTIVOS -->
-    <div id="minigame-panel"></div>
-
-    <div id="choices-panel"></div>
-
-    <div id="log-panel">
-        <ul id="log-list"></ul>
-    </div>
-</div>
-
-<script>
-    const countriesData = {
-        es: { name: "España" },
-        ar: { name: "Argentina" },
-        mx: { name: "México" },
-        co: { name: "Colombia" },
-        br: { name: "Brasil" },
-        gb: { name: "Reino Unido" },
-        it: { name: "Italia" },
-        fr: { name: "Francia" },
-        de: { name: "Alemania" },
-        nl: { name: "Países Bajos" },
-        mc: { name: "Mónaco" }
-    };
-
-    const teamCatalog = {
-        "Prema F3 (Academy)": { level: "Medio-Bajo (F3)", baseSalary: 50000 },
-        "Hitech Grand Prix": { level: "Medio (F3)", baseSalary: 75000 },
-        "Trident Racing": { level: "Competitivo (F3)", baseSalary: 90000 },
-        "Carlin Motorsport (F2)": { level: "Competitivo (F2)", baseSalary: 150000 },
-        "ART Grand Prix (F2)": { level: "Top (F2)", baseSalary: 180000 },
-        "Williams Racing (F1)": { level: "Desarrollo (F1)", baseSalary: 350000 },
-        "Alpine F1 Team": { level: "Punto de mira (F1)", baseSalary: 800000 },
-        "Scuderia Ferrari": { level: "Leyenda / Podio (F1)", baseSalary: 1500000 },
-        "Red Bull Racing": { level: "Campeonato Mundial (F1)", baseSalary: 2000000 }
-    };
-
-    let state = {
-        name: "Rookie",
-        countryCode: "es",
-        age: 22,
-        team: "Prema F3 (Academy)",
-        season: 1,
-        eventsCompleted: 0,
-        money: 80000,
-        reputation: 15,
-        devPoints: 1,
-        attributes: { pace: 45, aggression: 45, tires: 45, rain: 45 },
-        temporaryBoosts: { pace: 0, aggression: 0, rain: 0 },
-        statsRecord: { wins: 0, podiums: 0, crashes: 0 },
-        careerHistory: []
-    };
-
-    let selectedArchetype = 'agresivo';
-    let lastEventIndex = -1;
-
-    function selectArchetype(element, type) {
-        document.querySelectorAll('.archetype-card').forEach(c => c.classList.remove('selected'));
-        element.classList.add('selected');
-        selectedArchetype = type;
-    }
-
-    function getFlagUrl(code) {
-        return `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
-    }
-
-    function getStat(statName) {
-        const base = state.attributes[statName] || 0;
-        const temp = state.temporaryBoosts && state.temporaryBoosts[statName] ? state.temporaryBoosts[statName] : 0;
-        return base + temp;
-    }
-
-    function initGame() {
-        const nameInput = document.getElementById('input-name').value.trim();
-        state.name = nameInput === "" ? "Rookie" : nameInput;
-        state.countryCode = document.getElementById('input-country').value;
-        state.age = parseInt(document.getElementById('input-age').value) || 22;
-
-        if(selectedArchetype === 'agresivo') { state.attributes.aggression += 25; state.attributes.tires -= 10; }
-        else if(selectedArchetype === 'calculador') { state.attributes.tires += 20; state.attributes.pace += 5; }
-        else if(selectedArchetype === 'lluvia') { state.attributes.rain += 30; state.attributes.pace -= 5; }
-        else if(selectedArchetype === 'puro') { state.attributes.pace += 25; state.attributes.aggression -= 10; }
-
-        document.getElementById('setup-container').style.display = 'none';
-        document.getElementById('game-container').style.display = 'flex';
-
-        updateUI();
-        const countryName = countriesData[state.countryCode].name;
-        addLog(`Bienvenido al gran circo, ${state.name} <img src="${getFlagUrl(state.countryCode)}" class="flag-icon"> (${countryName}, ${state.age} años). Tu carrera da comienzo en ${state.team}.`, "success");
-        triggerRandomEvent();
-    }
-
-    // --- BANCO MASIVO DE EVENTOS EXCLUSIVOS DE FÓRMULA 1 ---
-    const randomEvents = [
-        {
-            title: "Semáforo en Blanco: La Salida",
-            image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1000&auto=format&fit=crop",
-            description: "Los monoplazas monoplaza de competición de máxima categoría toman posiciones en la parrilla. Los cinco semáforos rojos empiezan a encenderse uno a uno... ¡Pulsa cuando se apaguen!",
-            isMinigame: true,
-            minigameType: "startLights"
-        },
-        {
-            title: "Frenada Crítica al Final de Recta",
-            image: "https://images.unsplash.com/photo-1508020282124-3b2d16c29b13?q=80&w=1000&auto=format&fit=crop",
-            description: "Vienes rebufando a tu rival principal en plena recta de alta velocidad. Hay que clavar los frenos carbón-carbón de un F1 en el cartel exacto.",
-            isMinigame: true,
-            minigameType: "hardBrake"
-        },
-        {
-            title: "Salida fulgurante: Cambio de Marchas",
-            image: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=1000&auto=format&fit=crop",
-            description: "Es momento de engranar marchas con las levas del volante con precisión milimétrica. Pulsa 'Iniciar Aceleración' y sube de marcha en el momento óptimo.",
-            isMinigame: true,
-            minigameType: "shiftTiming"
-        },
-        {
-            title: "Zona de Activación de DRS",
-            image: "https://images.unsplash.com/photo-1541443131876-44b032227854?q=80&w=1000&auto=format&fit=crop",
-            description: "Te sitúas a menos de un segundo del coche de delante. El sistema DRS parpadea en tu volante. ¡Encuentra el panel activo para abrir el alerón trasero!",
-            isMinigame: true,
-            minigameType: "drsActivation"
-        },
-        {
-            title: "Duelo cuerpo a cuerpo en la chicane",
-            image: "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1000&auto=format&fit=crop",
-            description: "Tu rival te cierra la puerta bruscamente con su monoplaza en una chicane estrecha. ¿Intentas arriesgar por el piano exterior o levantas?",
-            choices: [
-                {
-                    text: "Tirarme por el exterior arriesgando el alerón",
-                    action: () => {
-                        if(getStat('aggression') > 55) {
-                            state.reputation += 15; state.statsRecord.wins++;
-                            addLog("¡Maniobra brillante y valiente por fuera! Mantienes el monoplaza y ganas la posición.", "success");
-                        } else {
-                            state.money -= 12000; state.reputation -= 5; state.statsRecord.crashes++;
-                            addLog("Calculas mal la adherencia exterior y golpeas el muro de contención con el pontón.", "danger");
-                        }
-                        progressEvent();
-                    }
-                },
-                {
-                    text: "Levantar el pie con prudencia táctica",
-                    action: () => {
-                        state.money += 8000; state.statsRecord.podiums++;
-                        addLog("Evitas un accidente innecesario de monoplazas y aseguras puntos estables para el campeonato.");
-                        progressEvent();
-                    }
-                }
-            ]
-        },
-        {
-            title: "Llamada de emergencia en boxes: El Clima",
-            image: "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?q=80&w=1000&auto=format&fit=crop",
-            description: "Empiezan a caer relámpagos sobre el asfalto. El ingeniero grita por radio: '¿Qué hacemos con los neumáticos de seco? ¿Ponemos intermedios de lluvia?'",
-            choices: [
-                {
-                    text: "Quedarme en pista con slicks confiando en mi tacto",
-                    action: () => {
-                        if(getStat('rain') > 60) {
-                            state.reputation += 20; state.money += 35000; state.statsRecord.wins++;
-                            addLog("¡Espectáculo puro bajo el diluvio! Controlas el monoplaza a la perfección.", "success");
-                        } else {
-                            state.money -= 25000; state.statsRecord.crashes++;
-                            addLog("Patinas en la primera curva mojada y destrozas el suelo plano aerodinámico del coche.", "danger");
-                        }
-                        progressEvent();
-                    }
-                },
-                {
-                    text: "Entrar a boxes a montar compuesto intermedio de lluvia",
-                    action: () => {
-                        state.devPoints += 1; state.statsRecord.podiums++;
-                        addLog("Parada conservadora limpia en el pit lane. Ganas confianza y recoges telemetría (+1 Puntos Dev).");
-                        progressEvent();
-                    }
-                }
-            ]
-        },
-        {
-            title: "Pregunta trampa de la Prensa en el Paddock",
-            image: "https://images.unsplash.com/photo-1538561558231-1e967a5b3a44?q=80&w=1000&auto=format&fit=crop",
-            description: "Un periodista te pregunta directamente en el corralito de prensa: '¿Es verdad que tu unidad de potencia actual es una basura y por eso no logras la pole?'",
-            choices: [
-                {
-                    text: "Cargar duramente contra los motoristas y el equipo",
-                    action: () => {
-                        state.reputation -= 15;
-                        addLog("Tus mecánicos y los ingenieros de fábrica están furiosos tras tus declaraciones.", "danger");
-                        progressEvent();
-                    }
-                },
-                {
-                    text: "Elogiar el trabajo duro del equipo en la fábrica",
-                    action: () => {
-                        state.reputation += 10; state.money += 15000;
-                        addLog("El equipo te adora por tu lealtad corporativa. Los patrocinadores te recompensan.");
-                        progressEvent();
-                    }
-                }
-            ]
-        },
-        {
-            title: "Oferta de Patrocinio Comercial",
-            image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1000&auto=format&fit=crop",
-            description: "Una marca internacional de alta relojería te ofrece un contrato lucrativo pero te exige asistir a largas sesiones de marketing previas al Gran Premio.",
-            choices: [
-                {
-                    text: "Aceptar el contrato y el dinero extra",
-                    action: () => {
-                        state.money += 40000; state.attributes.pace -= 2;
-                        addLog("Cofres llenos de dinero, aunque tus horas en el simulador del equipo se han reducido ligeramente.");
-                        progressEvent();
-                    }
-                },
-                {
-                    text: "Rechazarlo para centrarte 100% en el rendimiento deportivo",
-                    action: () => {
-                        state.attributes.pace += 3; state.reputation += 5;
-                        addLog("Priorizas la gloria en pista. Tu enfoque con el monoplaza es absoluto.");
-                        progressEvent();
-                    }
-                }
-            ]
-        },
-        {
-            title: "Fallo Mecánico Crítico en Clasificación",
-            image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1000&auto=format&fit=crop",
-            description: "A falta de dos minutos para terminar la Q3, notas una pérdida grave de presión hidráulica en la dirección asistida de tu monoplaza.",
-            choices: [
-                {
-                    text: "Arriesgar y salir a marcar un último tiempo a ciegas",
-                    action: () => {
-                        if(getStat('pace') > 55) {
-                            state.reputation += 12; state.statsRecord.wins++;
-                            addLog("¡Vuelta heroica sin dirección asistida! Te metes entre los tres primeros de la parrilla.", "success");
-                        } else {
-                            state.money -= 20000; state.statsRecord.crashes++;
-                            addLog("El sistema falla por completo en la frenada y golpeas las barreras TECPRO.", "danger");
-                        }
-                        progressEvent();
-                    }
-                },
-                {
-                    text: "Abortar la vuelta y guardar el motor en el box",
-                    action: () => {
-                        state.reputation -= 5;
-                        addLog("Salvas componentes valiosos de la unidad de potencia, pero sales retrasado.");
-                        progressEvent();
-                    }
-                }
-            ]
-        },
-        {
-            title: "Tensión en el muro con tu Ingeniero",
-            image: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=1000&auto=format&fit=crop",
-            description: "Tu ingeniero te pide por radio que dejes pasar a tu compañero de equipo por órdenes de jerarquía. Vas visiblemente más rápido que él.",
-            choices: [
-                {
-                    text: "Ignorar la orden de equipo y adelantarle sin piedad",
-                    action: () => {
-                        state.reputation += 10; state.attributes.aggression += 3; state.statsRecord.wins++;
-                        addLog("Demuestras carácter ganador al volante. La afición enloquece con tu arrojo.", "success");
-                        progressEvent();
-                    }
-                },
-                {
-                    text: "Obedecer disciplinadamente las órdenes del muro",
-                    action: () => {
-                        state.money += 20000; state.reputation += 5; state.statsRecord.podiums++;
-                        addLog("El jefe de equipo premia tu profesionalidad y compromiso con el constructor.");
-                        progressEvent();
-                    }
-                }
-            ]
-        },
-        {
-            title: "Pruebas de Aerodinámica en el túnel de viento",
-            image: "https://images.unsplash.com/photo-1508020282124-3b2d16c29b13?q=80&w=1000&auto=format&fit=crop",
-            description: "Tienes la oportunidad de probar un nuevo paquete de pontones y alerón trasero experimental diseñado para mejorar la carga aerodinámica en curvas rápidas.",
-            choices: [
-                {
-                    text: "Probarlo a fondo asumiendo posible inestabilidad trasera",
-                    action: () => {
-                        state.attributes.pace += 4; state.devPoints += 1;
-                        addLog("El nuevo paquete aerodinámico responde de maravilla en las curvas de alta velocidad.");
-                        progressEvent();
-                    }
-                },
-                {
-                    text: "Descartarlo y mantener la configuración conservadora estable",
-                    action: () => {
-                        state.attributes.tires += 3;
-                        addLog("Mantienes el equilibrio óptimo del monoplaza sin sorpresas de última hora.");
-                        progressEvent();
-                    }
-                }
-            ]
-        },
-        {
-            title: "Incidente en el Pit Lane con los mecánicos",
-            image: "https://images.unsplash.com/photo-1541443131876-44b032227854?q=80&w=1000&auto=format&fit=crop",
-            description: "Durante una parada caótica en boxes, frenas tarde en tu cajón y golpeas ligeramente el gato delantero. El mecánico principal se asusta pero está bien.",
-            choices: [
-                {
-                    text: "Disculparte personalmente y regalarles una cena al equipo",
-                    action: () => {
-                        state.money -= 10000; state.reputation += 10;
-                        addLog("Tus mecánicos te perdonan al instante y redoblan esfuerzos en las siguientes paradas.", "success");
-                        progressEvent();
-                    }
-                },
-                {
-                    text: "Culpar al sistema automático del semáforo del box",
-                    action: () => {
-                        state.reputation -= 10;
-                        addLog("El ambiente en el garaje del equipo se vuelve frío y distante tras tus reproches.", "danger");
-                        progressEvent();
-                    }
-                }
-            ]
-        }
-    ];
-
-    function formatMoney(num) {
-        if(num >= 1000000) return (num / 1000000).toFixed(1) + "M$";
-        if(num >= 1000) return (num / 1000).toFixed(0) + "k$";
-        return num + "$";
-    }
-
-    function addLog(message, type = "normal") {
-        const logList = document.getElementById('log-list');
-        const newLog = document.createElement('li');
-        if(type !== "normal") newLog.className = type;
-        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        newLog.innerHTML = `[${time}] ${message}`;
-        logList.insertBefore(newLog, logList.firstChild);
-    }
-
-    function updateUI() {
-        const countryInfo = countriesData[state.countryCode];
-        document.getElementById('ui-driver-name').innerHTML = `<i class="fa-solid fa-user-helmet-safety"></i> ${state.name}`;
-        document.getElementById('ui-driver-flag').src = getFlagUrl(state.countryCode);
-        document.getElementById('ui-driver-country-name').innerText = countryInfo.name;
-        document.getElementById('stat-pace').innerText = getStat('pace');
-        document.getElementById('stat-aggro').innerText = getStat('aggression');
-        document.getElementById('stat-tires').innerText = getStat('tires');
-        document.getElementById('stat-rain').innerText = getStat('rain');
-        document.getElementById('stat-age').innerText = state.age;
-        document.getElementById('stat-season').innerText = state.season;
-        document.getElementById('stat-rep').innerText = state.reputation;
-        document.getElementById('stat-money').innerText = formatMoney(state.money);
-
-        // Actualizar estados visuales de consumibles en estadísticas
-        const paceBoost = state.temporaryBoosts.pace || 0;
-        const aggroBoost = state.temporaryBoosts.aggression || 0;
-        const rainBoost = state.temporaryBoosts.rain || 0;
-
-        const paceStatEl = document.getElementById('consumable-stat-pace');
-        const aggroStatEl = document.getElementById('consumable-stat-aggro');
-        const rainStatEl = document.getElementById('consumable-stat-rain');
-
-        if(paceBoost > 0) {
-            paceStatEl.innerText = `+${paceBoost} (Activo)`;
-            paceStatEl.style.color = "var(--success)";
-        } else {
-            paceStatEl.innerText = "Ninguno";
-            paceStatEl.style.color = "var(--text-muted)";
-        }
-
-        if(aggroBoost > 0) {
-            aggroStatEl.innerText = `+${aggroBoost} (Activo)`;
-            aggroStatEl.style.color = "var(--success)";
-        } else {
-            aggroStatEl.innerText = "Ninguno";
-            aggroStatEl.style.color = "var(--text-muted)";
-        }
-
-        if(rainBoost > 0) {
-            rainStatEl.innerText = `+${rainBoost} (Activo)`;
-            rainStatEl.style.color = "var(--success)";
-        } else {
-            rainStatEl.innerText = "Ninguno";
-            rainStatEl.style.color = "var(--text-muted)";
-        }
-    }
-
-    // --- TIENDA Y R&D ---
-    function openShopModal() {
-        document.getElementById('shop-modal').style.display = 'block';
-        renderShopItems();
-    }
-
-    function closeShopModal() {
-        document.getElementById('shop-modal').style.display = 'none';
-        updateUI();
-    }
-
-    function renderShopItems() {
-        const tempContainer = document.getElementById('shop-temp-list');
-        const permContainer = document.getElementById('shop-perm-list');
         
-        const paceBoost = state.temporaryBoosts.pace || 0;
-        const aggroBoost = state.temporaryBoosts.aggression || 0;
-        const rainBoost = state.temporaryBoosts.rain || 0;
+        <p style="color: var(--text-muted); margin-bottom: 25px;">Crea a tu piloto, firma un contrato y forja tu leyenda carrera a carrera.</p>
 
-        const paceCost = 12000;
-        const aggroCost = 10000;
-        const rainCost = 10000;
+        <div class="form-group">
+            <label for="driver-name"><i class="fa-solid fa-helmet-safety"></i> Nombre del Piloto</label>
+            <input type="text" id="driver-name" placeholder="Ej: Max Verstappen" autocomplete="off">
+        </div>
 
-        // Comprobación de fondos y estados
-        const hasPaceFunds = state.money >= paceCost;
-        const hasAggroFunds = state.money >= aggroCost;
-        const hasRainFunds = state.money >= rainCost;
+        <div class="form-group">
+            <label for="driver-country"><i class="fa-solid fa-flag"></i> Nacionalidad (Bandera)</label>
+            <select id="driver-country">
+                <option value="es">España 🇪🇸</option>
+                <option value="gb">Reino Unido 🇬🇧</option>
+                <option value="mx">México 🇲🇽</option>
+                <option value="it">Italia 🇮🇹</option>
+                <option value="fr">Francia 🇫🇷</option>
+                <option value="de">Alemania 🇩🇪</option>
+                <option value="nl">Países Bajos 🇳🇱</option>
+                <option value="br">Brasil 🇧🇷</option>
+                <option value="ar">Argentina 🇦🇷</option>
+                <option value="us">EE. UU. 🇺🇸</option>
+                <option value="jp">Japón 🇯🇵</option>
+            </select>
+        </div>
 
-        // Tarjeta Gasolina
-        let paceCardClass = "offer-card";
-        let paceBtnHtml = `<button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'pace', 15, ${paceCost})"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>`;
-        if (paceBoost > 0) {
-            paceCardClass = "offer-card purchased";
-            paceBtnHtml = `<span style="color:var(--success); font-weight:bold; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-circle-check"></i> Ya Comprado</span>`;
-        } else if (!hasPaceFunds) {
-            paceCardClass = "offer-card no-funds";
-            paceBtnHtml = `<button class="start-btn disabled" style="padding:6px 12px; font-size:0.8em; width:auto;" disabled><i class="fa-solid fa-ban"></i> Sin Fondos</button>`;
-        }
-
-        // Tarjeta Aditivo
-        let aggroCardClass = "offer-card";
-        let aggroBtnHtml = `<button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'aggression', 15, ${aggroCost})"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>`;
-        if (aggroBoost > 0) {
-            aggroCardClass = "offer-card purchased";
-            aggroBtnHtml = `<span style="color:var(--success); font-weight:bold; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-circle-check"></i> Ya Comprado</span>`;
-        } else if (!hasAggroFunds) {
-            aggroCardClass = "offer-card no-funds";
-            aggroBtnHtml = `<button class="start-btn disabled" style="padding:6px 12px; font-size:0.8em; width:auto;" disabled><i class="fa-solid fa-ban"></i> Sin Fondos</button>`;
-        }
-
-        // Tarjeta Visera
-        let rainCardClass = "offer-card";
-        let rainBtnHtml = `<button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'rain', 15, ${rainCost})"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>`;
-        if (rainBoost > 0) {
-            rainCardClass = "offer-card purchased";
-            rainBtnHtml = `<span style="color:var(--success); font-weight:bold; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-circle-check"></i> Ya Comprado</span>`;
-        } else if (!hasRainFunds) {
-            rainCardClass = "offer-card no-funds";
-            rainBtnHtml = `<button class="start-btn disabled" style="padding:6px 12px; font-size:0.8em; width:auto;" disabled><i class="fa-solid fa-ban"></i> Sin Fondos</button>`;
-        }
-
-        tempContainer.innerHTML = `
-            <div class="${paceCardClass}" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h4 style="margin:0; color:var(--accent);"><i class="fa-solid fa-gas-pump"></i> Gasolina de Alto Octanaje (+15 Ritmo)</h4>
-                    <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
+        <div class="form-group">
+            <label><i class="fa-solid fa-dna"></i> Estilo de Pilotaje (Arquetipo)</label>
+            <div class="archetypes">
+                <div class="archetype-card selected" data-type="aggressor">
+                    <h4><i class="fa-solid fa-fire"></i> El Kamikaze</h4>
+                    <p>Agresividad altísima. El rey de las frenadas tardías. Gasta más goma y choca más.</p>
                 </div>
-                <div style="text-align:right;">
-                    <span style="color:${paceBoost > 0 ? 'var(--success)' : (hasPaceFunds ? 'var(--success)' : 'var(--primary)');} font-weight:bold; display:block; margin-bottom:5px;">${formatMoney(paceCost)}</span>
-                    ${paceBtnHtml}
+                <div class="archetype-card" data-type="professor">
+                    <h4><i class="fa-solid fa-calculator"></i> El Profesor</h4>
+                    <p>Ritmo puro y cuidado de neumáticos extremo. Menos agresivo en el cuerpo a cuerpo.</p>
+                </div>
+                <div class="archetype-card" data-type="rain">
+                    <h4><i class="fa-solid fa-cloud-rain"></i> Mago del Agua</h4>
+                    <p>Imbatible en condiciones mixtas o lluvia. Estadísticas promedio en seco.</p>
+                </div>
+                <div class="archetype-card" data-type="balanced">
+                    <h4><i class="fa-solid fa-scale-balanced"></i> El Metódico</h4>
+                    <p>Equilibrado en todo. Sin debilidades graves, sin genialidades innatas.</p>
                 </div>
             </div>
-            <div class="${aggroCardClass}" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h4 style="margin:0; color:var(--accent);"><i class="fa-solid fa-fire-flame-curved"></i> Aditivo de Neumáticos (+15 Agresividad)</h4>
-                    <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
-                </div>
-                <div style="text-align:right;">
-                    <span style="color:${aggroBoost > 0 ? 'var(--success)' : (hasAggroFunds ? 'var(--success)' : 'var(--primary)');} font-weight:bold; display:block; margin-bottom:5px;">${formatMoney(aggroCost)}</span>
-                    ${aggroBtnHtml}
-                </div>
-            </div>
-            <div class="${rainCardClass}" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h4 style="margin:0; color:var(--accent);"><i class="fa-solid fa-glasses"></i> Visera Hidrófuga Especial (+15 Lluvia)</h4>
-                    <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
-                </div>
-                <div style="text-align:right;">
-                    <span style="color:${rainBoost > 0 ? 'var(--success)' : (hasRainFunds ? 'var(--success)' : 'var(--primary)');} font-weight:bold; display:block; margin-bottom:5px;">${formatMoney(rainCost)}</span>
-                    ${rainBtnHtml}
-                </div>
-            </div>
-        `;
+        </div>
 
-        // Mejoras permanentes comprobando fondos
-        const permItems = [
-            { id: 'pace', title: 'Simulador Avanzado de Fábrica (+2 Ritmo Perm.)', cost: 60000, stat: 'pace', val: 2 },
-            { id: 'aggression', title: 'Entrenamiento Psicológico & Reflejos (+2 Agres. Perm.)', cost: 55000, stat: 'aggression', val: 2 },
-            { id: 'tires', title: 'Especialista en Degradación de Gomas (+2 Gomas Perm.)', cost: 60000, stat: 'tires', val: 2 },
-            { id: 'rain', title: 'Túnel de Viento para Pista Mojada (+2 Lluvia Perm.)', cost: 65000, stat: 'rain', val: 2 }
+        <button class="start-btn" onclick="startGame()">Comenzar Carrera <i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL DEL JUEGO -->
+    <div id="game-container">
+        <header>
+            <div class="driver-info">
+                <span id="ui-name">Piloto</span>
+                <div class="country-display">
+                    <img id="ui-flag" src="https://flagcdn.com/w40/es.png" class="flag-icon" alt="Bandera">
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <!-- TOP ROW: Atributos y Puntos R&D -->
+                <div class="stat-badge"><i class="fa-solid fa-tachometer-fast"></i> Ritmo<span id="stat-pace">45</span></div>
+                <div class="stat-badge"><i class="fa-solid fa-fire"></i> Agres.<span id="stat-aggro">45</span></div>
+                <div class="stat-badge"><i class="fa-solid fa-ring"></i> Goma<span id="stat-tires">45</span></div>
+                <div class="stat-badge"><i class="fa-solid fa-cloud-rain"></i> Lluvia<span id="stat-rain">45</span></div>
+                <div class="stat-badge"><i class="fa-solid fa-microchip"></i> Dev Pts<span id="stat-dev">1</span></div>
+            </div>
+            
+            <div class="stats-grid">
+                <!-- MID ROW: Consumibles, Economía y Puntos de Campeonato -->
+                <div class="stat-badge"><i class="fa-solid fa-gas-pump"></i> Combust.<span id="stat-fuel" class="consumable-active">OK</span></div>
+                <div class="stat-badge"><i class="fa-solid fa-flask"></i> Aditivo<span id="stat-additive" class="consumable-active">NO</span></div>
+                <div class="stat-badge"><i class="fa-solid fa-glasses"></i> Visor<span id="stat-visor" class="consumable-active">NO</span></div>
+                <div class="stat-badge"><i class="fa-solid fa-dollar-sign"></i> Fondos<span id="stat-money" class="money">0</span></div>
+                <div class="stat-badge" title="Puntos del Mundial"><i class="fa-solid fa-trophy"></i> Puntos<span id="stat-champ-points" class="points">0</span></div>
+            </div>
+            
+            <div class="stats-grid">
+                <!-- BOTTOM ROW: Info Carrera -->
+                <div class="stat-badge"><i class="fa-solid fa-user-clock"></i> Edad<span id="stat-age">19</span></div>
+                <div class="stat-badge"><i class="fa-solid fa-calendar"></i> Temp.<span id="stat-season">1</span></div>
+                <div class="stat-badge"><i class="fa-solid fa-star"></i> Reputación<span id="stat-rep">10</span></div>
+                <button class="start-btn" style="padding: 10px; font-size: 0.9em; grid-column: span 2;" onclick="openShop()"><i class="fa-solid fa-shopping-cart"></i> I+D / Tienda</button>
+            </div>
+        </header>
+
+        <div id="image-container">
+            <img id="event-image" src="" alt="Evento F1">
+            <div id="weather-overlay" class="weather-rain-overlay"></div>
+        </div>
+
+        <div id="story-panel">
+            <h2 id="event-title"><i class="fa-solid fa-flag-checkered"></i> Titulo</h2>
+            <p id="event-description">Descripción...</p>
+        </div>
+
+        <!-- Panel de Minijuegos Intercalado -->
+        <div id="minigame-panel">
+            <!-- El contenido del minijuego se inyectará aquí -->
+        </div>
+
+        <div id="choices-panel">
+            <!-- Botones inyectados dinámicamente -->
+        </div>
+    </div>
+
+    <!-- MODALES DE GESTIÓN (Mercado, Resumen Temporada, Tienda, Retiro) -->
+    
+    <!-- Modal Mercado / Contratos -->
+    <div id="market-modal">
+        <h2 style="color: var(--accent);"><i class="fa-solid fa-handshake"></i> Fin de Temporada: Contratos</h2>
+        <p>Tu reputación actual es de <strong id="market-rep" style="color: var(--primary);"></strong>. Los equipos te han estado observando.</p>
+        <div class="contract-list" id="contracts-container">
+            <!-- Contratos dinámicos -->
+        </div>
+    </div>
+
+    <!-- Modal Resumen Temporada -->
+    <div id="season-summary-modal">
+        <h2><i class="fa-solid fa-chart-bar"></i> Resumen de la Temporada</h2>
+        <div style="text-align: left; margin: 20px 0;">
+            <p><i class="fa-solid fa-trophy" style="color:gold"></i> Puntos del Mundial: <strong id="summary-points" style="color:gold"></strong></p>
+            <p><i class="fa-solid fa-medal" style="color:gold"></i> Victorias este año: <strong id="summary-wins"></strong></p>
+            <p><i class="fa-solid fa-award" style="color:silver"></i> Podios este year: <strong id="summary-podiums"></strong></p>
+            <p><i class="fa-solid fa-car-burst" style="color:var(--primary)"></i> Accidentes/Retiros: <strong id="summary-crashes"></strong></p>
+        </div>
+        <p id="summary-aging-text" style="color: var(--warning); font-size: 0.9em; font-style: italic;"></p>
+        <button class="start-btn" onclick="continueToMarket()">Ver Ofertas de Contrato <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+
+    <!-- Modal Tienda (Mejoras y Consumibles) -->
+    <div id="shop-modal">
+        <h2 style="color: var(--accent);"><i class="fa-solid fa-cogs"></i> Ingeniería y Consumibles</h2>
+        <p>Gasta tus fondos o Puntos de Desarrollo (Dev Pts) para obtener ventaja.</p>
+        
+        <h3 class="dev-points-header"><i class="fa-solid fa-microchip"></i> Árbol de Desarrollo (Requiere Dev Pts)</h3>
+        <div class="shop-grid" id="shop-dev-list">
+            <!-- Mejoras por Dev Points -->
+        </div>
+        
+        <h3 class="dev-points-header" style="color: var(--success);"><i class="fa-solid fa-dollar-sign"></i> Mercado Negro / Mejoras Únicas</h3>
+        <div class="shop-grid" id="shop-money-list">
+            <!-- Mejoras por dinero -->
+        </div>
+        <button class="start-btn" onclick="closeShop()" style="background: #333;"><i class="fa-solid fa-times"></i> Volver a Carrera</button>
+    </div>
+
+    <!-- Modal Salón de la Fama (Retiro) -->
+    <div id="career-hall-modal">
+        <h1 style="color: var(--warning);"><i class="fa-solid fa-crown"></i> SALÓN DE LA FAMA</h1>
+        <p style="color: var(--text-muted);">Tu carrera deportiva ha llegado a su fin por edad o lesiones severas.</p>
+        
+        <div class="hall-stats">
+            <div class="hall-stat-box">Victorias Totales <span id="hall-wins">0</span></div>
+            <div class="hall-stat-box">Podios Totales <span id="hall-podiums">0</span></div>
+            <div class="hall-stat-box">Accidentes <span id="hall-crashes">0</span></div>
+            <div class="hall-stat-box">Reputación Final <span id="hall-rep">0</span></div>
+        </div>
+
+        <h3 style="text-align: left; border-bottom: 1px solid #333; padding-bottom: 5px;">Historial de Temporadas</h3>
+        <div class="history-timeline" id="hall-history"></div>
+
+        <button class="start-btn" onclick="location.reload()" style="margin-top: 20px;"><i class="fa-solid fa-rotate-right"></i> Nueva Carrera</button>
+    </div>
+
+
+    <script>
+        /* --- ESTADO DEL JUEGO --- */
+        let state = {
+            name: "Rookie",
+            countryCode: "es",
+            age: 19,
+            season: 1,
+            reputation: 10,
+            money: 50,
+            devPoints: 1,
+            championshipPoints: 0,
+            team: "Ninguno",
+            attributes: { pace: 45, aggression: 45, tires: 45, rain: 45 },
+            consumables: { fuelMap: true, rainVisor: false, gripAdditive: false },
+            statsRecord: { wins: 0, podiums: 0, crashes: 0 },
+            careerHistory: [],
+            eventsCompleted: 0
+        };
+
+        const EVENTS_PER_SEASON = 6;
+        let currentEvent = null;
+
+        /* --- BASE DE DATOS DE EQUIPOS --- */
+        const teamsDB = [
+            { id: "t1", name: "Scuderia Rosso", reqRep: 80, salary: 500, devBonus: 3, attrBonus: {pace: 15, aggro: 5} },
+            { id: "t2", name: "Silver Arrows", reqRep: 75, salary: 450, devBonus: 2, attrBonus: {pace: 10, tires: 10} },
+            { id: "t3", name: "Bulls Racing", reqRep: 75, salary: 450, devBonus: 2, attrBonus: {pace: 12, aggro: 8} },
+            { id: "t4", name: "Papaya Tech", reqRep: 50, salary: 250, devBonus: 1, attrBonus: {pace: 5, tires: 5} },
+            { id: "t5", name: "Alpine Bleu", reqRep: 40, salary: 200, devBonus: 1, attrBonus: {pace: 3, rain: 5} },
+            { id: "t6", name: "Backmarker F1", reqRep: 0, salary: 50, devBonus: 0, attrBonus: {pace: 0} }
         ];
 
-        let permHtml = '';
-        permItems.forEach(item => {
-            const hasFunds = state.money >= item.cost;
-            const cardClass = hasFunds ? 'offer-card' : 'offer-card no-funds';
-            const btnHtml = hasFunds 
-                ? `<button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:var(--warning); color:#000;" onclick="buyItem('perm', '${item.stat}', ${item.val}, ${item.cost})"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>`
-                : `<button class="start-btn disabled" style="padding:6px 12px; font-size:0.8em; width:auto;" disabled><i class="fa-solid fa-ban"></i> Sin Fondos</button>`;
+        /* --- UTILIDADES VISUALES / GAME FEEL --- */
+        function showNotification(msg, isDanger = false) {
+            const notif = document.getElementById('notification');
+            notif.innerText = msg;
+            if(isDanger) notif.classList.add('danger');
+            else notif.classList.remove('danger');
+            
+            notif.classList.add('show');
+            setTimeout(() => { notif.classList.remove('show'); }, 3000);
+        }
 
-            permHtml += `
-                <div class="${cardClass}" style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <h4 style="margin:0; color:var(--warning);">${item.title}</h4>
-                        <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
-                    </div>
-                    <div style="text-align:right;">
-                        <span style="color:${hasFunds ? 'var(--success)' : 'var(--primary)'}; font-weight:bold; display:block; margin-bottom:5px;">${formatMoney(item.cost)}</span>
-                        ${btnHtml}
-                    </div>
-                </div>
-            `;
+        function triggerCrashEffect() {
+            const container = document.getElementById('game-container');
+            container.classList.add('shake-active');
+            setTimeout(() => {
+                container.classList.remove('shake-active');
+            }, 400);
+        }
+
+        // Selección de Arquetipo
+        document.querySelectorAll('.archetype-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.archetype-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+            });
         });
-        permContainer.innerHTML = permHtml;
-    }
 
-    function buyItem(type, stat, value, cost) {
-        if(state.money < cost) {
-            addLog(`<i class="fa-solid fa-triangle-exclamation"></i> Fondos insuficientes para realizar esta inversión en la tienda.`, "danger");
-            return;
-        }
-        state.money -= cost;
-        if(type === 'temp') {
-            state.temporaryBoosts[stat] = (state.temporaryBoosts[stat] || 0) + value;
-            addLog(`Has adquirido consumible temporal: +${value} en ${stat.toUpperCase()}. Se aplicará en el próximo evento.`, "success");
-        } else {
-            state.attributes[stat] += value;
-            addLog(`¡Mejora permanente instalada! +${value} en ${stat.toUpperCase()} de base.`, "success");
-        }
-        updateUI();
-        renderShopItems();
-    }
+        /* --- INICIO DEL JUEGO --- */
+        function startGame() {
+            const nameInput = document.getElementById('driver-name').value.trim();
+            if(!nameInput) { showNotification("¡Introduce un nombre!", true); return; }
 
-    // --- PROGRESIÓN Y CONTROL DE TEMPORADA & EDAD ---
-    function progressEvent() {
-        state.temporaryBoosts = { pace: 0, aggression: 0, rain: 0 };
+            state.name = nameInput;
+            state.countryCode = document.getElementById('driver-country').value;
+            
+            const arch = document.querySelector('.archetype-card.selected').getAttribute('data-type');
+            applyArchetype(arch);
 
-        state.eventsCompleted++;
-        if(state.eventsCompleted >= 6) {
-            triggerSeasonSummary();
-        } else {
+            document.getElementById('setup-container').style.display = 'none';
+            document.getElementById('game-container').style.display = 'flex';
+            
+            updateUI();
             triggerRandomEvent();
         }
-    }
 
-    function triggerSeasonSummary() {
-        state.careerHistory.push({
-            season: state.season,
-            age: state.age,
-            team: state.team,
-            wins: state.statsRecord.wins,
-            podiums: state.statsRecord.podiums,
-            crashes: state.statsRecord.crashes,
-            reputation: state.reputation,
-            money: state.money
-        });
-
-        applyAgeProgression();
-
-        let retirementThreshold = 41 - Math.floor(state.reputation / 15);
-        if (retirementThreshold < 35) retirementThreshold = 35;
-
-        if (state.age >= retirementThreshold) {
-            triggerRetirement();
-            return;
+        function applyArchetype(type) {
+            if(type === 'aggressor') { state.attributes.aggression += 20; state.attributes.pace += 10; state.attributes.tires -= 10; }
+            if(type === 'professor') { state.attributes.tires += 20; state.attributes.pace += 10; state.attributes.aggression -= 5; }
+            if(type === 'rain') { state.attributes.rain += 25; state.attributes.tires += 5; }
+            if(type === 'balanced') { state.attributes.pace+=5; state.attributes.aggression+=5; state.attributes.tires+=5; state.attributes.rain+=5; }
         }
 
-        document.getElementById('game-container').style.display = 'none';
-        const modal = document.getElementById('season-summary-modal');
-        modal.style.display = 'block';
-
-        document.getElementById('summary-title').innerHTML = `<i class="fa-solid fa-trophy"></i> Fin de Temporada ${state.season - 1} (Edad: ${state.age})`;
-        
-        let reportText = `¡Has completado la temporada con éxito pilotando para <strong>${state.team}</strong>!<br><br>`;
-        reportText += `• <strong><i class="fa-solid fa-flag-checkered"></i> Victorias / Grandes momentos:</strong> ${state.statsRecord.wins}<br>`;
-        reportText += `• <strong><i class="fa-solid fa-award"></i> Podios / Decisiones tácticas limpias:</strong> ${state.statsRecord.podiums}<br>`;
-        reportText += `• <strong><i class="fa-solid fa-car-burst"></i> Incidentes / Accidentes graves:</strong> ${state.statsRecord.crashes}<br>`;
-        reportText += `• <strong><i class="fa-solid fa-star"></i> Reputación acumulada:</strong> ${state.reputation} puntos<br>`;
-        reportText += `• <strong><i class="fa-solid fa-wallet"></i> Fondos actuales en cuenta:</strong> ${formatMoney(state.money)}<br><br>`;
-        reportText += `<em><i class="fa-solid fa-hourglass-half"></i> Al cumplir ${state.age} años, tus atributos físicos y reflejos se han recalculado (veteranización).</em>`;
-
-        document.getElementById('summary-text').innerHTML = reportText;
-    }
-
-    function applyAgeProgression() {
-        state.age++;
-        if (state.age >= 33) {
-            let agingFactor = state.age - 32;
-            state.attributes.tires += 2;
-            state.attributes.rain += 1;
-            state.attributes.pace = Math.max(20, state.attributes.pace - (1 + Math.floor(agingFactor / 2)));
-            state.attributes.aggression = Math.max(20, state.attributes.aggression - 1);
-            addLog(`<i class="fa-solid fa-user-clock"></i> Con ${state.age} años, tu experiencia te otorga mayor sabiduría en pista (+Gomas), aunque tus reflejos puros disminuyen ligeramente (-Ritmo).`, "warning");
-        } else if (state.age <= 24) {
-            state.attributes.pace += 2;
-            state.attributes.aggression += 1;
-            addLog(`<i class="fa-solid fa-chart-line"></i> Tu juventud (${state.age} años) te permite evolucionar explosivamente en velocidad pura y reflejos (+Ritmo).`, "success");
-        }
-    }
-
-    function triggerRetirement() {
-        document.getElementById('game-container').style.display = 'none';
-        const modal = document.getElementById('career-hall-modal');
-        modal.style.display = 'block';
-
-        let totalWins = state.careerHistory.reduce((acc, curr) => acc + curr.wins, 0);
-        let totalPodiums = state.careerHistory.reduce((acc, curr) => acc + curr.podiums, 0);
-        let totalCrashes = state.careerHistory.reduce((acc, curr) => acc + curr.crashes, 0);
-
-        document.getElementById('hall-subtitle').innerHTML = `Tras <strong>${state.careerHistory.length} temporadas</strong> en activo y a los <strong>${state.age} años</strong>, ${state.name} cuelga el casco como una leyenda histórica del automovilismo.`;
-
-        let contentHtml = `
-            <div class="offer-card" style="border-color: var(--warning);">
-                <h4><i class="fa-solid fa-chart-pie"></i> Estadísticas Globales de Carrera</h4>
-                <p><i class="fa-solid fa-flag-checkered text-warning" style="color:var(--warning);"></i> <strong>Total Victorias:</strong> ${totalWins}</p>
-                <p><i class="fa-solid fa-award" style="color:var(--accent);"></i> <strong>Total Podios / Éxitos:</strong> ${totalPodiums}</p>
-                <p><i class="fa-solid fa-car-burst text-danger" style="color:var(--primary);"></i> <strong>Total Accidentes:</strong> ${totalCrashes}</p>
-                <p><i class="fa-solid fa-star" style="color:var(--warning);"></i> <strong>Reputación Final:</strong> ${state.reputation}</p>
-                <p><i class="fa-solid fa-wallet" style="color:var(--success);"></i> <strong>Patrimonio Acumulado:</strong> ${formatMoney(state.money)}</p>
-            </div>
-            <h3 style="color:var(--text-main); font-size:1.1em; text-transform:uppercase; margin-top:20px; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-timeline"></i> Hitos por Etapa / Temporada</h3>
-        `;
-
-        state.careerHistory.forEach(h => {
-            contentHtml += `
-                <div class="offer-card">
-                    <h4><i class="fa-solid fa-calendar-days"></i> Temporada ${h.season} (Edad: ${h.age})</h4>
-                    <p><i class="fa-solid fa-shield-halved"></i> <strong>Escudería:</strong> ${h.team}</p>
-                    <p><i class="fa-solid fa-trophy"></i> Victorias: ${h.wins} | Podios: ${h.podiums} | Incidentes: ${h.crashes}</p>
-                    <p><i class="fa-solid fa-star"></i> Reputación final de temporada: ${h.reputation}</p>
-                </div>
-            `;
-        });
-
-        document.getElementById('hall-content').innerHTML = contentHtml;
-    }
-
-    function openMarketWindow() {
-        document.getElementById('season-summary-modal').style.display = 'none';
-        const marketModal = document.getElementById('market-modal');
-        marketModal.style.display = 'block';
-
-        const offersList = document.getElementById('offers-list');
-        offersList.innerHTML = '';
-
-        let availableTeams = [];
-
-        if (state.reputation < 35) {
-            availableTeams = [
-                { team: "Prema F3 (Academy)", repReq: 0 },
-                { team: "Hitech Grand Prix", repReq: 20 },
-                { team: "Trident Racing", repReq: 25 }
-            ];
-        } else if (state.reputation < 70) {
-            availableTeams = [
-                { team: "Carlin Motorsport (F2)", repReq: 35 },
-                { team: "ART Grand Prix (F2)", repReq: 45 },
-                { team: "Williams Racing (F1)", repReq: 60 }
-            ];
-        } else {
-            availableTeams = [
-                { team: "Alpine F1 Team", repReq: 70 },
-                { team: "Scuderia Ferrari", repReq: 85 },
-                { team: "Red Bull Racing", repReq: 90 }
-            ];
-        }
-
-        let currentTeamInList = availableTeams.find(t => t.team === state.team);
-        if(!currentTeamInList) {
-            availableTeams.unshift({ team: state.team, repReq: 0 });
-        }
-
-        availableTeams.forEach(item => {
-            const teamInfo = teamCatalog[item.team] || { level: "Competitivo", baseSalary: 100000 };
-            const isCurrent = item.team === state.team;
-            const actionText = isCurrent ? "Renovar Contrato Actual" : `Fichar por ${item.team}`;
-            const cardClass = isCurrent ? "offer-card renewal" : "offer-card";
+        function updateUI() {
+            document.getElementById('ui-name').innerText = state.name;
+            document.getElementById('ui-flag').src = `https://flagcdn.com/w40/${state.countryCode}.png`;
             
-            const card = document.createElement('div');
-            card.className = cardClass;
-            card.innerHTML = `
-                <h4><i class="fa-solid fa-shield-halved"></i> ${item.team} ${isCurrent ? '<span style="color:var(--success); font-size:0.8em;">(Tu escudería actual)</span>' : ''}</h4>
-                <p><i class="fa-solid fa-wallet"></i> <strong>${isCurrent ? 'Propuesta de Renovación Salarial' : 'Salario Anual'}:</strong> <span style="color:var(--success)">${formatMoney(teamInfo.baseSalary)}</span></p>
-                <p><i class="fa-solid fa-gauge-high"></i> <strong>Nivel de Monoplaza:</strong> ${teamInfo.level}</p>
-                <p><i class="fa-solid fa-star"></i> <strong>Reputación Requerida:</strong> ${item.repReq}</p>
-                <button class="start-btn" style="margin-top:10px; padding:10px; font-size:0.9em; ${isCurrent ? 'background:var(--success); color:#000;' : ''}" onclick="signContract('${item.team}', ${teamInfo.baseSalary}, ${isCurrent})"><i class="fa-solid fa-pen-nib"></i> ${actionText}</button>
+            document.getElementById('stat-pace').innerText = state.attributes.pace;
+            document.getElementById('stat-aggro').innerText = state.attributes.aggression;
+            document.getElementById('stat-tires').innerText = state.attributes.tires;
+            document.getElementById('stat-rain').innerText = state.attributes.rain;
+            
+            document.getElementById('stat-money').innerText = state.money;
+            document.getElementById('stat-dev').innerText = state.devPoints;
+            document.getElementById('stat-champ-points').innerText = state.championshipPoints;
+            
+            document.getElementById('stat-age').innerText = state.age;
+            document.getElementById('stat-season').innerText = state.season;
+            document.getElementById('stat-rep').innerText = state.reputation;
+
+            document.getElementById('stat-fuel').innerText = state.consumables.fuelMap ? "OK" : "NO";
+            document.getElementById('stat-fuel').className = state.consumables.fuelMap ? "consumable-active" : "";
+            
+            document.getElementById('stat-additive').innerText = state.consumables.gripAdditive ? "OK" : "NO";
+            document.getElementById('stat-additive').className = state.consumables.gripAdditive ? "consumable-active" : "";
+            
+            document.getElementById('stat-visor').innerText = state.consumables.rainVisor ? "OK" : "NO";
+            document.getElementById('stat-visor').className = state.consumables.rainVisor ? "consumable-active" : "";
+        }
+
+        /* --- MOTOR DE EVENTOS --- */
+        function processEventChoice(choiceIndex) {
+            if (!currentEvent) return;
+            const choice = currentEvent.choices[choiceIndex];
+            
+            const r = Math.random() * 100;
+            let outcome;
+            
+            if (r < choice.successChance) { outcome = choice.onSuccess(); showNotification("¡Éxito en la acción!"); }
+            else { outcome = choice.onFail(); showNotification("Fallo en la acción...", true); }
+
+            applyOutcome(outcome);
+        }
+
+        function applyOutcome(out) {
+            // Manejo de puntos de campeonato por resultados de evento
+            if(out.type === "win") {
+                state.statsRecord.wins++;
+                state.championshipPoints += 25;
+            } else if (out.type === "podium") {
+                state.statsRecord.podiums++;
+                state.championshipPoints += 15;
+            } else if (out.type === "danger" || out.type === "crash") {
+                state.statsRecord.crashes++;
+                triggerCrashEffect(); // GAME FEEL
+            }
+
+            if(out.rep) state.reputation = Math.max(0, state.reputation + out.rep);
+            if(out.money) state.money += out.money;
+            if(out.dev) state.devPoints += out.dev;
+            if(out.fuelMapLoss) state.consumables.fuelMap = false;
+            
+            if(out.attr) {
+                if(out.attr.pace) state.attributes.pace += out.attr.pace;
+                if(out.attr.aggro) state.attributes.aggression += out.attr.aggro;
+            }
+
+            advanceSeasonProgress();
+        }
+
+        function advanceSeasonProgress() {
+            state.eventsCompleted++;
+            updateUI();
+            
+            document.getElementById('choices-panel').innerHTML = "";
+            document.getElementById('minigame-panel').style.display = 'none';
+
+            if (state.eventsCompleted >= EVENTS_PER_SEASON) {
+                triggerSeasonSummary();
+            } else {
+                setTimeout(triggerRandomEvent, 1500); // Pausa dramática antes del siguiente evento
+            }
+        }
+
+        /* --- BATERÍA DE EVENTOS Y MINIJUEGOS --- */
+        const randomEvents = [
+            {
+                type: 'text',
+                title: "Duelo en la primera curva",
+                img: "https://images.unsplash.com/photo-1532911520120-c2669074c7e6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                desc: "Se apagan los semáforos. Llegas a la curva 1 emparejado con tu rival directo. ¿Te tiras al interior arriesgando un choque o levantas?",
+                getChoices: () => [
+                    {
+                        text: "Tirarse al interior (Agresivo)",
+                        successChance: state.attributes.aggression + (state.consumables.gripAdditive ? 15 : 0),
+                        onSuccess: () => ({type: "win", rep: 5, money: 50}),
+                        onFail: () => ({type: "danger", rep: -5, dev: 1}) // Accidente, pero aprendes
+                    },
+                    {
+                        text: "Levantar y cuidar gomas (Seguro)",
+                        successChance: state.attributes.tires,
+                        onSuccess: () => ({type: "podium", rep: 2, dev: 1}),
+                        onFail: () => ({type: "neutral", rep: 0})
+                    }
+                ]
+            },
+            {
+                type: 'text',
+                title: "Lluvia Inesperada",
+                img: "https://images.unsplash.com/photo-1580274455138-0387532d80d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                desc: "Empieza a llover a cántaros a mitad de carrera. La pista es una pista de hielo.",
+                getChoices: () => [
+                    {
+                        text: "Mantener neumáticos de seco (Arriesgado)",
+                        successChance: state.attributes.rain - 20 + (state.consumables.gripAdditive ? 10 : 0),
+                        onSuccess: () => ({type: "win", rep: 10, money: 100}),
+                        onFail: () => ({type: "crash", rep: -10})
+                    },
+                    {
+                        text: "Entrar a boxes por gomas de lluvia",
+                        successChance: 90,
+                        onSuccess: () => ({type: "podium", rep: 2, dev: 2}),
+                        onFail: () => ({type: "neutral", rep: -2})
+                    }
+                ]
+            },
+            {
+                type: 'text',
+                title: "Problemas de Combustible",
+                img: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                desc: "El ingeniero grita por radio: '¡Estamos cortos de gasolina!'. Quedan 3 vueltas y vas primero.",
+                getChoices: () => [
+                    {
+                        text: "Ignorar y mantener ritmo (Gastar Mapa Motor)",
+                        successChance: state.consumables.fuelMap ? 100 : 20,
+                        onSuccess: () => ({type: "win", rep: 5, fuelMapLoss: true}),
+                        onFail: () => ({type: "danger", rep: -15, desc: "Te quedaste tirado."})
+                    },
+                    {
+                        text: "Hacer Lift & Coast (Perder ritmo)",
+                        successChance: state.attributes.pace + 20,
+                        onSuccess: () => ({type: "podium", rep: 0}),
+                        onFail: () => ({type: "neutral", rep: -2})
+                    }
+                ]
+            }
+        ];
+
+        /* --- MINIJUEGOS ARCADE --- */
+        let minigameInterval;
+        let minigameTimeout;
+        
+        // Minijuego 1: Semáforo de Salida (Reacción)
+        function initStartLightsMinigame() {
+            document.getElementById('event-title').innerHTML = `<i class="fa-solid fa-traffic-light"></i> Salida del Gran Premio`;
+            document.getElementById('event-description').innerText = "Prepárate para reaccionar. Cuando todos los semáforos se apaguen, ¡PULSA ARRANCAR!";
+            document.getElementById('event-image').src = "https://images.unsplash.com/photo-1541343778553-605b46e339d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+            
+            const mgPanel = document.getElementById('minigame-panel');
+            mgPanel.style.display = 'block';
+            mgPanel.innerHTML = `
+                <div class="mg-title">Semáforos</div>
+                <div class="lights-box" id="lights-box">
+                    <div class="light" id="l1"></div><div class="light" id="l2"></div><div class="light" id="l3"></div><div class="light" id="l4"></div><div class="light" id="l5"></div>
+                </div>
+                <button class="action-btn" id="mg-action-btn">ARRANCAR</button>
             `;
-            offersList.appendChild(card);
-        });
-    }
 
-    function signContract(teamName, salary, isRenewal = false) {
-        state.team = teamName;
-        state.money += salary;
-        state.season++;
-        state.eventsCompleted = 0;
-        state.statsRecord = { wins: 0, podiums: 0, crashes: 0 };
+            let step = 0;
+            let isGreen = false;
+            let falseStart = false;
 
-        document.getElementById('market-modal').style.display = 'none';
-        document.getElementById('game-container').style.display = 'flex';
-
-        const flagHtml = `<img src="${getFlagUrl(state.countryCode)}" class="flag-icon">`;
-        if(isRenewal) {
-            addLog(`¡RENOVACIÓN DE CONTRATO! ${state.name} ${flagHtml} extiende formalmente su vinculación con <strong>${teamName}</strong> para la Temporada ${state.season}.`, "success");
-        } else {
-            addLog(`¡NUEVO FICHAJE! ${state.name} ${flagHtml} cambia de aires y ficha por <strong>${teamName}</strong> para la Temporada ${state.season}.`, "success");
-        }
-        triggerRandomEvent();
-    }
-
-    // --- MINIJUEGOS INTERACTIVOS CON FEEDBACK VISUAL IN SITU ---
-    function renderStartLightsMinigame(container) {
-        container.style.display = 'block';
-        container.innerHTML = `
-            <div class="mg-title"><i class="fa-solid fa-stopwatch"></i> Minijuego: Reflejos de Salida</div>
-            <p style="font-size:0.85em; color: var(--text-muted);">Las luces se encenderán progresivamente. ¡Pulsa el botón en cuanto se apaguen!</p>
-            <div class="lights-box" id="lights-container">
-                <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
-            </div>
-            <button id="mg-action-btn" class="start-btn" style="background:var(--primary); cursor:pointer;"><i class="fa-solid fa-bolt"></i> ¡ACELERAR / SALIR!</button>
-            <div id="mg-feedback-box" class="mg-feedback"></div>
-            <button id="mg-next-btn" class="start-btn" style="background:var(--accent); color:#000; margin-top:12px; display:none;"><i class="fa-solid fa-arrow-right"></i> Siguiente Evento</button>
-        `;
-
-        const lights = container.querySelectorAll('.light');
-        const actionBtn = document.getElementById('mg-action-btn');
-        let activeLights = 0;
-        let startTime = 0;
-        let lightsOut = false;
-
-        const lightInterval = setInterval(() => {
-            if(activeLights < 5) {
-                lights[activeLights].classList.add('active');
-                activeLights++;
-            } else {
-                clearInterval(lightInterval);
-                const randomWait = Math.random() * 1500 + 1000;
-                setTimeout(() => {
-                    lights.forEach(l => l.classList.remove('active'));
-                    startTime = Date.now();
-                    lightsOut = true;
-                }, randomWait);
-            }
-        }, 400);
-
-        actionBtn.onclick = () => {
-            clearInterval(lightInterval);
-            actionBtn.style.display = 'none';
-            const feedbackBox = document.getElementById('mg-feedback-box');
-            const nextBtn = document.getElementById('mg-next-btn');
-
-            let resultMsg = "";
-            let resultType = "";
-
-            if (!lightsOut) {
-                state.reputation -= 10; state.money -= 5000; state.statsRecord.crashes++;
-                resultMsg = "¡SALIDA FALSA! Te moviste antes de tiempo. Penalización de comisarios.";
-                resultType = "danger";
-                addLog(resultMsg, "danger");
-            } else {
-                const reactionTime = Date.now() - startTime;
-                if(reactionTime < 300) {
-                    state.reputation += 20; state.money += 20000; state.statsRecord.wins++;
-                    resultMsg = `¡Salida prodigiosa! Reacción de ${reactionTime}ms. Ganas posiciones clave.`;
-                    resultType = "success";
-                    addLog(resultMsg, "success");
-                } else if(reactionTime < 600) {
-                    state.reputation += 5; state.statsRecord.podiums++;
-                    resultMsg = `Buena salida estándar. Tiempo de reacción: ${reactionTime}ms.`;
-                    resultType = "warning";
-                    addLog(resultMsg);
+            const btn = document.getElementById('mg-action-btn');
+            btn.onclick = () => {
+                if (falseStart) return;
+                if (!isGreen) {
+                    falseStart = true;
+                    clearInterval(minigameInterval);
+                    clearTimeout(minigameTimeout);
+                    showNotification("¡FALSA SALIDA! Drive Through penalización.", true);
+                    mgPanel.style.display = 'none';
+                    applyOutcome({type: "danger", rep: -5});
                 } else {
-                    state.reputation -= 5;
-                    resultMsg = `Salida lenta. Te han ganado la posición en la arrancada (${reactionTime}ms).`;
-                    resultType = "danger";
-                    addLog(resultMsg, "danger");
+                    const reactTime = Date.now() - greenTime;
+                    showNotification(`¡Gran salida! Tiempo: ${reactTime}ms`);
+                    mgPanel.style.display = 'none';
+                    if (reactTime < 300) applyOutcome({type: "win", rep: 5}); // Salidón
+                    else applyOutcome({type: "podium", rep: 2}); // Salida normal
                 }
+            };
+
+            minigameInterval = setInterval(() => {
+                step++;
+                if(step <= 5) { document.getElementById(`l${step}`).classList.add('active'); }
+                if(step === 5) {
+                    clearInterval(minigameInterval);
+                    const randomHold = 1000 + Math.random() * 2000;
+                    minigameTimeout = setTimeout(() => {
+                        document.querySelectorAll('.light').forEach(l => l.classList.remove('active'));
+                        isGreen = true;
+                        greenTime = Date.now();
+                        setTimeout(() => { if(isGreen && mgPanel.style.display !== 'none'){ 
+                            showNotification("Te quedaste clavado...", true);
+                            mgPanel.style.display = 'none';
+                            applyOutcome({type: "neutral", rep: -2});
+                        }}, 1000); // 1 sec to react max
+                    }, randomHold);
+                }
+            }, 600);
+        }
+
+        // Minijuego 2: Frenada de Emergencia (Precisión)
+        function initBrakingMinigame() {
+            document.getElementById('event-title').innerHTML = `<i class="fa-solid fa-car-side"></i> Adelantamiento al Límite`;
+            document.getElementById('event-description').innerText = "Final de la recta larga. Pulsa FRENAR cuando la línea blanca esté sobre la zona verde.";
+            document.getElementById('event-image').src = "https://images.unsplash.com/photo-1540958117769-798835f83823?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+            
+            const mgPanel = document.getElementById('minigame-panel');
+            mgPanel.style.display = 'block';
+            mgPanel.innerHTML = `
+                <div class="mg-title">Punto de Frenada</div>
+                <div class="brake-track">
+                    <div class="brake-target" style="left: 70%; width: 15%;"></div>
+                    <div class="brake-cursor" id="brake-cursor" style="left: 0%;"></div>
+                </div>
+                <button class="action-btn" id="mg-brake-btn">FRENAR</button>
+            `;
+
+            let pos = 0;
+            let dir = 1; // 1 = right, -1 = left
+            let speed = 2 + (state.attributes.pace / 20); // Más ritmo, más rápido va el cursor = más difícil
+
+            const cursor = document.getElementById('brake-cursor');
+            
+            function animate() {
+                pos += dir * speed;
+                if(pos > 95 || pos < 0) dir *= -1;
+                cursor.style.left = pos + '%';
+                minigameInterval = requestAnimationFrame(animate);
+            }
+            animate();
+
+            document.getElementById('mg-brake-btn').onclick = () => {
+                cancelAnimationFrame(minigameInterval);
+                mgPanel.style.display = 'none';
+                if (pos >= 70 && pos <= 85) {
+                    showNotification("¡Adelantamiento Magistral!");
+                    applyOutcome({type: "win", rep: 5, money: 20});
+                } else {
+                    showNotification("¡Te pasaste de frenada! Accidente.", true);
+                    applyOutcome({type: "danger", rep: -10, attr: {pace: -1}});
+                }
+            };
+        }
+
+
+        function triggerRandomEvent() {
+            // Verificar si metemos un minijuego o evento de texto
+            const isMinigame = Math.random() < 0.4; // 40% chance de minijuego interactivo
+            
+            document.getElementById('choices-panel').innerHTML = "";
+            document.getElementById('minigame-panel').style.display = 'none';
+            document.getElementById('weather-overlay').style.display = 'none'; // reset clima
+
+            if (isMinigame) {
+                const rng = Math.random();
+                if (rng < 0.5) initStartLightsMinigame();
+                else initBrakingMinigame();
+            } else {
+                currentEvent = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+                
+                document.getElementById('event-title').innerHTML = currentEvent.title;
+                document.getElementById('event-description').innerText = currentEvent.desc;
+                document.getElementById('event-image').src = currentEvent.img;
+                
+                // GAME FEEL: Detección simple de clima para activar filtro
+                const textCheck = (currentEvent.title + " " + currentEvent.desc).toLowerCase();
+                if(textCheck.includes("lluvia") || textCheck.includes("agua")) {
+                    document.getElementById('weather-overlay').style.display = 'block';
+                }
+
+                const choices = currentEvent.getChoices();
+                choices.forEach((choice, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn';
+                    btn.innerHTML = `<span>${choice.text}</span> <span style="color:var(--text-muted); font-size:0.8em;">(${Math.min(100, Math.floor(choice.successChance))}%)</span>`;
+                    btn.onclick = () => processEventChoice(index);
+                    document.getElementById('choices-panel').appendChild(btn);
+                });
+            }
+        }
+
+        /* --- FIN DE TEMPORADA Y CONTRATOS --- */
+        function triggerSeasonSummary() {
+            document.getElementById('modal-overlay').style.display = 'block';
+            const modal = document.getElementById('season-summary-modal');
+            modal.style.display = 'block';
+
+            document.getElementById('summary-points').innerText = state.championshipPoints;
+            document.getElementById('summary-wins').innerText = state.statsRecord.wins;
+            document.getElementById('summary-podiums').innerText = state.statsRecord.podiums;
+            document.getElementById('summary-crashes').innerText = state.statsRecord.crashes;
+
+            // Envejecimiento (Degradación de stats)
+            state.age++;
+            if (state.age > 33) {
+                const deg = Math.floor((state.age - 32) * 1.5);
+                state.attributes.pace = Math.max(10, state.attributes.pace - deg);
+                state.attributes.aggression = Math.max(10, state.attributes.aggression - (deg-1));
+                document.getElementById('summary-aging-text').innerText = `Tus reflejos empiezan a fallar por la edad. Pierdes ${deg} puntos de ritmo.`;
+            } else {
+                document.getElementById('summary-aging-text').innerText = "Estás en la flor de la vida. Mantienes tu físico intacto.";
+            }
+            
+            // Guardar historial
+            state.careerHistory.push(`Temp ${state.season}: ${state.championshipPoints} Puntos, Equipo: ${state.team}, Victorias: ${state.statsRecord.wins}`);
+        }
+
+        function continueToMarket() {
+            document.getElementById('season-summary-modal').style.display = 'none';
+            
+            // Chequeo de retiro
+            if (state.age > 38 || state.attributes.pace < 15) {
+                triggerRetirement();
+                return;
             }
 
-            feedbackBox.className = `mg-feedback ${resultType}`;
-            feedbackBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${resultMsg}`;
-            feedbackBox.style.display = 'block';
-            nextBtn.style.display = 'block';
-            nextBtn.onclick = () => { container.style.display = 'none'; progressEvent(); };
-        };
-    }
+            const modal = document.getElementById('market-modal');
+            modal.style.display = 'block';
+            document.getElementById('market-rep').innerText = state.reputation;
 
-    function renderHardBrakeMinigame(container) {
-        container.style.display = 'block';
-        container.innerHTML = `
-            <div class="mg-title"><i class="fa-solid fa-car-rear"></i> Minijuego: Frenada al Límite</div>
-            <p style="font-size:0.85em; color: var(--text-muted);">Haz clic en el botón de freno cuando la barra blanca esté dentro de la zona verde óptima.</p>
-            <div class="brake-track" id="brake-track">
-                <div class="brake-target" style="left: 40%; width: 18%;"></div>
-                <div class="brake-cursor" id="brake-cursor"></div>
-            </div>
-            <button id="brake-action-btn" class="start-btn" style="background:var(--primary); margin-top:10px;" onclick="executeBrake()"><i class="fa-solid fa-hand"></i> ¡CLAVAR FRENO!</button>
-            <div id="mg-feedback-box" class="mg-feedback"></div>
-            <button id="mg-next-btn" class="start-btn" style="background:var(--accent); color:#000; margin-top:12px; display:none;"><i class="fa-solid fa-arrow-right"></i> Siguiente Evento</button>
-        `;
+            const container = document.getElementById('contracts-container');
+            container.innerHTML = "";
 
-        window.isBrakingActive = true;
-        window.cursorPos = 0;
-        window.cursorDir = 2.5; 
-
-        window.brakeInterval = setInterval(() => {
-            if(!window.isBrakingActive) return;
-            window.cursorPos += window.cursorDir;
-            if(window.cursorPos >= 98 || window.cursorPos <= 0) {
-                window.cursorDir *= -1;
-            }
-            const cursorEl = document.getElementById('brake-cursor');
-            if(cursorEl) cursorEl.style.left = window.cursorPos + "%";
-        }, 20);
-    }
-
-    function executeBrake() {
-        if(!window.isBrakingActive) return;
-        window.isBrakingActive = false;
-        clearInterval(window.brakeInterval);
-
-        const actionBtn = document.getElementById('brake-action-btn');
-        if(actionBtn) actionBtn.style.display = 'none';
-
-        const feedbackBox = document.getElementById('mg-feedback-box');
-        const nextBtn = document.getElementById('mg-next-btn');
-
-        let resultMsg = "";
-        let resultType = "";
-
-        if(window.cursorPos >= 40 && window.cursorPos <= 58) {
-            state.reputation += 15; state.devPoints += 1; state.statsRecord.wins++;
-            resultMsg = "¡Frenada milimétrica perfecta! Te metes por el interior ganando la posición.";
-            resultType = "success";
-            addLog(resultMsg, "success");
-        } else {
-            state.money -= 15000; state.statsRecord.crashes++;
-            resultMsg = "Calculas mal la frenada y bloqueas neumáticos, yéndote recto por la escapatoria.";
-            resultType = "danger";
-            addLog(resultMsg, "danger");
-        }
-
-        feedbackBox.className = `mg-feedback ${resultType}`;
-        feedbackBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${resultMsg} (Posición de frenada: ${Math.round(window.cursorPos)}%)`;
-        feedbackBox.style.display = 'block';
-        nextBtn.style.display = 'block';
-        nextBtn.onclick = () => { document.getElementById('minigame-panel').style.display = 'none'; progressEvent(); };
-    }
-
-    function renderShiftTimingMinigame(container) {
-        container.style.display = 'block';
-        container.innerHTML = `
-            <div class="mg-title"><i class="fa-solid fa-gears"></i> Minijuego: Cambio de Marchas Preciso</div>
-            <p style="font-size:0.85em; color: var(--text-muted);">Pulsa primero en "Iniciar Aceleración" para arrancar las revoluciones y luego en "¡SUBIR MARCHA!" en el momento óptimo.</p>
-            <div class="rpm-bar">
-                <div class="brake-target" style="left: 75%; width: 17%; background: rgba(0, 230, 118, 0.4); border-left: 2px dashed var(--success); border-right: 2px dashed var(--success); height:100%;"></div>
-                <div class="rpm-fill" id="rpm-fill"></div>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button id="btn-start-shift" class="start-btn" style="background: var(--accent); color: #000;" onclick="startShiftRpm()"><i class="fa-solid fa-play"></i> Iniciar Aceleración</button>
-                <button id="btn-execute-shift" class="start-btn" style="background: var(--primary); display: none;" onclick="executeShift()"><i class="fa-solid fa-angles-up"></i> ¡SUBIR MARCHA!</button>
-            </div>
-            <div id="mg-feedback-box" class="mg-feedback"></div>
-            <button id="mg-next-btn" class="start-btn" style="background: var(--accent); color:#000; margin-top:12px; display:none;"><i class="fa-solid fa-arrow-right"></i> Siguiente Evento</button>
-        `;
-
-        window.isShiftingActive = false;
-        window.rpmProgress = 0;
-    }
-
-    function startShiftRpm() {
-        const startBtn = document.getElementById('btn-start-shift');
-        const executeBtn = document.getElementById('btn-execute-shift');
-        if(startBtn) startBtn.style.display = 'none';
-        if(executeBtn) executeBtn.style.display = 'block';
-
-        window.isShiftingActive = true;
-        window.rpmProgress = 0;
-
-        window.shiftInterval = setInterval(() => {
-            if(!window.isShiftingActive) return;
-            window.rpmProgress += 2.2;
-            if(window.rpmProgress > 100) {
-                window.rpmProgress = 100;
-                window.isShiftingActive = false;
-                clearInterval(window.shiftInterval);
-                executeShift();
-            }
-            const fillEl = document.getElementById('rpm-fill');
-            if(fillEl) fillEl.style.width = window.rpmProgress + "%";
-        }, 25);
-    }
-
-    function executeShift() {
-        if(!window.isShiftingActive && window.rpmProgress < 75) return;
-        window.isShiftingActive = false;
-        clearInterval(window.shiftInterval);
-
-        const executeBtn = document.getElementById('btn-execute-shift');
-        if(executeBtn) executeBtn.style.display = 'none';
-
-        const feedbackBox = document.getElementById('mg-feedback-box');
-        const nextBtn = document.getElementById('mg-next-btn');
-
-        let resultMsg = "";
-        let resultType = "";
-
-        if(window.rpmProgress >= 75 && window.rpmProgress <= 92) {
-            state.attributes.pace += 2; state.reputation += 10; state.statsRecord.podiums++;
-            resultMsg = "¡Cambio de marcha perfecto sin pérdida de par motor! Ganas décimas valiosas.";
-            resultType = "success";
-            addLog(resultMsg, "success");
-        } else if(window.rpmProgress > 92) {
-            state.money -= 8000; state.statsRecord.crashes++;
-            resultMsg = "¡Corte de inyección por sobrepasarse de revoluciones! Pierdes impulso vital.";
-            resultType = "danger";
-            addLog(resultMsg, "danger");
-        } else {
-            state.money -= 4000;
-            resultMsg = "Cambio demasiado temprano. El motor sube perezoso de vueltas y pierdes tracción.";
-            resultType = "warning";
-            addLog(resultMsg, "danger");
-        }
-
-        feedbackBox.className = `mg-feedback ${resultType}`;
-        feedbackBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${resultMsg} (RPM alcanzadas: ${Math.round(window.rpmProgress)}%)`;
-        feedbackBox.style.display = 'block';
-        nextBtn.style.display = 'block';
-        nextBtn.onclick = () => { document.getElementById('minigame-panel').style.display = 'none'; progressEvent(); };
-    }
-
-    function renderDrsMinigame(container) {
-        container.style.display = 'block';
-        const targetIndex = Math.floor(Math.random() * 3);
-        window.correctDrsIndex = targetIndex;
-
-        let tilesHtml = '';
-        for(let i=0; i<3; i++) {
-            tilesHtml += `<div class="drs-tile" id="drs-tile-${i}" onclick="checkDrs(${i})"><i class="fa-solid fa-bolt"></i></div>`;
-        }
-
-        container.innerHTML = `
-            <div class="mg-title"><i class="fa-solid fa-wing-ding"></i> Minijuego: Zona DRS Activa</div>
-            <p style="font-size:0.85em; color: var(--text-muted);">El sistema de reducción de resistencia parpadea. ¡Haz clic en el panel correcto!</p>
-            <div class="drs-grid">
-                ${tilesHtml}
-            </div>
-            <div id="mg-feedback-box" class="mg-feedback"></div>
-            <button id="mg-next-btn" class="start-btn" style="background:var(--accent); color:#000; margin-top:12px; display:none;"><i class="fa-solid fa-arrow-right"></i> Siguiente Evento</button>
-        `;
-    }
-
-    function checkDrs(selectedIndex) {
-        for(let i=0; i<3; i++) {
-            const tile = document.getElementById(`drs-tile-${i}`);
-            if(tile) tile.onclick = null;
-        }
-
-        const feedbackBox = document.getElementById('mg-feedback-box');
-        const nextBtn = document.getElementById('mg-next-btn');
-
-        let resultMsg = "";
-        let resultType = "";
-
-        if(selectedIndex === window.correctDrsIndex) {
-            state.reputation += 12; state.money += 15000; state.statsRecord.wins++;
-            resultMsg = "¡Apertura de DRS perfecta en el momento justo! Adelantas limpiamente al rival.";
-            resultType = "success";
-            addLog(resultMsg, "success");
-        } else {
-            state.reputation -= 5;
-            resultMsg = "Fallaste el panel del volante y el DRS no se abrió a tiempo. Te quedas bloqueado.";
-            resultType = "danger";
-            addLog(resultMsg, "danger");
-        }
-
-        const correctTile = document.getElementById(`drs-tile-${window.correctDrsIndex}`);
-        if(correctTile) correctTile.style.borderColor = "var(--success)";
-
-        feedbackBox.className = `mg-feedback ${resultType}`;
-        feedbackBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${resultMsg}`;
-        feedbackBox.style.display = 'block';
-        nextBtn.style.display = 'block';
-        nextBtn.onclick = () => { document.getElementById('minigame-panel').style.display = 'none'; progressEvent(); };
-    }
-
-    function triggerRandomEvent() {
-        updateUI();
-
-        let randomIndex;
-        do {
-            randomIndex = Math.floor(Math.random() * randomEvents.length);
-        } while (randomIndex === lastEventIndex && randomEvents.length > 1);
-
-        lastEventIndex = randomIndex;
-        const event = randomEvents[randomIndex];
-
-        const imgEl = document.getElementById('event-image');
-        if(event.image) {
-            imgEl.src = event.image;
-            imgEl.style.display = 'block';
-        } else {
-            imgEl.style.display = 'none';
-        }
-
-        document.getElementById('event-title').innerHTML = `<i class="fa-solid fa-flag-checkered"></i> ${event.title}`;
-        document.getElementById('event-description').innerText = event.description;
-
-        const choicesPanel = document.getElementById('choices-panel');
-        const mgPanel = document.getElementById('minigame-panel');
-        choicesPanel.innerHTML = '';
-        mgPanel.style.display = 'none';
-        mgPanel.innerHTML = '';
-
-        if(event.isMinigame) {
-            if(event.minigameType === "startLights") {
-                renderStartLightsMinigame(mgPanel);
-            } else if(event.minigameType === "hardBrake") {
-                renderHardBrakeMinigame(mgPanel);
-            } else if(event.minigameType === "shiftTiming") {
-                renderShiftTimingMinigame(mgPanel);
-            } else if(event.minigameType === "drsActivation") {
-                renderDrsMinigame(mgPanel);
-            }
-        } else {
-            event.choices.forEach(choice => {
-                const btn = document.createElement('button');
-                btn.className = 'choice-btn';
-                btn.innerHTML = `<span><i class="fa-solid fa-chevron-right text-danger" style="color:var(--primary);"></i> ${choice.text}</span> <span><i class="fa-solid fa-arrow-right"></i></span>`;
-                btn.onclick = () => choice.action();
-                choicesPanel.appendChild(btn);
+            teamsDB.forEach(team => {
+                const isEligible = state.reputation >= team.reqRep;
+                const card = document.createElement('div');
+                card.className = 'contract-card';
+                card.innerHTML = `
+                    <div>
+                        <h4>${team.name}</h4>
+                        <p>Req: ${team.reqRep} Rep | Salario: $${team.salary} | Bonus: +${team.devBonus} Dev Pts</p>
+                    </div>
+                    <button class="contract-btn ${!isEligible ? 'disabled' : ''}" 
+                            ${!isEligible ? 'disabled' : ''} 
+                            onclick="signContract('${team.id}')">
+                        ${isEligible ? 'Fichar' : 'Inalcanzable'}
+                    </button>
+                `;
+                container.appendChild(card);
             });
         }
-    }
-</script>
+
+        function signContract(teamId) {
+            const team = teamsDB.find(t => t.id === teamId);
+            state.team = team.name;
+            state.money += team.salary;
+            state.devPoints += team.devBonus;
+            
+            // Bonus base del equipo
+            if(team.attrBonus.pace) state.attributes.pace += team.attrBonus.pace;
+            
+            // Reset de temporada
+            state.season++;
+            state.eventsCompleted = 0;
+            state.championshipPoints = 0; // RESET DEL MUNDIAL AL INICIAR TEMPORADA
+            
+            // Reset de consumibles
+            state.consumables.fuelMap = true;
+            state.consumables.gripAdditive = false;
+            state.consumables.rainVisor = false;
+
+            document.getElementById('market-modal').style.display = 'none';
+            document.getElementById('modal-overlay').style.display = 'none';
+            
+            updateUI();
+            showNotification(`Fichaste por ${team.name} para la Temporada ${state.season}!`);
+            setTimeout(triggerRandomEvent, 1500);
+        }
+
+        /* --- TIENDA I+D --- */
+        function openShop() {
+            document.getElementById('modal-overlay').style.display = 'block';
+            document.getElementById('shop-modal').style.display = 'block';
+            renderShopItems();
+        }
+        function closeShop() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.getElementById('shop-modal').style.display = 'none';
+            updateUI();
+        }
+
+        function renderShopItems() {
+            // Sección DEV POINTS
+            const devContainer = document.getElementById('shop-dev-list');
+            devContainer.innerHTML = "";
+            const devItems = [
+                { id: "dev_pace", name: "Simulador Aero", desc: "+2 Ritmo Permanente", cost: 2, action: () => { state.attributes.pace += 2; } },
+                { id: "dev_tire", name: "Suspensiones Suaves", desc: "+2 Cuidado Gomas", cost: 2, action: () => { state.attributes.tires += 2; } },
+                { id: "dev_rain", name: "Túnel de Viento Mojado", desc: "+3 Habilidad Lluvia", cost: 2, action: () => { state.attributes.rain += 3; } }
+            ];
+
+            devItems.forEach(item => {
+                const canAfford = state.devPoints >= item.cost;
+                devContainer.innerHTML += `
+                    <div class="shop-item dev-item">
+                        <h4>${item.name} <span style="color:var(--accent);"><i class="fa-solid fa-microchip"></i> ${item.cost}</span></h4>
+                        <p>${item.desc}</p>
+                        <button class="buy-btn dev-btn ${!canAfford ? 'disabled' : ''}" 
+                                ${!canAfford ? 'disabled' : ''} 
+                                onclick="buyDevItem('${item.id}', ${item.cost})">
+                            Investigar
+                        </button>
+                    </div>
+                `;
+            });
+
+            // Sección FONDOS ($)
+            const moneyContainer = document.getElementById('shop-money-list');
+            moneyContainer.innerHTML = "";
+            const moneyItems = [
+                { id: "grip", name: "Aditivo Ilegal de Agarre", desc: "Mejora tracción un evento", cost: 100, action: () => { state.consumables.gripAdditive = true; } },
+                { id: "pr", name: "Campaña de Relaciones Públicas", desc: "+10 Reputación", cost: 200, action: () => { state.reputation += 10; } },
+                { id: "visor", name: "Visor Hidrofóbico", desc: "Anula penalización por lluvia", cost: 80, action: () => { state.consumables.rainVisor = true; } }
+            ];
+
+            moneyItems.forEach(item => {
+                const canAfford = state.money >= item.cost;
+                moneyContainer.innerHTML += `
+                    <div class="shop-item">
+                        <h4>${item.name} <span style="color:var(--success);">$${item.cost}</span></h4>
+                        <p>${item.desc}</p>
+                        <button class="buy-btn ${!canAfford ? 'disabled' : ''}" 
+                                ${!canAfford ? 'disabled' : ''} 
+                                onclick="buyMoneyItem('${item.id}', ${item.cost})">
+                            Comprar
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function buyDevItem(id, cost) {
+            if(state.devPoints >= cost) {
+                state.devPoints -= cost;
+                if(id === 'dev_pace') state.attributes.pace += 2;
+                if(id === 'dev_tire') state.attributes.tires += 2;
+                if(id === 'dev_rain') state.attributes.rain += 3;
+                showNotification("Investigación completada!");
+                renderShopItems();
+                updateUI();
+            }
+        }
+
+        function buyMoneyItem(id, cost) {
+            if(state.money >= cost) {
+                state.money -= cost;
+                if(id === 'grip') state.consumables.gripAdditive = true;
+                if(id === 'pr') state.reputation += 10;
+                if(id === 'visor') state.consumables.rainVisor = true;
+                showNotification("¡Compra realizada!");
+                renderShopItems();
+                updateUI();
+            }
+        }
+
+        /* --- RETIRO --- */
+        function triggerRetirement() {
+            document.getElementById('modal-overlay').style.display = 'block';
+            document.getElementById('season-summary-modal').style.display = 'none';
+            document.getElementById('game-container').style.display = 'none';
+            
+            const hall = document.getElementById('career-hall-modal');
+            hall.style.display = 'block';
+
+            document.getElementById('hall-wins').innerText = state.statsRecord.wins;
+            document.getElementById('hall-podiums').innerText = state.statsRecord.podiums;
+            document.getElementById('hall-crashes').innerText = state.statsRecord.crashes;
+            document.getElementById('hall-rep').innerText = state.reputation;
+
+            const historyContainer = document.getElementById('hall-history');
+            state.careerHistory.forEach(h => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerText = h;
+                historyContainer.appendChild(div);
+            });
+        }
+    </script>
 </body>
 </html>
