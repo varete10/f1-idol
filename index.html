@@ -149,6 +149,9 @@
             font-size: 1.1em; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 1px; transition: background 0.3s;
         }
         .start-btn:hover { background-color: var(--primary-hover); }
+        .start-btn:disabled, .start-btn.disabled {
+            background-color: #2a2a35 !important; color: #555566 !important; cursor: not-allowed !important; box-shadow: none !important;
+        }
 
         /* --- CONTENEDOR DEL JUEGO --- */
         #game-container {
@@ -177,6 +180,7 @@
         .stat-badge span { display: block; color: var(--accent); font-size: 1.2em; margin-top: 3px; font-weight: 900; }
         .stat-badge .money { color: var(--success); }
         .stat-badge .points { color: var(--warning); }
+        .stat-badge .consumable-active { color: var(--success); font-size: 0.95em; }
 
         /* --- IMAGEN Y MULTIMEDIA --- */
         #image-container { width: 100%; height: 240px; background-color: #000; overflow: hidden; position: relative; }
@@ -207,7 +211,7 @@
         .light { width: 35px; height: 35px; background: #222; border-radius: 50%; border: 2px solid #444; transition: background 0.2s; }
         .light.active { background: var(--primary); box-shadow: 0 0 15px var(--primary); }
 
-        .brake-track { width: 100%; height: 30px; background: #222; border-radius: 15px; position: relative; overflow: hidden; margin: 20px 0; cursor: pointer; }
+        .brake-track { width: 100%; height: 30px; background: #222; border-radius: 15px; position: relative; overflow: hidden; margin: 20px 0; }
         .brake-target { position: absolute; height: 100%; background: rgba(0, 230, 118, 0.4); border-left: 2px dashed var(--success); border-right: 2px dashed var(--success); }
         .brake-cursor { position: absolute; width: 6px; height: 100%; background: white; top: 0; left: 0; box-shadow: 0 0 10px white; }
 
@@ -218,11 +222,37 @@
         .drs-tile { background: #181820; border: 2px solid #2a2a35; height: 70px; border-radius: 8px; font-size: 1.5em; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; color: var(--accent); }
         .drs-tile:hover { background: #22222d; border-color: var(--accent); }
 
+        /* Elemento de feedback visual integrado dentro del minijuego */
+        .mg-feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95em;
+            display: none;
+            text-align: center;
+        }
+        .mg-feedback.success { background: rgba(0, 230, 118, 0.15); border: 1px solid var(--success); color: #8cf5bf; }
+        .mg-feedback.danger { background: rgba(255, 24, 1, 0.15); border: 1px solid var(--primary); color: #ff9999; }
+        .mg-feedback.warning { background: rgba(255, 183, 3, 0.15); border: 1px solid var(--warning); color: #ffe680; }
+
         /* Tarjetas de ofertas de fichajes y tienda */
-        .offer-card { background: #181820; border: 2px solid #2a2a35; border-radius: 10px; padding: 15px; margin-bottom: 15px; text-align: left; }
+        .offer-card { background: #181820; border: 2px solid #2a2a35; border-radius: 10px; padding: 15px; margin-bottom: 15px; text-align: left; transition: all 0.2s; }
         .offer-card h4 { margin: 0 0 8px 0; color: var(--accent); display: flex; align-items: center; gap: 8px; }
         .offer-card p { margin: 4px 0; font-size: 0.9em; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
         .offer-card.renewal { border-color: var(--success); background: rgba(0, 230, 118, 0.05); }
+        
+        /* Estilos específicos para consumibles comprados o sin fondos */
+        .offer-card.purchased {
+            border-color: var(--success);
+            background: rgba(0, 230, 118, 0.06);
+            opacity: 0.85;
+        }
+        .offer-card.no-funds {
+            border-color: #3a2225;
+            background: rgba(255, 24, 1, 0.03);
+            opacity: 0.65;
+        }
 
         /* Consola de logs inferior */
         #log-panel { background-color: #050507; padding: 15px 30px; font-size: 0.85em; color: #777; height: 110px; overflow-y: auto; border-top: 1px solid #1a1a22; }
@@ -357,15 +387,18 @@
             <div class="stat-badge"><i class="fa-solid fa-car-burst"></i> Gomas<span id="stat-tires">0</span></div>
             <div class="stat-badge"><i class="fa-solid fa-cloud-rain"></i> Lluvia<span id="stat-rain">0</span></div>
         </div>
+        <!-- Panel de consumibles activos en estadísticas -->
+        <div class="stats-grid" style="border-top: 1px solid #1a1a22; padding-top: 10px;">
+            <div class="stat-badge"><i class="fa-solid fa-gas-pump"></i> Gasolina<span id="consumable-stat-pace" class="consumable-active">Ninguno</span></div>
+            <div class="stat-badge"><i class="fa-solid fa-fire-flame-curved"></i> Aditivo<span id="consumable-stat-aggro" class="consumable-active">Ninguno</span></div>
+            <div class="stat-badge"><i class="fa-solid fa-glasses"></i> Visera<span id="consumable-stat-rain" class="consumable-active">Ninguno</span></div>
+            <div class="stat-badge"><i class="fa-solid fa-wallet"></i> Fondos<span id="stat-money" class="money">0</span></div>
+        </div>
         <div class="stats-grid" style="border-top: 1px solid #1a1a22; padding-top: 10px;">
             <div class="stat-badge"><i class="fa-solid fa-cake-candles"></i> Edad<span id="stat-age">0</span></div>
             <div class="stat-badge"><i class="fa-solid fa-calendar-days"></i> Temporada<span id="stat-season">1</span></div>
             <div class="stat-badge"><i class="fa-solid fa-star"></i> Reputación<span id="stat-rep">0</span></div>
-            <div class="stat-badge"><i class="fa-solid fa-wallet"></i> Fondos<span id="stat-money" class="money">0</span></div>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1a1a22; padding-top: 10px;">
-            <span style="font-size: 0.85em; color: var(--text-muted); display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-circle-info"></i> Inversión de capital y estado físico del piloto</span>
-            <button class="start-btn" style="padding: 8px 16px; font-size: 0.85em; width: auto; background-color: var(--accent); color: #000; font-weight: 900;" onclick="openShopModal()"><i class="fa-solid fa-shop"></i> Abrir Tienda R&D</button>
+            <div class="stat-badge" style="display:flex; align-items:center; justify-content:center;"><button class="start-btn" style="padding: 6px 10px; font-size: 0.75em; width: 100%; background-color: var(--accent); color: #000; font-weight: 900;" onclick="openShopModal()"><i class="fa-solid fa-shop"></i> Tienda R&D</button></div>
         </div>
     </header>
 
@@ -426,7 +459,7 @@
         reputation: 15,
         devPoints: 1,
         attributes: { pace: 45, aggression: 45, tires: 45, rain: 45 },
-        temporaryBoosts: { pace: 0, aggression: 0, tires: 0, rain: 0 },
+        temporaryBoosts: { pace: 0, aggression: 0, rain: 0 },
         statsRecord: { wins: 0, podiums: 0, crashes: 0 },
         careerHistory: []
     };
@@ -729,6 +762,39 @@
         document.getElementById('stat-season').innerText = state.season;
         document.getElementById('stat-rep').innerText = state.reputation;
         document.getElementById('stat-money').innerText = formatMoney(state.money);
+
+        // Actualizar estados visuales de consumibles en estadísticas
+        const paceBoost = state.temporaryBoosts.pace || 0;
+        const aggroBoost = state.temporaryBoosts.aggression || 0;
+        const rainBoost = state.temporaryBoosts.rain || 0;
+
+        const paceStatEl = document.getElementById('consumable-stat-pace');
+        const aggroStatEl = document.getElementById('consumable-stat-aggro');
+        const rainStatEl = document.getElementById('consumable-stat-rain');
+
+        if(paceBoost > 0) {
+            paceStatEl.innerText = `+${paceBoost} (Activo)`;
+            paceStatEl.style.color = "var(--success)";
+        } else {
+            paceStatEl.innerText = "Ninguno";
+            paceStatEl.style.color = "var(--text-muted)";
+        }
+
+        if(aggroBoost > 0) {
+            aggroStatEl.innerText = `+${aggroBoost} (Activo)`;
+            aggroStatEl.style.color = "var(--success)";
+        } else {
+            aggroStatEl.innerText = "Ninguno";
+            aggroStatEl.style.color = "var(--text-muted)";
+        }
+
+        if(rainBoost > 0) {
+            rainStatEl.innerText = `+${rainBoost} (Activo)`;
+            rainStatEl.style.color = "var(--success)";
+        } else {
+            rainStatEl.innerText = "Ninguno";
+            rainStatEl.style.color = "var(--text-muted)";
+        }
     }
 
     // --- TIENDA Y R&D ---
@@ -746,81 +812,115 @@
         const tempContainer = document.getElementById('shop-temp-list');
         const permContainer = document.getElementById('shop-perm-list');
         
+        const paceBoost = state.temporaryBoosts.pace || 0;
+        const aggroBoost = state.temporaryBoosts.aggression || 0;
+        const rainBoost = state.temporaryBoosts.rain || 0;
+
+        const paceCost = 12000;
+        const aggroCost = 10000;
+        const rainCost = 10000;
+
+        // Comprobación de fondos y estados
+        const hasPaceFunds = state.money >= paceCost;
+        const hasAggroFunds = state.money >= aggroCost;
+        const hasRainFunds = state.money >= rainCost;
+
+        // Tarjeta Gasolina
+        let paceCardClass = "offer-card";
+        let paceBtnHtml = `<button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'pace', 15, ${paceCost})"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>`;
+        if (paceBoost > 0) {
+            paceCardClass = "offer-card purchased";
+            paceBtnHtml = `<span style="color:var(--success); font-weight:bold; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-circle-check"></i> Ya Comprado</span>`;
+        } else if (!hasPaceFunds) {
+            paceCardClass = "offer-card no-funds";
+            paceBtnHtml = `<button class="start-btn disabled" style="padding:6px 12px; font-size:0.8em; width:auto;" disabled><i class="fa-solid fa-ban"></i> Sin Fondos</button>`;
+        }
+
+        // Tarjeta Aditivo
+        let aggroCardClass = "offer-card";
+        let aggroBtnHtml = `<button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'aggression', 15, ${aggroCost})"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>`;
+        if (aggroBoost > 0) {
+            aggroCardClass = "offer-card purchased";
+            aggroBtnHtml = `<span style="color:var(--success); font-weight:bold; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-circle-check"></i> Ya Comprado</span>`;
+        } else if (!hasAggroFunds) {
+            aggroCardClass = "offer-card no-funds";
+            aggroBtnHtml = `<button class="start-btn disabled" style="padding:6px 12px; font-size:0.8em; width:auto;" disabled><i class="fa-solid fa-ban"></i> Sin Fondos</button>`;
+        }
+
+        // Tarjeta Visera
+        let rainCardClass = "offer-card";
+        let rainBtnHtml = `<button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'rain', 15, ${rainCost})"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>`;
+        if (rainBoost > 0) {
+            rainCardClass = "offer-card purchased";
+            rainBtnHtml = `<span style="color:var(--success); font-weight:bold; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-circle-check"></i> Ya Comprado</span>`;
+        } else if (!hasRainFunds) {
+            rainCardClass = "offer-card no-funds";
+            rainBtnHtml = `<button class="start-btn disabled" style="padding:6px 12px; font-size:0.8em; width:auto;" disabled><i class="fa-solid fa-ban"></i> Sin Fondos</button>`;
+        }
+
         tempContainer.innerHTML = `
-            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="${paceCardClass}" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <h4 style="margin:0; color:var(--accent);"><i class="fa-solid fa-gas-pump"></i> Gasolina de Alto Octanaje (+15 Ritmo)</h4>
                     <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
                 </div>
                 <div style="text-align:right;">
-                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">12.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'pace', 15, 12000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
+                    <span style="color:${paceBoost > 0 ? 'var(--success)' : (hasPaceFunds ? 'var(--success)' : 'var(--primary)');} font-weight:bold; display:block; margin-bottom:5px;">${formatMoney(paceCost)}</span>
+                    ${paceBtnHtml}
                 </div>
             </div>
-            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="${aggroCardClass}" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <h4 style="margin:0; color:var(--accent);"><i class="fa-solid fa-fire-flame-curved"></i> Aditivo de Neumáticos (+15 Agresividad)</h4>
                     <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
                 </div>
                 <div style="text-align:right;">
-                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">10.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'aggression', 15, 10000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
+                    <span style="color:${aggroBoost > 0 ? 'var(--success)' : (hasAggroFunds ? 'var(--success)' : 'var(--primary)');} font-weight:bold; display:block; margin-bottom:5px;">${formatMoney(aggroCost)}</span>
+                    ${aggroBtnHtml}
                 </div>
             </div>
-            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="${rainCardClass}" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <h4 style="margin:0; color:var(--accent);"><i class="fa-solid fa-glasses"></i> Visera Hidrófuga Especial (+15 Lluvia)</h4>
                     <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
                 </div>
                 <div style="text-align:right;">
-                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">10.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'rain', 15, 10000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
+                    <span style="color:${rainBoost > 0 ? 'var(--success)' : (hasRainFunds ? 'var(--success)' : 'var(--primary)');} font-weight:bold; display:block; margin-bottom:5px;">${formatMoney(rainCost)}</span>
+                    ${rainBtnHtml}
                 </div>
             </div>
         `;
 
-        permContainer.innerHTML = `
-            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h4 style="margin:0; color:var(--warning);"><i class="fa-solid fa-desktop"></i> Simulador Avanzado de Fábrica (+2 Ritmo Perm.)</h4>
-                    <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
+        // Mejoras permanentes comprobando fondos
+        const permItems = [
+            { id: 'pace', title: 'Simulador Avanzado de Fábrica (+2 Ritmo Perm.)', cost: 60000, stat: 'pace', val: 2 },
+            { id: 'aggression', title: 'Entrenamiento Psicológico & Reflejos (+2 Agres. Perm.)', cost: 55000, stat: 'aggression', val: 2 },
+            { id: 'tires', title: 'Especialista en Degradación de Gomas (+2 Gomas Perm.)', cost: 60000, stat: 'tires', val: 2 },
+            { id: 'rain', title: 'Túnel de Viento para Pista Mojada (+2 Lluvia Perm.)', cost: 65000, stat: 'rain', val: 2 }
+        ];
+
+        let permHtml = '';
+        permItems.forEach(item => {
+            const hasFunds = state.money >= item.cost;
+            const cardClass = hasFunds ? 'offer-card' : 'offer-card no-funds';
+            const btnHtml = hasFunds 
+                ? `<button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:var(--warning); color:#000;" onclick="buyItem('perm', '${item.stat}', ${item.val}, ${item.cost})"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>`
+                : `<button class="start-btn disabled" style="padding:6px 12px; font-size:0.8em; width:auto;" disabled><i class="fa-solid fa-ban"></i> Sin Fondos</button>`;
+
+            permHtml += `
+                <div class="${cardClass}" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h4 style="margin:0; color:var(--warning);">${item.title}</h4>
+                        <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="color:${hasFunds ? 'var(--success)' : 'var(--primary)'}; font-weight:bold; display:block; margin-bottom:5px;">${formatMoney(item.cost)}</span>
+                        ${btnHtml}
+                    </div>
                 </div>
-                <div style="text-align:right;">
-                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">60.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:var(--warning); color:#000;" onclick="buyItem('perm', 'pace', 2, 60000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
-                </div>
-            </div>
-            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h4 style="margin:0; color:var(--warning);"><i class="fa-solid fa-dumbbell"></i> Entrenamiento Psicológico & Reflejos (+2 Agres. Perm.)</h4>
-                    <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
-                </div>
-                <div style="text-align:right;">
-                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">55.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:var(--warning); color:#000;" onclick="buyItem('perm', 'aggression', 2, 55000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
-                </div>
-            </div>
-            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h4 style="margin:0; color:var(--warning);"><i class="fa-solid fa-circle-notch"></i> Especialista en Degradación de Gomas (+2 Gomas Perm.)</h4>
-                    <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
-                </div>
-                <div style="text-align:right;">
-                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">60.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:var(--warning); color:#000;" onclick="buyItem('perm', 'tires', 2, 60000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
-                </div>
-            </div>
-            <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h4 style="margin:0; color:var(--warning);"><i class="fa-solid fa-water"></i> Túnel de Viento para Pista Mojada (+2 Lluvia Perm.)</h4>
-                    <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
-                </div>
-                <div style="text-align:right;">
-                    <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">65.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:var(--warning); color:#000;" onclick="buyItem('perm', 'rain', 2, 65000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
-                </div>
-            </div>
-        `;
+            `;
+        });
+        permContainer.innerHTML = permHtml;
     }
 
     function buyItem(type, stat, value, cost) {
@@ -842,7 +942,7 @@
 
     // --- PROGRESIÓN Y CONTROL DE TEMPORADA & EDAD ---
     function progressEvent() {
-        state.temporaryBoosts = { pace: 0, aggression: 0, tires: 0, rain: 0 };
+        state.temporaryBoosts = { pace: 0, aggression: 0, rain: 0 };
 
         state.eventsCompleted++;
         if(state.eventsCompleted >= 6) {
@@ -1017,7 +1117,7 @@
         triggerRandomEvent();
     }
 
-    // --- MINIJUEGOS ---
+    // --- MINIJUEGOS INTERACTIVOS CON FEEDBACK VISUAL IN SITU ---
     function renderStartLightsMinigame(container) {
         container.style.display = 'block';
         container.innerHTML = `
@@ -1027,6 +1127,8 @@
                 <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
             </div>
             <button id="mg-action-btn" class="start-btn" style="background:var(--primary); cursor:pointer;"><i class="fa-solid fa-bolt"></i> ¡ACELERAR / SALIR!</button>
+            <div id="mg-feedback-box" class="mg-feedback"></div>
+            <button id="mg-next-btn" class="start-btn" style="background:var(--accent); color:#000; margin-top:12px; display:none;"><i class="fa-solid fa-arrow-right"></i> Siguiente Evento</button>
         `;
 
         const lights = container.querySelectorAll('.light');
@@ -1052,25 +1154,43 @@
 
         actionBtn.onclick = () => {
             clearInterval(lightInterval);
-            container.style.display = 'none';
+            actionBtn.style.display = 'none';
+            const feedbackBox = document.getElementById('mg-feedback-box');
+            const nextBtn = document.getElementById('mg-next-btn');
+
+            let resultMsg = "";
+            let resultType = "";
 
             if (!lightsOut) {
                 state.reputation -= 10; state.money -= 5000; state.statsRecord.crashes++;
-                addLog("¡SALIDA FALSA! Te moviste antes de tiempo. Penalización de comisarios.", "danger");
+                resultMsg = "¡SALIDA FALSA! Te moviste antes de tiempo. Penalización de comisarios.";
+                resultType = "danger";
+                addLog(resultMsg, "danger");
             } else {
                 const reactionTime = Date.now() - startTime;
                 if(reactionTime < 300) {
                     state.reputation += 20; state.money += 20000; state.statsRecord.wins++;
-                    addLog(`¡Salida prodigiosa! Reacción de ${reactionTime}ms. Ganas posiciones clave.`, "success");
+                    resultMsg = `¡Salida prodigiosa! Reacción de ${reactionTime}ms. Ganas posiciones clave.`;
+                    resultType = "success";
+                    addLog(resultMsg, "success");
                 } else if(reactionTime < 600) {
                     state.reputation += 5; state.statsRecord.podiums++;
-                    addLog(`Buena salida estándar. Tiempo de reacción: ${reactionTime}ms.`);
+                    resultMsg = `Buena salida estándar. Tiempo de reacción: ${reactionTime}ms.`;
+                    resultType = "warning";
+                    addLog(resultMsg);
                 } else {
                     state.reputation -= 5;
-                    addLog(`Salida lenta. Te han ganado la posición en la arrancada (${reactionTime}ms).`, "danger");
+                    resultMsg = `Salida lenta. Te han ganado la posición en la arrancada (${reactionTime}ms).`;
+                    resultType = "danger";
+                    addLog(resultMsg, "danger");
                 }
             }
-            progressEvent();
+
+            feedbackBox.className = `mg-feedback ${resultType}`;
+            feedbackBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${resultMsg}`;
+            feedbackBox.style.display = 'block';
+            nextBtn.style.display = 'block';
+            nextBtn.onclick = () => { container.style.display = 'none'; progressEvent(); };
         };
     }
 
@@ -1083,7 +1203,9 @@
                 <div class="brake-target" style="left: 40%; width: 18%;"></div>
                 <div class="brake-cursor" id="brake-cursor"></div>
             </div>
-            <button class="start-btn" style="background:var(--primary); margin-top:10px;" onclick="executeBrake()"><i class="fa-solid fa-hand"></i> ¡CLAVAR FRENO!</button>
+            <button id="brake-action-btn" class="start-btn" style="background:var(--primary); margin-top:10px;" onclick="executeBrake()"><i class="fa-solid fa-hand"></i> ¡CLAVAR FRENO!</button>
+            <div id="mg-feedback-box" class="mg-feedback"></div>
+            <button id="mg-next-btn" class="start-btn" style="background:var(--accent); color:#000; margin-top:12px; display:none;"><i class="fa-solid fa-arrow-right"></i> Siguiente Evento</button>
         `;
 
         window.isBrakingActive = true;
@@ -1105,17 +1227,33 @@
         if(!window.isBrakingActive) return;
         window.isBrakingActive = false;
         clearInterval(window.brakeInterval);
-        const container = document.getElementById('minigame-panel');
-        container.style.display = 'none';
+
+        const actionBtn = document.getElementById('brake-action-btn');
+        if(actionBtn) actionBtn.style.display = 'none';
+
+        const feedbackBox = document.getElementById('mg-feedback-box');
+        const nextBtn = document.getElementById('mg-next-btn');
+
+        let resultMsg = "";
+        let resultType = "";
 
         if(window.cursorPos >= 40 && window.cursorPos <= 58) {
             state.reputation += 15; state.devPoints += 1; state.statsRecord.wins++;
-            addLog("¡Frenada milimétrica perfecta! Te metes por el interior ganando la posición.", "success");
+            resultMsg = "¡Frenada milimétrica perfecta! Te metes por el interior ganando la posición.";
+            resultType = "success";
+            addLog(resultMsg, "success");
         } else {
             state.money -= 15000; state.statsRecord.crashes++;
-            addLog("Calculas mal la frenada y bloqueas neumáticos, yéndote recto por la escapatoria.", "danger");
+            resultMsg = "Calculas mal la frenada y bloqueas neumáticos, yéndote recto por la escapatoria.";
+            resultType = "danger";
+            addLog(resultMsg, "danger");
         }
-        progressEvent();
+
+        feedbackBox.className = `mg-feedback ${resultType}`;
+        feedbackBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${resultMsg} (Posición de frenada: ${Math.round(window.cursorPos)}%)`;
+        feedbackBox.style.display = 'block';
+        nextBtn.style.display = 'block';
+        nextBtn.onclick = () => { document.getElementById('minigame-panel').style.display = 'none'; progressEvent(); };
     }
 
     function renderShiftTimingMinigame(container) {
@@ -1124,12 +1262,15 @@
             <div class="mg-title"><i class="fa-solid fa-gears"></i> Minijuego: Cambio de Marchas Preciso</div>
             <p style="font-size:0.85em; color: var(--text-muted);">Pulsa primero en "Iniciar Aceleración" para arrancar las revoluciones y luego en "¡SUBIR MARCHA!" en el momento óptimo.</p>
             <div class="rpm-bar">
+                <div class="brake-target" style="left: 75%; width: 17%; background: rgba(0, 230, 118, 0.4); border-left: 2px dashed var(--success); border-right: 2px dashed var(--success); height:100%;"></div>
                 <div class="rpm-fill" id="rpm-fill"></div>
             </div>
             <div style="display: flex; gap: 10px;">
                 <button id="btn-start-shift" class="start-btn" style="background: var(--accent); color: #000;" onclick="startShiftRpm()"><i class="fa-solid fa-play"></i> Iniciar Aceleración</button>
                 <button id="btn-execute-shift" class="start-btn" style="background: var(--primary); display: none;" onclick="executeShift()"><i class="fa-solid fa-angles-up"></i> ¡SUBIR MARCHA!</button>
             </div>
+            <div id="mg-feedback-box" class="mg-feedback"></div>
+            <button id="mg-next-btn" class="start-btn" style="background: var(--accent); color:#000; margin-top:12px; display:none;"><i class="fa-solid fa-arrow-right"></i> Siguiente Evento</button>
         `;
 
         window.isShiftingActive = false;
@@ -1163,20 +1304,38 @@
         if(!window.isShiftingActive && window.rpmProgress < 75) return;
         window.isShiftingActive = false;
         clearInterval(window.shiftInterval);
-        const container = document.getElementById('minigame-panel');
-        container.style.display = 'none';
+
+        const executeBtn = document.getElementById('btn-execute-shift');
+        if(executeBtn) executeBtn.style.display = 'none';
+
+        const feedbackBox = document.getElementById('mg-feedback-box');
+        const nextBtn = document.getElementById('mg-next-btn');
+
+        let resultMsg = "";
+        let resultType = "";
 
         if(window.rpmProgress >= 75 && window.rpmProgress <= 92) {
             state.attributes.pace += 2; state.reputation += 10; state.statsRecord.podiums++;
-            addLog("¡Cambio de marcha perfecto sin pérdida de par motor! Ganas décimas valiosas.", "success");
+            resultMsg = "¡Cambio de marcha perfecto sin pérdida de par motor! Ganas décimas valiosas.";
+            resultType = "success";
+            addLog(resultMsg, "success");
         } else if(window.rpmProgress > 92) {
             state.money -= 8000; state.statsRecord.crashes++;
-            addLog("¡Corte de inyección por sobrepasarse de revoluciones! Pierdes impulso vital.", "danger");
+            resultMsg = "¡Corte de inyección por sobrepasarse de revoluciones! Pierdes impulso vital.";
+            resultType = "danger";
+            addLog(resultMsg, "danger");
         } else {
             state.money -= 4000;
-            addLog("Cambio demasiado temprano. El motor sube perezoso de vueltas y pierdes tracción.", "danger");
+            resultMsg = "Cambio demasiado temprano. El motor sube perezoso de vueltas y pierdes tracción.";
+            resultType = "warning";
+            addLog(resultMsg, "danger");
         }
-        progressEvent();
+
+        feedbackBox.className = `mg-feedback ${resultType}`;
+        feedbackBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${resultMsg} (RPM alcanzadas: ${Math.round(window.rpmProgress)}%)`;
+        feedbackBox.style.display = 'block';
+        nextBtn.style.display = 'block';
+        nextBtn.onclick = () => { document.getElementById('minigame-panel').style.display = 'none'; progressEvent(); };
     }
 
     function renderDrsMinigame(container) {
@@ -1186,7 +1345,7 @@
 
         let tilesHtml = '';
         for(let i=0; i<3; i++) {
-            tilesHtml += `<div class="drs-tile" onclick="checkDrs(${i})"><i class="fa-solid fa-bolt"></i></div>`;
+            tilesHtml += `<div class="drs-tile" id="drs-tile-${i}" onclick="checkDrs(${i})"><i class="fa-solid fa-bolt"></i></div>`;
         }
 
         container.innerHTML = `
@@ -1195,21 +1354,43 @@
             <div class="drs-grid">
                 ${tilesHtml}
             </div>
+            <div id="mg-feedback-box" class="mg-feedback"></div>
+            <button id="mg-next-btn" class="start-btn" style="background:var(--accent); color:#000; margin-top:12px; display:none;"><i class="fa-solid fa-arrow-right"></i> Siguiente Evento</button>
         `;
     }
 
     function checkDrs(selectedIndex) {
-        const container = document.getElementById('minigame-panel');
-        container.style.display = 'none';
+        for(let i=0; i<3; i++) {
+            const tile = document.getElementById(`drs-tile-${i}`);
+            if(tile) tile.onclick = null;
+        }
+
+        const feedbackBox = document.getElementById('mg-feedback-box');
+        const nextBtn = document.getElementById('mg-next-btn');
+
+        let resultMsg = "";
+        let resultType = "";
 
         if(selectedIndex === window.correctDrsIndex) {
             state.reputation += 12; state.money += 15000; state.statsRecord.wins++;
-            addLog("¡Apertura de DRS perfecta en el momento justo! Adelantas limpiamente al rival.", "success");
+            resultMsg = "¡Apertura de DRS perfecta en el momento justo! Adelantas limpiamente al rival.";
+            resultType = "success";
+            addLog(resultMsg, "success");
         } else {
             state.reputation -= 5;
-            addLog("Fallaste el panel del volante y el DRS no se abrió a tiempo. Te quedas bloqueado.", "danger");
+            resultMsg = "Fallaste el panel del volante y el DRS no se abrió a tiempo. Te quedas bloqueado.";
+            resultType = "danger";
+            addLog(resultMsg, "danger");
         }
-        progressEvent();
+
+        const correctTile = document.getElementById(`drs-tile-${window.correctDrsIndex}`);
+        if(correctTile) correctTile.style.borderColor = "var(--success)";
+
+        feedbackBox.className = `mg-feedback ${resultType}`;
+        feedbackBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${resultMsg}`;
+        feedbackBox.style.display = 'block';
+        nextBtn.style.display = 'block';
+        nextBtn.onclick = () => { document.getElementById('minigame-panel').style.display = 'none'; progressEvent(); };
     }
 
     function triggerRandomEvent() {
