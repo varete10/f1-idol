@@ -6,7 +6,7 @@
     <title>Leyenda de la F1 - Arcade & Strategy</title>
     
     <!-- FAVICON DINÁMICO (SVG en línea para que funcione al instante sin archivos externos) -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff1801'/%3E%3Cstop offset='100%25' stop-color='%2300f0ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M10 50 L35 15 L85 15 L95 50 L85 85 L35 85 Z' fill='%23121216' stroke='url(%23grad)' stroke-width='8'/%3E%3Ctext x='5050' y='62' font-family='Montserrat, sans-serif' font-weight='900' font-size='42' fill='%23ffffff' text-anchor='middle'%3EF1%3C/text%3E%3C/svg%3E">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff1801'/%3E%3Cstop offset='100%25' stop-color='%2300f0ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M10 50 L35 15 L85 15 L95 50 L85 85 L35 85 Z' fill='%23121216' stroke='url(%23grad)' stroke-width='8'/%3E%3Ctext x='50' y='62' font-family='Montserrat, sans-serif' font-weight='900' font-size='42' fill='%23ffffff' text-anchor='middle'%3EF1%3C/text%3E%3C/svg%3E">
 
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900&display=swap" rel="stylesheet">
     <style>
@@ -217,6 +217,7 @@
         .offer-card { background: #181820; border: 2px solid #2a2a35; border-radius: 10px; padding: 15px; margin-bottom: 15px; text-align: left; }
         .offer-card h4 { margin: 0 0 8px 0; color: var(--accent); }
         .offer-card p { margin: 4px 0; font-size: 0.9em; color: var(--text-muted); }
+        .offer-card.renewal { border-color: var(--success); background: rgba(0, 230, 118, 0.05); }
 
         /* Consola de logs inferior */
         #log-panel { background-color: #050507; padding: 15px 30px; font-size: 0.85em; color: #777; height: 110px; overflow-y: auto; border-top: 1px solid #1a1a22; }
@@ -299,8 +300,8 @@
 
 <!-- MODAL DE MERCADO DE FICHAJES -->
 <div id="market-modal">
-    <h2 style="color: var(--accent); text-transform: uppercase; margin-top: 0;">Mercado de Fichajes</h2>
-    <p style="color: var(--text-muted); margin-bottom: 20px;">Tu contrato actual ha expirado. Selecciona tu nuevo destino para la siguiente temporada basándote en tu reputación y objetivos:</p>
+    <h2 style="color: var(--accent); text-transform: uppercase; margin-top: 0;">Mercado de Fichajes & Renovaciones</h2>
+    <p style="color: var(--text-muted); margin-bottom: 20px;">Tu contrato actual ha expirado. Tu escudería actual te ofrece renovar, o puedes valorar otras opciones:</p>
     <div id="offers-list"></div>
 </div>
 
@@ -378,6 +379,18 @@
         de: { name: "Alemania" },
         nl: { name: "Países Bajos" },
         mc: { name: "Mónaco" }
+    };
+
+    const teamCatalog = {
+        "Prema F3 (Academy)": { level: "Medio-Bajo (F3)", baseSalary: 50000 },
+        "Hitech Grand Prix": { level: "Medio (F3)", baseSalary: 75000 },
+        "Trident Racing": { level: "Competitivo (F3)", baseSalary: 90000 },
+        "Carlin Motorsport (F2)": { level: "Competitivo (F2)", baseSalary: 150000 },
+        "ART Grand Prix (F2)": { level: "Top (F2)", baseSalary: 180000 },
+        "Williams Racing (F1)": { level: "Desarrollo (F1)", baseSalary: 350000 },
+        "Alpine F1 Team": { level: "Punto de mira (F1)", baseSalary: 800000 },
+        "Scuderia Ferrari": { level: "Leyenda / Podio (F1)", baseSalary: 1500000 },
+        "Red Bull Racing": { level: "Campeonato Mundial (F1)", baseSalary: 2000000 }
     };
 
     let state = {
@@ -896,43 +909,54 @@
         const offersList = document.getElementById('offers-list');
         offersList.innerHTML = '';
 
-        let availableOffers = [];
+        let availableTeams = [];
 
         if (state.reputation < 35) {
-            availableOffers = [
-                { team: "Prema F3 (Continuidad)", salary: 50000, repReq: 0, carLevel: "Medio-Bajo (F3)" },
-                { team: "Hitech Grand Prix", salary: 75000, repReq: 20, carLevel: "Medio (F3)" },
-                { team: "Trident Racing", salary: 90000, repReq: 25, carLevel: "Competitivo (F3)" }
+            availableTeams = [
+                { team: "Prema F3 (Academy)", repReq: 0 },
+                { team: "Hitech Grand Prix", repReq: 20 },
+                { team: "Trident Racing", repReq: 25 }
             ];
         } else if (state.reputation < 70) {
-            availableOffers = [
-                { team: "Carlin Motorsport (F2)", salary: 150000, repReq: 35, carLevel: "Competitivo (F2)" },
-                { team: "ART Grand Prix (F2)", salary: 180000, repReq: 45, carLevel: "Top (F2)" },
-                { team: "Williams Racing (F1)", salary: 350000, repReq: 60, carLevel: "Desarrollo (F1)" }
+            availableTeams = [
+                { team: "Carlin Motorsport (F2)", repReq: 35 },
+                { team: "ART Grand Prix (F2)", repReq: 45 },
+                { team: "Williams Racing (F1)", repReq: 60 }
             ];
         } else {
-            availableOffers = [
-                { team: "Alpine F1 Team", salary: 800000, repReq: 70, carLevel: "Punto de mira (F1)" },
-                { team: "Scuderia Ferrari", salary: 1500000, repReq: 85, carLevel: "Leyenda / Podio (F1)" },
-                { team: "Red Bull Racing", salary: 2000000, repReq: 90, carLevel: "Campeonato Mundial (F1)" }
+            availableTeams = [
+                { team: "Alpine F1 Team", repReq: 70 },
+                { team: "Scuderia Ferrari", repReq: 85 },
+                { team: "Red Bull Racing", repReq: 90 }
             ];
         }
 
-        availableOffers.forEach(offer => {
+        // Asegurarnos de que el equipo actual siempre aparezca entre las opciones de ofertas
+        let currentTeamInList = availableTeams.find(t => t.team === state.team);
+        if(!currentTeamInList) {
+            availableTeams.unshift({ team: state.team, repReq: 0 });
+        }
+
+        availableTeams.forEach(item => {
+            const teamInfo = teamCatalog[item.team] || { level: "Competitivo", baseSalary: 100000 };
+            const isCurrent = item.team === state.team;
+            const actionText = isCurrent ? "Renovar Contrato" : `Fichar por ${item.team}`;
+            const cardClass = isCurrent ? "offer-card renewal" : "offer-card";
+            
             const card = document.createElement('div');
-            card.className = 'offer-card';
+            card.className = cardClass;
             card.innerHTML = `
-                <h4>${offer.team}</h4>
-                <p><strong>Salario Anual:</strong> <span style="color:var(--success)">${formatMoney(offer.salary)}</span></p>
-                <p><strong>Nivel de Monoplaza:</strong> ${offer.carLevel}</p>
-                <p><strong>Reputación Requerida:</strong> ${offer.repReq}</p>
-                <button class="start-btn" style="margin-top:10px; padding:10px; font-size:0.9em;" onclick="signContract('${offer.team}', ${offer.salary})">Fichar por ${offer.team}</button>
+                <h4>${item.team} ${isCurrent ? '<span style="color:var(--success); font-size:0.8em;">(Tu equipo actual)</span>' : ''}</h4>
+                <p><strong>${isCurrent ? 'Propuesta de Renovación Salarial' : 'Salario Anual'}:</strong> <span style="color:var(--success)">${formatMoney(teamInfo.baseSalary)}</span></p>
+                <p><strong>Nivel de Monoplaza:</strong> ${teamInfo.level}</p>
+                <p><strong>Reputación Requerida:</strong> ${item.repReq}</p>
+                <button class="start-btn" style="margin-top:10px; padding:10px; font-size:0.9em; ${isCurrent ? 'background:var(--success); color:#000;' : ''}" onclick="signContract('${item.team}', ${teamInfo.baseSalary}, ${isCurrent})">${actionText}</button>
             `;
             offersList.appendChild(card);
         });
     }
 
-    function signContract(teamName, salary) {
+    function signContract(teamName, salary, isRenewal = false) {
         state.team = teamName;
         state.money += salary;
         state.season++;
@@ -943,7 +967,11 @@
         document.getElementById('game-container').style.display = 'flex';
 
         const flagHtml = `<img src="${getFlagUrl(state.countryCode)}" class="flag-icon">`;
-        addLog(`¡NUEVO CONTRATO! ${state.name} ${flagHtml} ficha oficialmente por <strong>${teamName}</strong> para la Temporada ${state.season}.`, "success");
+        if(isRenewal) {
+            addLog(`¡RENOVACIÓN DE CONTRATO! ${state.name} ${flagHtml} extiende su vinculación con <strong>${teamName}</strong> para la Temporada ${state.season}.`, "success");
+        } else {
+            addLog(`¡NUEVO FICHAJE! ${state.name} ${flagHtml} cambia de aires y ficha por <strong>${teamName}</strong> para la Temporada ${state.season}.`, "success");
+        }
         triggerRandomEvent();
     }
 
