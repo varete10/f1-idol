@@ -141,15 +141,19 @@
     </div>
 
     <div class="form-group">
-        <label>Nacionalidad</label>
+        <label>País de Origen</label>
         <select id="input-country">
-            <option value="🇪🇸 ESP">🇪🇸 España</option>
-            <option value="🇦🇷 ARG">🇦🇷 Argentina</option>
-            <option value="🇲🇽 MEX">🇲🇽 México</option>
-            <option value="🇨🇴 COL">🇨🇴 Colombia</option>
-            <option value="🇧🇷 BRA">🇧🇷 Brasil</option>
-            <option value="🇬🇧 GBR">🇬🇧 Reino Unido</option>
-            <option value="🇮🇹 ITA">🇮🇹 Italia</option>
+            <option value="🇪🇸 España">🇪🇸 España</option>
+            <option value="🇦🇷 Argentina">🇦🇷 Argentina</option>
+            <option value="🇲🇽 México">🇲🇽 México</option>
+            <option value="🇨🇴 Colombia">🇨🇴 Colombia</option>
+            <option value="🇧🇷 Brasil">🇧🇷 Brasil</option>
+            <option value="🇬🇧 Reino Unido">🇬🇧 Reino Unido</option>
+            <option value="🇮🇹 Italia">🇮🇹 Italia</option>
+            <option value="🇫🇷 Francia">🇫🇷 Francia</option>
+            <option value="🇩🇪 Alemania">🇩🇪 Alemania</option>
+            <option value="🇳🇱 Países Bajos">🇳🇱 Países Bajos</option>
+            <option value="🇲🇨 Mónaco">🇲🇨 Mónaco</option>
         </select>
     </div>
 
@@ -183,7 +187,7 @@
     <header>
         <div class="driver-info">
             <span id="ui-driver-name">Piloto</span>
-            <span id="ui-driver-country">🇪🇸 ESP</span>
+            <span id="ui-driver-country">🇪🇸 España</span>
         </div>
         <div class="stats-grid">
             <div class="stat-badge">Ritmo<span id="stat-pace">0</span></div>
@@ -221,7 +225,7 @@
 <script>
     let state = {
         name: "Rookie",
-        country: "🇪🇸 ESP",
+        country: "🇪🇸 España",
         category: "Fórmula 3",
         money: 50000,
         reputation: 15,
@@ -251,7 +255,7 @@
         document.getElementById('game-container').style.display = 'flex';
 
         updateUI();
-        addLog(`Bienvenido al gran circo, ${state.name}. Tu carrera da comienzo.`);
+        addLog(`Bienvenido al gran circo, ${state.name} (${state.country}). Tu carrera da comienzo.`);
         triggerRandomEvent();
     }
 
@@ -389,10 +393,10 @@
 
         if(state.reputation >= 40 && state.category === "Fórmula 3") {
             state.category = "Fórmula 2";
-            addLog("¡Ascenso a la categoría de F2 por tu brillante rendimiento!", "success");
+            addLog(`¡Ascenso de ${state.name} (${state.country}) a la categoría de F2 por su brillante rendimiento!`, "success");
         } else if(state.reputation >= 80 && state.category === "Fórmula 2") {
             state.category = "Fórmula 1";
-            addLog("¡HAS LLEGADO A LA FÓRMULA 1! El gran sueño automovilístico es tuyo.", "success");
+            addLog(`¡${state.name} (${state.country}) HA LLEGADO A LA FÓRMULA 1! El gran sueño automovilístico es tuyo.`, "success");
         }
 
         const randomIndex = Math.floor(Math.random() * randomEvents.length);
@@ -432,7 +436,7 @@
         }
     }
 
-    // --- MINIJUEGO 1: SEMÁFORO DE SALIDA (CORREGIDO Y DINÁMICO) ---
+    // --- MINIJUEGO 1: SEMÁFORO DE SALIDA ---
     function renderStartLightsMinigame(container) {
         container.style.display = 'block';
         container.innerHTML = `
@@ -450,14 +454,12 @@
         let startTime = 0;
         let lightsOut = false;
 
-        // Encender luces progresivamente cada 400ms
         const lightInterval = setInterval(() => {
             if(activeLights < 5) {
                 lights[activeLights].classList.add('active');
                 activeLights++;
             } else {
                 clearInterval(lightInterval);
-                // Tiempo aleatorio variable entre 1000ms (1s) y 2500ms (2.5s) antes de apagarse
                 const randomWait = Math.random() * 1500 + 1000;
                 setTimeout(() => {
                     lights.forEach(l => l.classList.remove('active'));
@@ -467,22 +469,20 @@
             }
         }, 400);
 
-        // El botón está siempre disponible
         actionBtn.onclick = () => {
             clearInterval(lightInterval);
             container.style.display = 'none';
 
             if (!lightsOut) {
-                // Salida falsa (se pulsó antes de que se apagaran las luces)
                 state.reputation -= 10;
                 state.money -= 5000;
-                addLog("¡SALIDA FALSA! Te moviste antes de tiempo. Penalización de los comisarios.", "danger");
+                addLog(`¡SALIDA FALSA! ${state.name} se movió antes de tiempo. Penalización de los comisarios.`, "danger");
             } else {
                 const reactionTime = Date.now() - startTime;
                 if(reactionTime < 300) {
                     state.reputation += 20;
                     state.money += 20000;
-                    addLog(`¡Salida prodigiosa! Reacción de ${reactionTime}ms. Ganas posiciones clave.`, "success");
+                    addLog(`¡Salida prodigiosa de ${state.country}! Reacción de ${reactionTime}ms. Ganas posiciones clave.`, "success");
                 } else if(reactionTime < 600) {
                     state.reputation += 5;
                     addLog(`Buena salida estándar. Tiempo de reacción: ${reactionTime}ms.`);
@@ -530,11 +530,10 @@
         const container = document.getElementById('minigame-panel');
         container.style.display = 'none';
 
-        // Zona verde está entre 40 y 58
         if(window.cursorPos >= 40 && window.cursorPos <= 58) {
             state.reputation += 15;
             state.devPoints += 1;
-            addLog("¡Frenada milimétrica perfecta! Te metes por el interior ganando la posición.", "success");
+            addLog(`¡Frenada milimétrica perfecta de ${state.country}! Te metes por el interior ganando la posición.`, "success");
         } else {
             state.money -= 15000;
             addLog("Calculas mal la frenada y bloqueas neumáticos, yéndote recto por la escapatoria.", "danger");
