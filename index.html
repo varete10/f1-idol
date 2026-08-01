@@ -3,297 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leyenda de la F1 - Arcade & Strategy</title>
+    <title>Leyenda de la F1 - Pro Simulator</title>
     
-    <!-- FAVICON DINÁMICO (SVG en línea) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff1801'/%3E%3Cstop offset='100%25' stop-color='%2300f0ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M10 50 L35 15 L85 15 L95 50 L85 85 L35 85 Z' fill='%23121216' stroke='url(%23grad)' stroke-width='8'/%3E%3Ctext x='50' y='62' font-family='Montserrat, sans-serif' font-weight='900' font-size='42' fill='%23ffffff' text-anchor='middle'%3EF1%3C/text%3E%3C/svg%3E">
-
-    <!-- FUENTES Y LIBRERÍA DE ICONOS (FontAwesome 6.4.0) -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* --- VARIABLES Y RESET (Mantenemos tu estilo oscuro/neón) --- */
         :root {
-            --bg-dark: #070709;
-            --panel-bg: #121216;
-            --primary: #ff1801;
-            --primary-hover: #ff3822;
-            --text-main: #ffffff;
-            --text-muted: #8c8c9e;
-            --accent: #00f0ff;
-            --success: #00e676;
-            --warning: #ffb703;
+            --bg-dark: #070709; --panel-bg: #121216; --primary: #ff1801; --primary-hover: #ff3822;
+            --text-main: #ffffff; --text-muted: #8c8c9e; --accent: #00f0ff; --success: #00e676; --warning: #ffb703;
         }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(255, 24, 1, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.1) 0%, transparent 40%);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        /* --- LOGO CORPORATIVO / DE PANTALLA --- */
-        .app-logo-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .f1-logo-badge {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #181820, #08080a);
-            border: 2px solid var(--accent);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-            overflow: hidden;
-        }
-
-        .f1-logo-badge::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-        }
-
-        .f1-logo-text {
-            font-size: 1.8em;
-            font-weight: 900;
-            font-style: italic;
-            background: linear-gradient(90deg, var(--text-main), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
-        }
-
-        .app-title-group h1 {
-            margin: 0;
-            font-size: 1.5em;
-            font-weight: 950;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-main);
-            text-align: left;
-        }
-
-        .app-title-group span {
-            font-size: 0.75em;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            display: block;
-            text-align: left;
-        }
-
-        /* --- PANTALLA DE CREACIÓN Y MODALES --- */
-        #setup-container, #market-modal, #season-summary-modal, #shop-modal, #career-hall-modal {
-            max-width: 650px;
-            width: 100%;
-            background-color: var(--panel-bg);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-            border: 1px solid #222;
-            border-top: 6px solid var(--primary);
-            text-align: center;
-            margin: auto;
-            box-sizing: border-box;
-        }
-
-        #market-modal, #season-summary-modal, #shop-modal, #career-hall-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; box-sizing: border-box; }
+        
+        /* Modales y Contenedores */
+        #setup-container, #market-modal, #season-summary-modal, #shop-modal, #career-hall-modal { max-width: 650px; width: 100%; background-color: var(--panel-bg); border-radius: 16px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); border: 1px solid #222; border-top: 6px solid var(--primary); text-align: center; margin: auto; box-sizing: border-box; }
+        #market-modal, #season-summary-modal, #shop-modal, #career-hall-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; max-height: 90vh; overflow-y: auto; }
+        #game-container { display: none; max-width: 900px; width: 100%; background-color: var(--panel-bg); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); overflow: hidden; border: 1px solid #222; flex-direction: column; margin: auto; transition: border-color 0.2s; }
+        
+        /* Formularios y Botones */
         .form-group { margin-bottom: 25px; text-align: left; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--text-muted); font-size: 0.9em; letter-spacing: 1px; text-transform: uppercase; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #2a2a35;
-            background-color: #08080a; color: white; font-family: 'Montserrat', sans-serif; font-size: 1em; box-sizing: border-box;
-        }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--text-muted); font-size: 0.9em; text-transform: uppercase; }
+        .form-group input, .form-group select { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #2a2a35; background-color: #08080a; color: white; font-family: inherit; font-size: 1em; box-sizing: border-box; }
+        .start-btn { background-color: var(--primary); color: white; border: none; padding: 16px 30px; font-size: 1.1em; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; text-transform: uppercase; transition: background 0.3s; }
+        .start-btn:hover { background-color: var(--primary-hover); }
 
+        /* Arquetipos */
         .archetypes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
-        .archetype-card {
-            background: #181820; border: 2px solid #2a2a35; padding: 15px; border-radius: 10px; cursor: pointer; transition: all 0.2s; text-align: left;
-        }
-        .archetype-card:hover { border-color: var(--text-muted); }
+        .archetype-card { background: #181820; border: 2px solid #2a2a35; padding: 15px; border-radius: 10px; cursor: pointer; text-align: left; }
         .archetype-card.selected { border-color: var(--primary); background: rgba(255, 24, 1, 0.08); }
-        .archetype-card h4 { margin: 0 0 5px 0; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+        .archetype-card h4 { margin: 0 0 5px 0; color: var(--text-main); }
         .archetype-card p { margin: 0; font-size: 0.75em; color: var(--text-muted); }
 
-        .start-btn {
-            background-color: var(--primary); color: white; border: none; padding: 16px 30px;
-            font-size: 1.1em; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 1px; transition: background 0.3s;
-        }
-        .start-btn:hover { background-color: var(--primary-hover); }
-        .start-btn:disabled, .start-btn.disabled {
-            background-color: #2a2a35 !important; color: #555566 !important; cursor: not-allowed !important; box-shadow: none !important;
-        }
-
-        /* --- CONTENEDOR DEL JUEGO --- */
-        #game-container {
-            display: none; max-width: 900px; width: 100%; background-color: var(--panel-bg);
-            border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); overflow: hidden; border: 1px solid #222; flex-direction: column; margin: auto;
-            transition: border-color 0.2s;
-        }
-
-        header {
-            background-color: #08080a; border-bottom: 4px solid var(--primary); padding: 20px; display: flex; flex-direction: column; gap: 15px;
-        }
-        .driver-info { display: flex; justify-content: space-between; align-items: center; font-size: 1.25em; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .country-display { display: flex; align-items: center; gap: 8px; }
-        
-        .flag-icon {
-            width: 26px;
-            height: 18px;
-            object-fit: cover;
-            border-radius: 3px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.5);
-            display: inline-block;
-            vertical-align: middle;
-        }
-
+        /* Interfaz in-game */
+        header { background-color: #08080a; border-bottom: 4px solid var(--primary); padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .driver-info { display: flex; justify-content: space-between; font-size: 1.25em; font-weight: 900; text-transform: uppercase; }
+        .flag-icon { width: 26px; height: 18px; object-fit: cover; border-radius: 3px; vertical-align: middle; }
         .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
         .stat-badge { background: #16161d; padding: 10px; border-radius: 8px; font-size: 0.8em; font-weight: 700; border: 1px solid #222; text-align: center; }
         .stat-badge span { display: block; color: var(--accent); font-size: 1.2em; margin-top: 3px; font-weight: 900; }
-        .stat-badge .money { color: var(--success); }
-        .stat-badge .points { color: var(--warning); }
-        .stat-badge .consumable-active { color: var(--success); font-size: 0.95em; }
+        .stat-badge .affinity-good { color: var(--success); }
+        .stat-badge .affinity-bad { color: var(--primary); }
 
-        /* --- IMAGEN Y MULTIMEDIA CON GAME FEEL --- */
+        /* Multimedia y Game Feel */
         #image-container { width: 100%; height: 240px; background-color: #000; overflow: hidden; position: relative; }
         #event-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: transform 0.5s; }
-        #image-container:hover #event-image { transform: scale(1.03); }
+        .weather-rain-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0, 180, 216, 0.3), rgba(0, 0, 0, 0.7)); pointer-events: none; display: none; }
         
-        .weather-rain-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(0, 180, 216, 0.3), rgba(0, 0, 0, 0.7));
-            pointer-events: none;
-            display: none;
-        }
+        .shake-active { animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: var(--primary) !important; box-shadow: 0 0 30px rgba(255, 24, 1, 0.5) !important; }
+        @keyframes screenShake { 0% { transform: translate(1px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(0, 0) rotate(0deg); } }
 
-        /* --- ANIMACIÓN SCREEN SHAKE --- */
-        @keyframes screenShake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-2px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(0, 0) rotate(0deg); }
-        }
-
-        .shake-active {
-            animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-            border-color: var(--primary) !important;
-            box-shadow: 0 0 30px rgba(255, 24, 1, 0.5) !important;
-        }
-
-        /* --- HISTORIA Y PANEL DE ACCIÓN --- */
+        /* Paneles de Eventos */
         #story-panel { padding: 30px; font-size: 1.05em; line-height: 1.7; }
-        #event-title { color: var(--text-main); font-weight: 900; text-transform: uppercase; font-size: 1.6em; margin: 0 0 12px 0; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
+        #event-title { font-weight: 900; text-transform: uppercase; font-size: 1.6em; margin: 0 0 12px 0; display: flex; align-items: center; gap: 10px; }
         #event-description { color: var(--text-muted); margin-bottom: 0; }
-        
         #choices-panel { padding: 0 30px 30px 30px; display: flex; flex-direction: column; gap: 12px; }
-        
-        button.choice-btn {
-            background: #181820; color: var(--text-main); border: 1px solid #2a2a35;
-            padding: 16px 20px; font-size: 0.95em; font-family: 'Montserrat', sans-serif; font-weight: 700; border-radius: 10px;
-            cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;
-        }
-        button.choice-btn:hover { background: #22222d; border-color: var(--primary); transform: translateX(5px); }
+        button.choice-btn { background: #181820; color: var(--text-main); border: 1px solid #2a2a35; padding: 16px 20px; font-size: 0.95em; font-weight: 700; border-radius: 10px; cursor: pointer; text-align: left; transition: all 0.2s; }
+        button.choice-btn:hover { background: #22222d; border-color: var(--accent); transform: translateX(5px); }
 
-        /* --- ÁREA DE MINIJUEGOS INTERACTIVOS --- */
-        #minigame-panel {
-            background: #0d0d11; border: 2px dashed #333; padding: 25px; border-radius: 12px; text-align: center; margin: 0 30px 30px 30px; display: none;
-        }
-        .mg-title { font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; font-size: 1.1em; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        /* Minijuegos */
+        #minigame-panel { background: #0d0d11; border: 2px dashed #333; padding: 25px; border-radius: 12px; text-align: center; margin: 0 30px 30px 30px; display: none; }
+        .action-btn { background: var(--text-main); color: var(--bg-dark); border: none; padding: 12px 25px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
         
+        /* Minijuego Pitstop (Nuevo) */
+        .pitstop-container { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
+        .wheel-indicator { width: 50px; height: 50px; border-radius: 50%; border: 4px solid #333; background: #111; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: #333; transition: all 0.2s; }
+        .wheel-indicator.ready { border-color: var(--warning); color: var(--warning); }
+        .wheel-indicator.done { border-color: var(--success); background: var(--success); color: #000; }
+        
+        /* Frenada y Semáforos (Mantenidos) */
         .lights-box { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
-        .light { width: 35px; height: 35px; background: #222; border-radius: 50%; border: 2px solid #444; transition: background 0.2s; }
+        .light { width: 35px; height: 35px; background: #222; border-radius: 50%; border: 2px solid #444; }
         .light.active { background: var(--primary); box-shadow: 0 0 15px var(--primary); }
-
         .brake-track { width: 100%; height: 30px; background: #222; border-radius: 15px; position: relative; overflow: hidden; margin: 20px 0; }
         .brake-target { position: absolute; height: 100%; background: rgba(0, 230, 118, 0.4); border-left: 2px dashed var(--success); border-right: 2px dashed var(--success); }
         .brake-cursor { position: absolute; width: 6px; height: 100%; background: white; top: 0; box-shadow: 0 0 10px white; }
 
-        .gear-display { font-size: 3em; font-weight: 900; color: var(--accent); font-family: monospace; }
+        /* Extras UI */
+        .contract-card, .shop-item { background: #181820; padding: 15px; border-radius: 8px; border: 1px solid #2a2a35; margin-bottom:10px; text-align: left; }
+        .contract-btn, .buy-btn { background: var(--success); color: #000; border: none; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; float: right; }
+        .contract-btn.disabled, .buy-btn.disabled { background: #333; color: #666; cursor: not-allowed; }
         
-        .drs-zone { font-size: 1.2em; font-weight: bold; margin: 15px 0; color: var(--warning); padding: 10px; border: 1px solid var(--warning); border-radius: 8px; display: inline-block;}
-
-        .action-btn { background: var(--text-main); color: var(--bg-dark); border: none; padding: 12px 25px; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: transform 0.1s; }
-        .action-btn:active { transform: scale(0.95); }
-
-        /* --- MERCADO Y CONTRATOS --- */
-        .contract-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; text-align: left; }
-        .contract-card { background: #16161d; padding: 15px; border-radius: 8px; border: 1px solid #2a2a35; display: flex; justify-content: space-between; align-items: center; }
-        .contract-card h4 { margin: 0 0 5px 0; font-size: 1.1em; color: var(--accent); }
-        .contract-card p { margin: 0; font-size: 0.85em; color: var(--text-muted); }
-        .contract-btn { background: var(--success); color: #000; border: none; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; }
-        .contract-btn.disabled { background: #333; color: #666; cursor: not-allowed; }
-
-        /* --- TIENDA I+D --- */
-        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; margin-bottom: 25px;}
-        .shop-item { background: #181820; padding: 15px; border-radius: 8px; border: 1px solid #2a2a35; display: flex; flex-direction: column; justify-content: space-between; }
-        .shop-item.dev-item { border-left: 4px solid var(--accent); }
-        .shop-item h4 { margin: 0 0 5px 0; display: flex; justify-content: space-between; align-items: center; }
-        .shop-item p { font-size: 0.8em; color: var(--text-muted); margin: 0 0 10px 0; }
-        .buy-btn { background: var(--success); color: #000; border: none; padding: 8px; font-weight: bold; border-radius: 6px; cursor: pointer; }
-        .buy-btn.dev-btn { background: var(--accent); }
-        .buy-btn.disabled { background: #333; color: #666; cursor: not-allowed; }
-
-        .dev-points-header { margin-top: 20px; margin-bottom: 15px; color: var(--accent); border-bottom: 1px solid #333; padding-bottom: 5px; text-align: left;}
-
-        #notification {
-            position: fixed; top: 20px; right: 20px; background: rgba(0, 240, 255, 0.9); color: #000;
-            padding: 15px 25px; border-radius: 8px; font-weight: bold; transform: translateX(150%);
-            transition: transform 0.3s; z-index: 2000; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
+        #notification { position: fixed; top: 20px; right: 20px; background: rgba(0, 240, 255, 0.9); color: #000; padding: 15px 25px; border-radius: 8px; font-weight: bold; transform: translateX(150%); transition: transform 0.3s; z-index: 2000; }
         #notification.show { transform: translateX(0); }
         #notification.danger { background: rgba(255, 24, 1, 0.9); color: white; }
-
-        /* --- SALÓN DE LA FAMA (RETIRO) --- */
-        .hall-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0; }
-        .hall-stat-box { background: #121216; padding: 15px; border: 1px solid #333; border-radius: 8px; }
-        .hall-stat-box span { display: block; font-size: 2em; color: var(--primary); font-weight: 900; }
-        
-        .history-timeline { text-align: left; margin-top: 20px; max-height: 200px; overflow-y: auto; background: #08080a; padding: 15px; border-radius: 8px; border: 1px solid #222; }
-        .history-item { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #222; font-size: 0.9em; }
-        .history-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 999; backdrop-filter: blur(5px);
-        }
-
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; backdrop-filter: blur(5px); }
     </style>
 </head>
 <body>
@@ -303,61 +98,43 @@
 
     <!-- PANTALLA DE CREACIÓN -->
     <div id="setup-container">
-        <div class="app-logo-container">
-            <div class="f1-logo-badge"><span class="f1-logo-text">F1</span></div>
-            <div class="app-title-group">
-                <h1>F1 Legend</h1>
-                <span>Arcade Simulator</span>
-            </div>
-        </div>
-        
-        <p style="color: var(--text-muted); margin-bottom: 25px;">Crea a tu piloto, firma un contrato y forja tu leyenda carrera a carrera.</p>
+        <h1 style="text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">F1 Pro Legend</h1>
+        <p style="color: var(--text-muted); margin-bottom: 25px;">El paddock no perdona. Demuestra tu valía.</p>
 
         <div class="form-group">
-            <label for="driver-name"><i class="fa-solid fa-helmet-safety"></i> Nombre del Piloto</label>
-            <input type="text" id="driver-name" placeholder="Ej: Max Verstappen" autocomplete="off">
+            <label><i class="fa-solid fa-helmet-safety"></i> Nombre del Piloto</label>
+            <input type="text" id="driver-name" placeholder="Ej: Fernando Alonso" autocomplete="off">
         </div>
 
         <div class="form-group">
-            <label for="driver-country"><i class="fa-solid fa-flag"></i> Nacionalidad (Bandera)</label>
+            <label><i class="fa-solid fa-flag"></i> Nacionalidad</label>
             <select id="driver-country">
                 <option value="es">España 🇪🇸</option>
                 <option value="gb">Reino Unido 🇬🇧</option>
                 <option value="mx">México 🇲🇽</option>
-                <option value="it">Italia 🇮🇹</option>
-                <option value="fr">Francia 🇫🇷</option>
-                <option value="de">Alemania 🇩🇪</option>
-                <option value="nl">Países Bajos 🇳🇱</option>
                 <option value="br">Brasil 🇧🇷</option>
-                <option value="ar">Argentina 🇦🇷</option>
-                <option value="us">EE. UU. 🇺🇸</option>
-                <option value="jp">Japón 🇯🇵</option>
+                <option value="it">Italia 🇮🇹</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label><i class="fa-solid fa-dna"></i> Estilo de Pilotaje (Arquetipo)</label>
+            <label><i class="fa-solid fa-dna"></i> Arquetipo Inicial</label>
             <div class="archetypes">
                 <div class="archetype-card selected" data-type="aggressor">
-                    <h4><i class="fa-solid fa-fire"></i> El Kamikaze</h4>
-                    <p>Agresividad altísima. El rey de las frenadas tardías. Gasta más goma y choca más.</p>
+                    <h4><i class="fa-solid fa-fire"></i> Kamikaze</h4><p>+20 Agresividad, -10 Gomas</p>
                 </div>
                 <div class="archetype-card" data-type="professor">
-                    <h4><i class="fa-solid fa-calculator"></i> El Profesor</h4>
-                    <p>Ritmo puro y cuidado de neumáticos extremo. Menos agresivo en el cuerpo a cuerpo.</p>
+                    <h4><i class="fa-solid fa-calculator"></i> Profesor</h4><p>+20 Gomas, -5 Agresividad</p>
                 </div>
                 <div class="archetype-card" data-type="rain">
-                    <h4><i class="fa-solid fa-cloud-rain"></i> Mago del Agua</h4>
-                    <p>Imbatible en condiciones mixtas o lluvia. Estadísticas promedio en seco.</p>
+                    <h4><i class="fa-solid fa-cloud-rain"></i> Mago Lluvia</h4><p>+25 Lluvia, +5 Gomas</p>
                 </div>
                 <div class="archetype-card" data-type="balanced">
-                    <h4><i class="fa-solid fa-scale-balanced"></i> El Metódico</h4>
-                    <p>Equilibrado en todo. Sin debilidades graves, sin genialidades innatas.</p>
+                    <h4><i class="fa-solid fa-scale-balanced"></i> Metódico</h4><p>Estadísticas Equilibradas</p>
                 </div>
             </div>
         </div>
-
-        <button class="start-btn" onclick="startGame()">Comenzar Carrera <i class="fa-solid fa-chevron-right"></i></button>
+        <button class="start-btn" onclick="startGame()">Firmar en F2 <i class="fa-solid fa-chevron-right"></i></button>
     </div>
 
     <!-- CONTENEDOR PRINCIPAL DEL JUEGO -->
@@ -365,134 +142,70 @@
         <header>
             <div class="driver-info">
                 <span id="ui-name">Piloto</span>
-                <div class="country-display">
-                    <img id="ui-flag" src="https://flagcdn.com/w40/es.png" class="flag-icon" alt="Bandera">
-                </div>
+                <img id="ui-flag" src="https://flagcdn.com/w40/es.png" class="flag-icon" alt="Bandera">
             </div>
             
             <div class="stats-grid">
-                <!-- TOP ROW: Atributos y Puntos R&D -->
-                <div class="stat-badge"><i class="fa-solid fa-tachometer-fast"></i> Ritmo<span id="stat-pace">45</span></div>
-                <div class="stat-badge"><i class="fa-solid fa-fire"></i> Agres.<span id="stat-aggro">45</span></div>
-                <div class="stat-badge"><i class="fa-solid fa-ring"></i> Goma<span id="stat-tires">45</span></div>
-                <div class="stat-badge"><i class="fa-solid fa-cloud-rain"></i> Lluvia<span id="stat-rain">45</span></div>
-                <div class="stat-badge"><i class="fa-solid fa-microchip"></i> Dev Pts<span id="stat-dev">1</span></div>
+                <div class="stat-badge" title="Ritmo Base"><i class="fa-solid fa-tachometer-fast"></i> Ritmo<span id="stat-pace">45</span></div>
+                <div class="stat-badge" title="Agresividad"><i class="fa-solid fa-fire"></i> Agres.<span id="stat-aggro">45</span></div>
+                <div class="stat-badge" title="Gestión Gomas"><i class="fa-solid fa-ring"></i> Goma<span id="stat-tires">45</span></div>
+                <div class="stat-badge" title="Manos en Mojado"><i class="fa-solid fa-cloud-rain"></i> Lluvia<span id="stat-rain">45</span></div>
+                <div class="stat-badge" title="Química y confianza del equipo en ti"><i class="fa-solid fa-people-group"></i> Escudería<span id="stat-affinity">50%</span></div>
             </div>
             
             <div class="stats-grid">
-                <!-- MID ROW: Consumibles, Economía y Puntos de Campeonato -->
-                <div class="stat-badge"><i class="fa-solid fa-gas-pump"></i> Combust.<span id="stat-fuel" class="consumable-active">OK</span></div>
-                <div class="stat-badge"><i class="fa-solid fa-flask"></i> Aditivo<span id="stat-additive" class="consumable-active">NO</span></div>
-                <div class="stat-badge"><i class="fa-solid fa-glasses"></i> Visor<span id="stat-visor" class="consumable-active">NO</span></div>
-                <div class="stat-badge"><i class="fa-solid fa-dollar-sign"></i> Fondos<span id="stat-money" class="money">0</span></div>
-                <div class="stat-badge" title="Puntos del Mundial"><i class="fa-solid fa-trophy"></i> Puntos<span id="stat-champ-points" class="points">0</span></div>
-            </div>
-            
-            <div class="stats-grid">
-                <!-- BOTTOM ROW: Info Carrera -->
-                <div class="stat-badge"><i class="fa-solid fa-user-clock"></i> Edad<span id="stat-age">19</span></div>
-                <div class="stat-badge"><i class="fa-solid fa-calendar"></i> Temp.<span id="stat-season">1</span></div>
                 <div class="stat-badge"><i class="fa-solid fa-star"></i> Reputación<span id="stat-rep">10</span></div>
-                <button class="start-btn" style="padding: 10px; font-size: 0.9em; grid-column: span 2;" onclick="openShop()"><i class="fa-solid fa-shopping-cart"></i> I+D / Tienda</button>
+                <div class="stat-badge"><i class="fa-solid fa-dollar-sign"></i> Fondos<span id="stat-money" style="color:var(--success)">0</span></div>
+                <div class="stat-badge"><i class="fa-solid fa-microchip"></i> Dev Pts<span id="stat-dev">1</span></div>
+                <div class="stat-badge" style="grid-column: span 2;"><i class="fa-solid fa-trophy"></i> Puntos Mundial<span id="stat-champ-points" style="color:var(--warning)">0</span></div>
             </div>
         </header>
 
         <div id="image-container">
-            <img id="event-image" src="" alt="Evento F1">
+            <img id="event-image" src="" alt="Evento">
             <div id="weather-overlay" class="weather-rain-overlay"></div>
         </div>
 
         <div id="story-panel">
-            <h2 id="event-title"><i class="fa-solid fa-flag-checkered"></i> Titulo</h2>
-            <p id="event-description">Descripción...</p>
+            <h2 id="event-title">Titulo</h2>
+            <p id="event-description">Descripción</p>
         </div>
 
-        <!-- Panel de Minijuegos Intercalado -->
-        <div id="minigame-panel">
-            <!-- El contenido del minijuego se inyectará aquí -->
-        </div>
-
-        <div id="choices-panel">
-            <!-- Botones inyectados dinámicamente -->
-        </div>
+        <div id="minigame-panel"></div>
+        <div id="choices-panel"></div>
     </div>
 
-    <!-- MODALES DE GESTIÓN (Mercado, Resumen Temporada, Tienda, Retiro) -->
-    
-    <!-- Modal Mercado / Contratos -->
+    <!-- MODALES -->
     <div id="market-modal">
-        <h2 style="color: var(--accent);"><i class="fa-solid fa-handshake"></i> Fin de Temporada: Contratos</h2>
-        <p>Tu reputación actual es de <strong id="market-rep" style="color: var(--primary);"></strong>. Los equipos te han estado observando.</p>
-        <div class="contract-list" id="contracts-container">
-            <!-- Contratos dinámicos -->
-        </div>
+        <h2 style="color: var(--accent);"><i class="fa-solid fa-handshake"></i> Mercado de Pilotos</h2>
+        <p id="market-rep-text"></p>
+        <div id="contracts-container"></div>
     </div>
 
-    <!-- Modal Resumen Temporada -->
     <div id="season-summary-modal">
-        <h2><i class="fa-solid fa-chart-bar"></i> Resumen de la Temporada</h2>
+        <h2><i class="fa-solid fa-flag-checkered"></i> Fin de Temporada</h2>
         <div style="text-align: left; margin: 20px 0;">
-            <p><i class="fa-solid fa-trophy" style="color:gold"></i> Puntos del Mundial: <strong id="summary-points" style="color:gold"></strong></p>
-            <p><i class="fa-solid fa-medal" style="color:gold"></i> Victorias este año: <strong id="summary-wins"></strong></p>
-            <p><i class="fa-solid fa-award" style="color:silver"></i> Podios este year: <strong id="summary-podiums"></strong></p>
-            <p><i class="fa-solid fa-car-burst" style="color:var(--primary)"></i> Accidentes/Retiros: <strong id="summary-crashes"></strong></p>
+            <p><i class="fa-solid fa-trophy" style="color:gold"></i> Puntos del Mundial: <strong id="summary-points"></strong></p>
+            <p><i class="fa-solid fa-people-group"></i> Afinidad de Equipo Final: <strong id="summary-affinity"></strong></p>
         </div>
-        <p id="summary-aging-text" style="color: var(--warning); font-size: 0.9em; font-style: italic;"></p>
-        <button class="start-btn" onclick="continueToMarket()">Ver Ofertas de Contrato <i class="fa-solid fa-arrow-right"></i></button>
+        <p id="summary-fired-text" style="color: var(--primary); font-weight: bold; display: none;">¡EL EQUIPO TE HA DESPEDIDO POR MALA QUÍMICA!</p>
+        <button class="start-btn" onclick="continueToMarket()">Ver Contratos <i class="fa-solid fa-arrow-right"></i></button>
     </div>
 
-    <!-- Modal Tienda (Mejoras y Consumibles) -->
-    <div id="shop-modal">
-        <h2 style="color: var(--accent);"><i class="fa-solid fa-cogs"></i> Ingeniería y Consumibles</h2>
-        <p>Gasta tus fondos o Puntos de Desarrollo (Dev Pts) para obtener ventaja.</p>
-        
-        <h3 class="dev-points-header"><i class="fa-solid fa-microchip"></i> Árbol de Desarrollo (Requiere Dev Pts)</h3>
-        <div class="shop-grid" id="shop-dev-list">
-            <!-- Mejoras por Dev Points -->
-        </div>
-        
-        <h3 class="dev-points-header" style="color: var(--success);"><i class="fa-solid fa-dollar-sign"></i> Mercado Negro / Mejoras Únicas</h3>
-        <div class="shop-grid" id="shop-money-list">
-            <!-- Mejoras por dinero -->
-        </div>
-        <button class="start-btn" onclick="closeShop()" style="background: #333;"><i class="fa-solid fa-times"></i> Volver a Carrera</button>
-    </div>
-
-    <!-- Modal Salón de la Fama (Retiro) -->
     <div id="career-hall-modal">
-        <h1 style="color: var(--warning);"><i class="fa-solid fa-crown"></i> SALÓN DE LA FAMA</h1>
-        <p style="color: var(--text-muted);">Tu carrera deportiva ha llegado a su fin por edad o lesiones severas.</p>
-        
-        <div class="hall-stats">
-            <div class="hall-stat-box">Victorias Totales <span id="hall-wins">0</span></div>
-            <div class="hall-stat-box">Podios Totales <span id="hall-podiums">0</span></div>
-            <div class="hall-stat-box">Accidentes <span id="hall-crashes">0</span></div>
-            <div class="hall-stat-box">Reputación Final <span id="hall-rep">0</span></div>
-        </div>
-
-        <h3 style="text-align: left; border-bottom: 1px solid #333; padding-bottom: 5px;">Historial de Temporadas</h3>
-        <div class="history-timeline" id="hall-history"></div>
-
-        <button class="start-btn" onclick="location.reload()" style="margin-top: 20px;"><i class="fa-solid fa-rotate-right"></i> Nueva Carrera</button>
+        <h1 style="color: var(--warning);"><i class="fa-solid fa-crown"></i> RETIRADA</h1>
+        <p>Tu historia en las carreras ha concluido.</p>
+        <button class="start-btn" onclick="location.reload()" style="margin-top: 20px;"><i class="fa-solid fa-rotate-right"></i> Volver a Empezar</button>
     </div>
-
 
     <script>
-        /* --- ESTADO DEL JUEGO --- */
+        /* --- ESTADO DEL JUEGO PRO --- */
         let state = {
-            name: "Rookie",
-            countryCode: "es",
-            age: 19,
-            season: 1,
-            reputation: 10,
-            money: 50,
-            devPoints: 1,
-            championshipPoints: 0,
-            team: "Ninguno",
+            name: "Rookie", countryCode: "es", age: 19, season: 1,
+            reputation: 10, money: 50, devPoints: 1, championshipPoints: 0,
+            team: "F2 Rookie Team", teamAffinity: 50, // NUEVA ESTADÍSTICA CLAVE
             attributes: { pace: 45, aggression: 45, tires: 45, rain: 45 },
-            consumables: { fuelMap: true, rainVisor: false, gripAdditive: false },
             statsRecord: { wins: 0, podiums: 0, crashes: 0 },
-            careerHistory: [],
             eventsCompleted: 0
         };
 
@@ -501,34 +214,48 @@
 
         /* --- BASE DE DATOS DE EQUIPOS --- */
         const teamsDB = [
-            { id: "t1", name: "Scuderia Rosso", reqRep: 80, salary: 500, devBonus: 3, attrBonus: {pace: 15, aggro: 5} },
-            { id: "t2", name: "Silver Arrows", reqRep: 75, salary: 450, devBonus: 2, attrBonus: {pace: 10, tires: 10} },
-            { id: "t3", name: "Bulls Racing", reqRep: 75, salary: 450, devBonus: 2, attrBonus: {pace: 12, aggro: 8} },
-            { id: "t4", name: "Papaya Tech", reqRep: 50, salary: 250, devBonus: 1, attrBonus: {pace: 5, tires: 5} },
-            { id: "t5", name: "Alpine Bleu", reqRep: 40, salary: 200, devBonus: 1, attrBonus: {pace: 3, rain: 5} },
-            { id: "t6", name: "Backmarker F1", reqRep: 0, salary: 50, devBonus: 0, attrBonus: {pace: 0} }
+            { id: "f1_ferrari", name: "Scuderia Ferrari (F1)", reqRep: 85, salary: 500, devBonus: 3, attrBonus: {pace: 15, aggro: 5} },
+            { id: "f1_redbull", name: "Oracle Red Bull Racing (F1)", reqRep: 80, salary: 480, devBonus: 3, attrBonus: {pace: 14, aggro: 8} },
+            { id: "f1_mclaren", name: "McLaren F1 Team (F1)", reqRep: 75, salary: 450, devBonus: 2, attrBonus: {pace: 12, tires: 8} },
+            { id: "f1_aston", name: "Aston Martin (F1)", reqRep: 55, salary: 300, devBonus: 2, attrBonus: {pace: 8, rain: 5} },
+            { id: "f1_haas", name: "Haas F1 Team (F1)", reqRep: 30, salary: 180, devBonus: 1, attrBonus: {pace: 4} },
+            { id: "f2_prema", name: "PREMA Racing (F2)", reqRep: 15, salary: 120, devBonus: 1, attrBonus: {pace: 3, tires: 2} },
+            { id: "f2_campos", name: "Campos Racing (F2)", reqRep: 0, salary: 80, devBonus: 0, attrBonus: {pace: 2} }
         ];
 
-        /* --- UTILIDADES VISUALES / GAME FEEL --- */
+        /* --- UTILIDADES --- */
         function showNotification(msg, isDanger = false) {
             const notif = document.getElementById('notification');
             notif.innerText = msg;
-            if(isDanger) notif.classList.add('danger');
-            else notif.classList.remove('danger');
-            
-            notif.classList.add('show');
-            setTimeout(() => { notif.classList.remove('show'); }, 3000);
+            notif.className = isDanger ? 'danger show' : 'show';
+            setTimeout(() => notif.classList.remove('show'), 3000);
         }
 
         function triggerCrashEffect() {
             const container = document.getElementById('game-container');
             container.classList.add('shake-active');
-            setTimeout(() => {
-                container.classList.remove('shake-active');
-            }, 400);
+            setTimeout(() => container.classList.remove('shake-active'), 400);
         }
 
-        // Selección de Arquetipo
+        function updateUI() {
+            document.getElementById('ui-name').innerText = state.name;
+            document.getElementById('ui-flag').src = `https://flagcdn.com/w40/${state.countryCode}.png`;
+            document.getElementById('stat-pace').innerText = state.attributes.pace;
+            document.getElementById('stat-aggro').innerText = state.attributes.aggression;
+            document.getElementById('stat-tires').innerText = state.attributes.tires;
+            document.getElementById('stat-rain').innerText = state.attributes.rain;
+            
+            const affEl = document.getElementById('stat-affinity');
+            affEl.innerText = state.teamAffinity + "%";
+            affEl.className = state.teamAffinity > 70 ? "affinity-good" : (state.teamAffinity < 30 ? "affinity-bad" : "");
+
+            document.getElementById('stat-money').innerText = "$" + state.money;
+            document.getElementById('stat-dev').innerText = state.devPoints;
+            document.getElementById('stat-champ-points').innerText = state.championshipPoints;
+            document.getElementById('stat-rep').innerText = state.reputation;
+        }
+
+        /* --- INICIO --- */
         document.querySelectorAll('.archetype-card').forEach(card => {
             card.addEventListener('click', () => {
                 document.querySelectorAll('.archetype-card').forEach(c => c.classList.remove('selected'));
@@ -536,98 +263,34 @@
             });
         });
 
-        /* --- INICIO DEL JUEGO --- */
         function startGame() {
             const nameInput = document.getElementById('driver-name').value.trim();
             if(!nameInput) { showNotification("¡Introduce un nombre!", true); return; }
-
             state.name = nameInput;
             state.countryCode = document.getElementById('driver-country').value;
             
             const arch = document.querySelector('.archetype-card.selected').getAttribute('data-type');
-            applyArchetype(arch);
-
+            if(arch === 'aggressor') { state.attributes.aggression += 20; state.attributes.tires -= 10; }
+            if(arch === 'professor') { state.attributes.tires += 20; state.attributes.aggression -= 5; }
+            if(arch === 'rain') { state.attributes.rain += 25; state.attributes.tires += 5; }
+            
             document.getElementById('setup-container').style.display = 'none';
             document.getElementById('game-container').style.display = 'flex';
-            
             updateUI();
             triggerRandomEvent();
         }
 
-        function applyArchetype(type) {
-            if(type === 'aggressor') { state.attributes.aggression += 20; state.attributes.pace += 10; state.attributes.tires -= 10; }
-            if(type === 'professor') { state.attributes.tires += 20; state.attributes.pace += 10; state.attributes.aggression -= 5; }
-            if(type === 'rain') { state.attributes.rain += 25; state.attributes.tires += 5; }
-            if(type === 'balanced') { state.attributes.pace+=5; state.attributes.aggression+=5; state.attributes.tires+=5; state.attributes.rain+=5; }
-        }
-
-        function updateUI() {
-            document.getElementById('ui-name').innerText = state.name;
-            document.getElementById('ui-flag').src = `https://flagcdn.com/w40/${state.countryCode}.png`;
-            
-            document.getElementById('stat-pace').innerText = state.attributes.pace;
-            document.getElementById('stat-aggro').innerText = state.attributes.aggression;
-            document.getElementById('stat-tires').innerText = state.attributes.tires;
-            document.getElementById('stat-rain').innerText = state.attributes.rain;
-            
-            document.getElementById('stat-money').innerText = state.money;
-            document.getElementById('stat-dev').innerText = state.devPoints;
-            document.getElementById('stat-champ-points').innerText = state.championshipPoints;
-            
-            document.getElementById('stat-age').innerText = state.age;
-            document.getElementById('stat-season').innerText = state.season;
-            document.getElementById('stat-rep').innerText = state.reputation;
-
-            document.getElementById('stat-fuel').innerText = state.consumables.fuelMap ? "OK" : "NO";
-            document.getElementById('stat-fuel').className = state.consumables.fuelMap ? "consumable-active" : "";
-            
-            document.getElementById('stat-additive').innerText = state.consumables.gripAdditive ? "OK" : "NO";
-            document.getElementById('stat-additive').className = state.consumables.gripAdditive ? "consumable-active" : "";
-            
-            document.getElementById('stat-visor').innerText = state.consumables.rainVisor ? "OK" : "NO";
-            document.getElementById('stat-visor').className = state.consumables.rainVisor ? "consumable-active" : "";
-        }
-
-        /* --- MOTOR DE EVENTOS --- */
-        /* --- MOTOR DE EVENTOS (Corregido) --- */
-        function processEventChoice(choiceIndex) {
-            if (!currentEvent) return;
-            
-            // CORRECCIÓN: Obtener las opciones correctamente a través de la función
-            const choices = currentEvent.getChoices();
-            const choice = choices[choiceIndex];
-            
-            const r = Math.random() * 100;
-            let outcome;
-            
-            if (r < choice.successChance) { 
-                outcome = choice.onSuccess(); 
-                showNotification("¡Éxito en la acción!"); 
-            }
-            else { 
-                outcome = choice.onFail(); 
-                showNotification("Fallo en la acción...", true); 
-            }
-
-            applyOutcome(outcome);
-        }
+        /* --- MOTOR DE RESULTADOS --- */
         function applyOutcome(out) {
-            // Manejo de puntos de campeonato por resultados de evento
-            if(out.type === "win") {
-                state.statsRecord.wins++;
-                state.championshipPoints += 25;
-            } else if (out.type === "podium") {
-                state.statsRecord.podiums++;
-                state.championshipPoints += 15;
-            } else if (out.type === "danger" || out.type === "crash") {
-                state.statsRecord.crashes++;
-                triggerCrashEffect(); // GAME FEEL
-            }
+            if(out.type === "win") { state.statsRecord.wins++; state.championshipPoints += 25; } 
+            else if (out.type === "podium") { state.statsRecord.podiums++; state.championshipPoints += 15; } 
+            else if (out.type === "points") { state.championshipPoints += 8; }
+            else if (out.type === "danger" || out.type === "crash") { state.statsRecord.crashes++; triggerCrashEffect(); }
 
             if(out.rep) state.reputation = Math.max(0, state.reputation + out.rep);
+            if(out.affinity) state.teamAffinity = Math.max(0, Math.min(100, state.teamAffinity + out.affinity));
             if(out.money) state.money += out.money;
             if(out.dev) state.devPoints += out.dev;
-            if(out.fuelMapLoss) state.consumables.fuelMap = false;
             
             if(out.attr) {
                 if(out.attr.pace) state.attributes.pace += out.attr.pace;
@@ -637,205 +300,165 @@
             advanceSeasonProgress();
         }
 
+        function processEventChoice(choiceIndex) {
+            const choice = currentEvent.getChoices()[choiceIndex];
+            const r = Math.random() * 100;
+            if (r < choice.successChance) { showNotification("Buena decisión."); applyOutcome(choice.onSuccess()); }
+            else { showNotification("Consecuencias negativas...", true); applyOutcome(choice.onFail()); }
+        }
+
         function advanceSeasonProgress() {
             state.eventsCompleted++;
             updateUI();
-            
             document.getElementById('choices-panel').innerHTML = "";
             document.getElementById('minigame-panel').style.display = 'none';
 
-            if (state.eventsCompleted >= EVENTS_PER_SEASON) {
-                triggerSeasonSummary();
-            } else {
-                setTimeout(triggerRandomEvent, 1500); // Pausa dramática antes del siguiente evento
-            }
+            if (state.eventsCompleted >= EVENTS_PER_SEASON) triggerSeasonSummary();
+            else setTimeout(triggerRandomEvent, 1200);
         }
 
-        /* --- BATERÍA DE EVENTOS Y MINIJUEGOS --- */
+        /* --- EVENTOS NARRATIVOS (CARRERA Y PRENSA) --- */
         const randomEvents = [
             {
                 type: 'text',
-                title: "Duelo en la primera curva",
-                img: "https://images.unsplash.com/photo-1532911520120-c2669074c7e6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-                desc: "Se apagan los semáforos. Llegas a la curva 1 emparejado con tu rival directo. ¿Te tiras al interior arriesgando un choque o levantas?",
+                title: "<i class='fa-solid fa-microphone'></i> Rueda de Prensa Post-Carrera",
+                img: "https://images.unsplash.com/photo-1540958117769-798835f83823?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                desc: "Un periodista te acorrala: 'Tu compañero ha clasificado mejor hoy. ¿Falta ritmo en tu lado del garaje o es culpa del coche?'",
                 getChoices: () => [
                     {
-                        text: "Tirarse al interior (Agresivo)",
-                        successChance: state.attributes.aggression + (state.consumables.gripAdditive ? 15 : 0),
-                        onSuccess: () => ({type: "win", rep: 5, money: 50}),
-                        onFail: () => ({type: "danger", rep: -5, dev: 1}) // Accidente, pero aprendes
+                        text: "Culpar al coche (Ganas reputación de 'piloto top', enfadas al equipo)",
+                        successChance: 100, // Decisión narrativa
+                        onSuccess: () => ({type: "neutral", rep: 10, affinity: -20, attr: {aggro: 2}}),
+                        onFail: () => ({type: "neutral"})
                     },
                     {
-                        text: "Levantar y cuidar gomas (Seguro)",
-                        successChance: state.attributes.tires,
-                        onSuccess: () => ({type: "podium", rep: 2, dev: 1}),
-                        onFail: () => ({type: "neutral", rep: 0})
+                        text: "Hacer autocrítica y proteger al equipo (Eres un jugador de equipo)",
+                        successChance: 100,
+                        onSuccess: () => ({type: "neutral", rep: -5, affinity: 15, dev: 1}),
+                        onFail: () => ({type: "neutral"})
                     }
                 ]
             },
             {
                 type: 'text',
-                title: "Lluvia Inesperada",
-                img: "https://images.unsplash.com/photo-1580274455138-0387532d80d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-                desc: "Empieza a llover a cántaros a mitad de carrera. La pista es una pista de hielo.",
+                title: "<i class='fa-solid fa-headset'></i> Órdenes de Equipo",
+                img: "https://images.unsplash.com/photo-1537248566938-1a556d05f32a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                desc: "Radio del muro: 'Fernando is faster than you. Déjale pasar en la siguiente recta'. Vas en posición de podio.",
                 getChoices: () => [
                     {
-                        text: "Mantener neumáticos de seco (Arriesgado)",
-                        successChance: state.attributes.rain - 20 + (state.consumables.gripAdditive ? 10 : 0),
-                        onSuccess: () => ({type: "win", rep: 10, money: 100}),
-                        onFail: () => ({type: "crash", rep: -10})
+                        text: "Acatar la orden (Bajar el ritmo y ceder posición)",
+                        successChance: 100,
+                        onSuccess: () => ({type: "points", rep: -2, affinity: 25}), // Pierdes podio, ganas equipo
+                        onFail: () => ({type: "neutral"})
                     },
                     {
-                        text: "Entrar a boxes por gomas de lluvia",
-                        successChance: 90,
-                        onSuccess: () => ({type: "podium", rep: 2, dev: 2}),
-                        onFail: () => ({type: "neutral", rep: -2})
+                        text: "¡Ignorar y apretar! (Pelear la posición)",
+                        successChance: state.attributes.aggression + (state.teamAffinity > 50 ? 10 : 0),
+                        onSuccess: () => ({type: "podium", rep: 15, affinity: -30}), // Héroe o Villano
+                        onFail: () => ({type: "crash", rep: -10, affinity: -40}) // Chocas con compañero
                     }
                 ]
             },
             {
                 type: 'text',
-                title: "Problemas de Combustible",
-                img: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-                desc: "El ingeniero grita por radio: '¡Estamos cortos de gasolina!'. Quedan 3 vueltas y vas primero.",
+                title: "<i class='fa-solid fa-cloud-showers-heavy'></i> Diluvio en Pista",
+                img: "https://images.unsplash.com/photo-1506469717960-433cebe3f181?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                desc: "Cae una tormenta masiva. El coche hace aquaplaning en cada curva.",
                 getChoices: () => [
                     {
-                        text: "Ignorar y mantener ritmo (Gastar Mapa Motor)",
-                        successChance: state.consumables.fuelMap ? 100 : 20,
-                        onSuccess: () => ({type: "win", rep: 5, fuelMapLoss: true}),
-                        onFail: () => ({type: "danger", rep: -15, desc: "Te quedaste tirado."})
+                        text: "Intentar sobrevivir con gomas Intermedias",
+                        successChance: state.attributes.rain - 10,
+                        onSuccess: () => ({type: "win", rep: 10, dev: 2}),
+                        onFail: () => ({type: "crash", rep: -5, affinity: -5})
                     },
                     {
-                        text: "Hacer Lift & Coast (Perder ritmo)",
-                        successChance: state.attributes.pace + 20,
-                        onSuccess: () => ({type: "podium", rep: 0}),
+                        text: "Entrar a poner gomas de Lluvia Extrema (Seguro)",
+                        successChance: 95,
+                        onSuccess: () => ({type: "points", rep: 0, affinity: 5}),
                         onFail: () => ({type: "neutral", rep: -2})
                     }
                 ]
             }
         ];
 
-        /* --- MINIJUEGOS ARCADE --- */
-        let minigameInterval;
-        let minigameTimeout;
-        
-        // Minijuego 1: Semáforo de Salida (Reacción)
-        function initStartLightsMinigame() {
-            document.getElementById('event-title').innerHTML = `<i class="fa-solid fa-traffic-light"></i> Salida del Gran Premio`;
-            document.getElementById('event-description').innerText = "Prepárate para reaccionar. Cuando todos los semáforos se apaguen, ¡PULSA ARRANCAR!";
-            document.getElementById('event-image').src = "https://images.unsplash.com/photo-1541343778553-605b46e339d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+        /* --- NUEVO MINIJUEGO: PIT STOP --- */
+        let pitstopInterval;
+        function initPitStopMinigame() {
+            document.getElementById('event-title').innerHTML = `<i class="fa-solid fa-wrench"></i> Parada en Boxes (Pit Stop)`;
+            document.getElementById('event-description').innerText = "¡Reflejos! Cuando la tuerca se ponga NARANJA, pulsa CAMBIAR. Tienes que hacerlo 3 veces rápido.";
+            document.getElementById('event-image').src = "https://images.unsplash.com/photo-1614200179396-2bdb77ebf81b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"; // Formula 1 style image
             
             const mgPanel = document.getElementById('minigame-panel');
             mgPanel.style.display = 'block';
             mgPanel.innerHTML = `
-                <div class="mg-title">Semáforos</div>
-                <div class="lights-box" id="lights-box">
-                    <div class="light" id="l1"></div><div class="light" id="l2"></div><div class="light" id="l3"></div><div class="light" id="l4"></div><div class="light" id="l5"></div>
+                <div style="font-weight:900; color:var(--accent);">CAMBIO DE NEUMÁTICOS</div>
+                <div class="pitstop-container">
+                    <div class="wheel-indicator" id="w1"><i class="fa-solid fa-compact-disc"></i></div>
+                    <div class="wheel-indicator" id="w2"><i class="fa-solid fa-compact-disc"></i></div>
+                    <div class="wheel-indicator" id="w3"><i class="fa-solid fa-compact-disc"></i></div>
                 </div>
-                <button class="action-btn" id="mg-action-btn">ARRANCAR</button>
+                <button class="action-btn" id="mg-pit-btn" style="width:100%;">CAMBIAR RUEDA</button>
             `;
 
-            let step = 0;
-            let isGreen = false;
-            let falseStart = false;
+            let currentWheel = 1;
+            let isReady = false;
+            let strike = 0;
 
-            const btn = document.getElementById('mg-action-btn');
-            btn.onclick = () => {
-                if (falseStart) return;
-                if (!isGreen) {
-                    falseStart = true;
-                    clearInterval(minigameInterval);
-                    clearTimeout(minigameTimeout);
-                    showNotification("¡FALSA SALIDA! Drive Through penalización.", true);
-                    mgPanel.style.display = 'none';
-                    applyOutcome({type: "danger", rep: -5});
-                } else {
-                    const reactTime = Date.now() - greenTime;
-                    showNotification(`¡Gran salida! Tiempo: ${reactTime}ms`);
-                    mgPanel.style.display = 'none';
-                    if (reactTime < 300) applyOutcome({type: "win", rep: 5}); // Salidón
-                    else applyOutcome({type: "podium", rep: 2}); // Salida normal
-                }
-            };
-
-            minigameInterval = setInterval(() => {
-                step++;
-                if(step <= 5) { document.getElementById(`l${step}`).classList.add('active'); }
-                if(step === 5) {
-                    clearInterval(minigameInterval);
-                    const randomHold = 1000 + Math.random() * 2000;
-                    minigameTimeout = setTimeout(() => {
-                        document.querySelectorAll('.light').forEach(l => l.classList.remove('active'));
-                        isGreen = true;
-                        greenTime = Date.now();
-                        setTimeout(() => { if(isGreen && mgPanel.style.display !== 'none'){ 
-                            showNotification("Te quedaste clavado...", true);
-                            mgPanel.style.display = 'none';
-                            applyOutcome({type: "neutral", rep: -2});
-                        }}, 1000); // 1 sec to react max
-                    }, randomHold);
-                }
-            }, 600);
-        }
-
-        // Minijuego 2: Frenada de Emergencia (Precisión)
-        function initBrakingMinigame() {
-            document.getElementById('event-title').innerHTML = `<i class="fa-solid fa-car-side"></i> Adelantamiento al Límite`;
-            document.getElementById('event-description').innerText = "Final de la recta larga. Pulsa FRENAR cuando la línea blanca esté sobre la zona verde.";
-            document.getElementById('event-image').src = "https://images.unsplash.com/photo-1540958117769-798835f83823?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+            const btn = document.getElementById('mg-pit-btn');
             
-            const mgPanel = document.getElementById('minigame-panel');
-            mgPanel.style.display = 'block';
-            mgPanel.innerHTML = `
-                <div class="mg-title">Punto de Frenada</div>
-                <div class="brake-track">
-                    <div class="brake-target" style="left: 70%; width: 15%;"></div>
-                    <div class="brake-cursor" id="brake-cursor" style="left: 0%;"></div>
-                </div>
-                <button class="action-btn" id="mg-brake-btn">FRENAR</button>
-            `;
+            function queueNextWheel() {
+                if (currentWheel > 3) {
+                    // ÉXITO TOTAL
+                    mgPanel.style.display = 'none';
+                    if (strike === 0) {
+                        showNotification("¡Parada en 1.9 segundos! Undercut perfecto.");
+                        applyOutcome({type: "win", rep: 5, affinity: 10});
+                    } else {
+                        showNotification("Parada lenta, pierdes posiciones.");
+                        applyOutcome({type: "points", rep: -2, affinity: -5});
+                    }
+                    return;
+                }
 
-            let pos = 0;
-            let dir = 1; // 1 = right, -1 = left
-            let speed = 2 + (state.attributes.pace / 20); // Más ritmo, más rápido va el cursor = más difícil
-
-            const cursor = document.getElementById('brake-cursor');
-            
-            function animate() {
-                pos += dir * speed;
-                if(pos > 95 || pos < 0) dir *= -1;
-                cursor.style.left = pos + '%';
-                minigameInterval = requestAnimationFrame(animate);
+                isReady = false;
+                const waitTime = 500 + Math.random() * 1500;
+                
+                setTimeout(() => {
+                    const wheelEl = document.getElementById(`w${currentWheel}`);
+                    if(wheelEl) {
+                        wheelEl.classList.add('ready');
+                        isReady = true;
+                    }
+                }, waitTime);
             }
-            animate();
 
-            document.getElementById('mg-brake-btn').onclick = () => {
-                cancelAnimationFrame(minigameInterval);
-                mgPanel.style.display = 'none';
-                if (pos >= 70 && pos <= 85) {
-                    showNotification("¡Adelantamiento Magistral!");
-                    applyOutcome({type: "win", rep: 5, money: 20});
+            btn.onclick = () => {
+                const wheelEl = document.getElementById(`w${currentWheel}`);
+                if (isReady) {
+                    wheelEl.classList.remove('ready');
+                    wheelEl.classList.add('done');
+                    currentWheel++;
+                    queueNextWheel();
                 } else {
-                    showNotification("¡Te pasaste de frenada! Accidente.", true);
-                    applyOutcome({type: "danger", rep: -10, attr: {pace: -1}});
+                    strike++;
+                    showNotification("¡Te adelantaste! Mecánico atascado...", true);
+                    wheelEl.style.borderColor = "red";
+                    setTimeout(() => { wheelEl.style.borderColor = ""; }, 500);
                 }
             };
+
+            queueNextWheel();
         }
 
-
-        /* --- GENERADOR DE EVENTOS (Corregido: Sin porcentajes) --- */
+        /* --- GENERADOR DINÁMICO --- */
         function triggerRandomEvent() {
-            // Verificar si metemos un minijuego o evento de texto
-            const isMinigame = Math.random() < 0.4; // 40% chance de minijuego interactivo
-            
             document.getElementById('choices-panel').innerHTML = "";
             document.getElementById('minigame-panel').style.display = 'none';
-            document.getElementById('weather-overlay').style.display = 'none'; // reset clima
+            document.getElementById('weather-overlay').style.display = 'none';
 
-            if (isMinigame) {
-                const rng = Math.random();
-                if (rng < 0.5) initStartLightsMinigame();
-                else initBrakingMinigame();
+            // 30% Pitstop, 70% Evento Narrativo
+            if (Math.random() < 0.3) {
+                initPitStopMinigame();
             } else {
                 currentEvent = randomEvents[Math.floor(Math.random() * randomEvents.length)];
                 
@@ -843,65 +466,54 @@
                 document.getElementById('event-description').innerText = currentEvent.desc;
                 document.getElementById('event-image').src = currentEvent.img;
                 
-                // GAME FEEL: Detección simple de clima para activar filtro
-                const textCheck = (currentEvent.title + " " + currentEvent.desc).toLowerCase();
-                if(textCheck.includes("lluvia") || textCheck.includes("agua")) {
+                if((currentEvent.title + currentEvent.desc).toLowerCase().includes("lluvia")) {
                     document.getElementById('weather-overlay').style.display = 'block';
                 }
 
-                // Generar los botones sin mostrar la probabilidad
                 const choices = currentEvent.getChoices();
                 choices.forEach((choice, index) => {
                     const btn = document.createElement('button');
                     btn.className = 'choice-btn';
-                    
-                    // CORRECCIÓN: Eliminada la etiqueta <span> con los porcentajes matemáticos
                     btn.innerHTML = `<span>${choice.text}</span>`;
-                    
                     btn.onclick = () => processEventChoice(index);
                     document.getElementById('choices-panel').appendChild(btn);
                 });
             }
         }
 
-        /* --- FIN DE TEMPORADA Y CONTRATOS --- */
+        /* --- SISTEMA DE CONTRATOS Y DESPIDOS --- */
         function triggerSeasonSummary() {
             document.getElementById('modal-overlay').style.display = 'block';
             const modal = document.getElementById('season-summary-modal');
             modal.style.display = 'block';
 
             document.getElementById('summary-points').innerText = state.championshipPoints;
-            document.getElementById('summary-wins').innerText = state.statsRecord.wins;
-            document.getElementById('summary-podiums').innerText = state.statsRecord.podiums;
-            document.getElementById('summary-crashes').innerText = state.statsRecord.crashes;
+            document.getElementById('summary-affinity').innerText = state.teamAffinity + "%";
 
-            // Envejecimiento (Degradación de stats)
-            state.age++;
-            if (state.age > 33) {
-                const deg = Math.floor((state.age - 32) * 1.5);
-                state.attributes.pace = Math.max(10, state.attributes.pace - deg);
-                state.attributes.aggression = Math.max(10, state.attributes.aggression - (deg-1));
-                document.getElementById('summary-aging-text').innerText = `Tus reflejos empiezan a fallar por la edad. Pierdes ${deg} puntos de ritmo.`;
+            const firedText = document.getElementById('summary-fired-text');
+            if (state.teamAffinity < 30) {
+                firedText.style.display = 'block';
+                state.reputation = Math.max(0, state.reputation - 20); // El despido arruina tu rep
+                state.team = "Agente Libre";
             } else {
-                document.getElementById('summary-aging-text').innerText = "Estás en la flor de la vida. Mantienes tu físico intacto.";
+                firedText.style.display = 'none';
             }
             
-            // Guardar historial
-            state.careerHistory.push(`Temp ${state.season}: ${state.championshipPoints} Puntos, Equipo: ${state.team}, Victorias: ${state.statsRecord.wins}`);
+            state.age++;
+            if (state.age > 35) state.attributes.pace -= 2; // Degradez por edad
         }
 
         function continueToMarket() {
             document.getElementById('season-summary-modal').style.display = 'none';
             
-            // Chequeo de retiro
-            if (state.age > 38 || state.attributes.pace < 15) {
-                triggerRetirement();
+            if (state.age > 38 || state.attributes.pace < 20) {
+                document.getElementById('career-hall-modal').style.display = 'block';
                 return;
             }
 
             const modal = document.getElementById('market-modal');
             modal.style.display = 'block';
-            document.getElementById('market-rep').innerText = state.reputation;
+            document.getElementById('market-rep-text').innerText = `Tu reputación en el paddock: ${state.reputation}`;
 
             const container = document.getElementById('contracts-container');
             container.innerHTML = "";
@@ -911,14 +523,16 @@
                 const card = document.createElement('div');
                 card.className = 'contract-card';
                 card.innerHTML = `
-                    <div>
-                        <h4>${team.name}</h4>
-                        <p>Req: ${team.reqRep} Rep | Salario: $${team.salary} | Bonus: +${team.devBonus} Dev Pts</p>
+                    <div style="display:inline-block; width: 70%;">
+                        <h4 style="margin:0; color:var(--accent);">${team.name}</h4>
+                        <p style="margin:5px 0 0 0; font-size:0.85em; color:var(--text-muted);">
+                            Req: ${team.reqRep} Rep | Salario: $${team.salary}
+                        </p>
                     </div>
                     <button class="contract-btn ${!isEligible ? 'disabled' : ''}" 
                             ${!isEligible ? 'disabled' : ''} 
                             onclick="signContract('${team.id}')">
-                        ${isEligible ? 'Fichar' : 'Inalcanzable'}
+                        ${isEligible ? (state.team === team.name ? 'Renovar' : 'Fichar') : 'Insuficiente'}
                     </button>
                 `;
                 container.appendChild(card);
@@ -931,134 +545,19 @@
             state.money += team.salary;
             state.devPoints += team.devBonus;
             
-            // Bonus base del equipo
             if(team.attrBonus.pace) state.attributes.pace += team.attrBonus.pace;
             
-            // Reset de temporada
             state.season++;
             state.eventsCompleted = 0;
-            state.championshipPoints = 0; // RESET DEL MUNDIAL AL INICIAR TEMPORADA
-            
-            // Reset de consumibles
-            state.consumables.fuelMap = true;
-            state.consumables.gripAdditive = false;
-            state.consumables.rainVisor = false;
+            state.championshipPoints = 0; 
+            state.teamAffinity = 60; // Nueva temporada, afinidad reseteada (vienen con esperanza)
 
             document.getElementById('market-modal').style.display = 'none';
             document.getElementById('modal-overlay').style.display = 'none';
             
             updateUI();
-            showNotification(`Fichaste por ${team.name} para la Temporada ${state.season}!`);
+            showNotification(`¡Fichaste por ${team.name}!`);
             setTimeout(triggerRandomEvent, 1500);
-        }
-
-        /* --- TIENDA I+D --- */
-        function openShop() {
-            document.getElementById('modal-overlay').style.display = 'block';
-            document.getElementById('shop-modal').style.display = 'block';
-            renderShopItems();
-        }
-        function closeShop() {
-            document.getElementById('modal-overlay').style.display = 'none';
-            document.getElementById('shop-modal').style.display = 'none';
-            updateUI();
-        }
-
-        function renderShopItems() {
-            // Sección DEV POINTS
-            const devContainer = document.getElementById('shop-dev-list');
-            devContainer.innerHTML = "";
-            const devItems = [
-                { id: "dev_pace", name: "Simulador Aero", desc: "+2 Ritmo Permanente", cost: 2, action: () => { state.attributes.pace += 2; } },
-                { id: "dev_tire", name: "Suspensiones Suaves", desc: "+2 Cuidado Gomas", cost: 2, action: () => { state.attributes.tires += 2; } },
-                { id: "dev_rain", name: "Túnel de Viento Mojado", desc: "+3 Habilidad Lluvia", cost: 2, action: () => { state.attributes.rain += 3; } }
-            ];
-
-            devItems.forEach(item => {
-                const canAfford = state.devPoints >= item.cost;
-                devContainer.innerHTML += `
-                    <div class="shop-item dev-item">
-                        <h4>${item.name} <span style="color:var(--accent);"><i class="fa-solid fa-microchip"></i> ${item.cost}</span></h4>
-                        <p>${item.desc}</p>
-                        <button class="buy-btn dev-btn ${!canAfford ? 'disabled' : ''}" 
-                                ${!canAfford ? 'disabled' : ''} 
-                                onclick="buyDevItem('${item.id}', ${item.cost})">
-                            Investigar
-                        </button>
-                    </div>
-                `;
-            });
-
-            // Sección FONDOS ($)
-            const moneyContainer = document.getElementById('shop-money-list');
-            moneyContainer.innerHTML = "";
-            const moneyItems = [
-                { id: "grip", name: "Aditivo Ilegal de Agarre", desc: "Mejora tracción un evento", cost: 100, action: () => { state.consumables.gripAdditive = true; } },
-                { id: "pr", name: "Campaña de Relaciones Públicas", desc: "+10 Reputación", cost: 200, action: () => { state.reputation += 10; } },
-                { id: "visor", name: "Visor Hidrofóbico", desc: "Anula penalización por lluvia", cost: 80, action: () => { state.consumables.rainVisor = true; } }
-            ];
-
-            moneyItems.forEach(item => {
-                const canAfford = state.money >= item.cost;
-                moneyContainer.innerHTML += `
-                    <div class="shop-item">
-                        <h4>${item.name} <span style="color:var(--success);">$${item.cost}</span></h4>
-                        <p>${item.desc}</p>
-                        <button class="buy-btn ${!canAfford ? 'disabled' : ''}" 
-                                ${!canAfford ? 'disabled' : ''} 
-                                onclick="buyMoneyItem('${item.id}', ${item.cost})">
-                            Comprar
-                        </button>
-                    </div>
-                `;
-            });
-        }
-
-        function buyDevItem(id, cost) {
-            if(state.devPoints >= cost) {
-                state.devPoints -= cost;
-                if(id === 'dev_pace') state.attributes.pace += 2;
-                if(id === 'dev_tire') state.attributes.tires += 2;
-                if(id === 'dev_rain') state.attributes.rain += 3;
-                showNotification("Investigación completada!");
-                renderShopItems();
-                updateUI();
-            }
-        }
-
-        function buyMoneyItem(id, cost) {
-            if(state.money >= cost) {
-                state.money -= cost;
-                if(id === 'grip') state.consumables.gripAdditive = true;
-                if(id === 'pr') state.reputation += 10;
-                if(id === 'visor') state.consumables.rainVisor = true;
-                showNotification("¡Compra realizada!");
-                renderShopItems();
-                updateUI();
-            }
-        }
-
-        /* --- RETIRO --- */
-        function triggerRetirement() {
-            document.getElementById('modal-overlay').style.display = 'block';
-            document.getElementById('season-summary-modal').style.display = 'none';
-            document.getElementById('game-container').style.display = 'none';
-            
-            const hall = document.getElementById('career-hall-modal');
-            hall.style.display = 'block';
-
-            document.getElementById('hall-wins').innerText = state.statsRecord.wins;
-            document.getElementById('hall-podiums').innerText = state.statsRecord.podiums;
-            document.getElementById('hall-crashes').innerText = state.statsRecord.crashes;
-            document.getElementById('hall-rep').innerText = state.reputation;
-
-            const historyContainer = document.getElementById('hall-history');
-            state.careerHistory.forEach(h => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                div.innerText = h;
-                historyContainer.appendChild(div);
-            });
         }
     </script>
 </body>
