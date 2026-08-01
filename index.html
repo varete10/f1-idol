@@ -106,7 +106,7 @@
 
         /* --- ÁREA DE MINIJUEGOS INTERACTIVOS --- */
         #minigame-panel {
-            background: #0d0d11; border: 2px dashed #333; padding: 25px; border-radius: 12px; text-align: center; margin-top: 10px; display: none;
+            background: #0d0d11; border: 2px dashed #333; padding: 25px; border-radius: 12px; text-align: center; margin: 0 30px 30px 30px; display: none;
         }
         .mg-title { font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; font-size: 1.1em; }
         
@@ -260,7 +260,7 @@
         {
             title: "Semáforo en Blanco: La Salida",
             image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1000&auto=format&fit=crop",
-            description: "Los monoplazas toman posiciones en la parrilla. Los motores rugen a altas revoluciones. Los cinco semáforos rojos empiezan a encenderse uno a uno... ¡Prepárate para reaccionar al apagado!",
+            description: "Los monoplazas toman posiciones en la parrilla. Los motores rugen a altas revoluciones. Los cinco semáforos rojos empiezan a encenderse uno a uno... ¡Pulsa cuando se apaguen, pero cuidado con anticiparte!",
             isMinigame: true,
             minigameType: "startLights"
         },
@@ -279,7 +279,6 @@
                 {
                     text: "Tirarme por el exterior arriesgando el monoplaza",
                     action: () => {
-                        // Comprobación basada pura y exclusivamente en el atributo oculto de agresión
                         if(state.attributes.aggression > 55) {
                             state.reputation += 15;
                             addLog("¡Maniobra brillante y valiente por fuera! Mantienes el coche y ganas la posición.", "success");
@@ -388,7 +387,6 @@
     function triggerRandomEvent() {
         updateUI();
 
-        // Control de progresión de categorías
         if(state.reputation >= 40 && state.category === "Fórmula 3") {
             state.category = "Fórmula 2";
             addLog("¡Ascenso a la categoría de F2 por tu brillante rendimiento!", "success");
@@ -417,7 +415,6 @@
         mgPanel.style.display = 'none';
         mgPanel.innerHTML = '';
 
-        // Si es un evento con minijuego interactivo
         if(event.isMinigame) {
             if(event.minigameType === "startLights") {
                 renderStartLightsMinigame(mgPanel);
@@ -425,7 +422,6 @@
                 renderHardBrakeMinigame(mgPanel);
             }
         } else {
-            // Opciones de texto tradicionales ocultando pistas de atributos
             event.choices.forEach(choice => {
                 const btn = document.createElement('button');
                 btn.className = 'choice-btn';
@@ -436,71 +432,66 @@
         }
     }
 
-    // --- MINIJUEGO 1: SEMÁFORO DE SALIDA ---
+    // --- MINIJUEGO 1: SEMÁFORO DE SALIDA (CORREGIDO Y DINÁMICO) ---
     function renderStartLightsMinigame(container) {
         container.style.display = 'block';
         container.innerHTML = `
             <div class="mg-title">Minijuego: Reflejos de Salida</div>
-            <p style="font-size:0.85em; color: var(--text-muted);">Espera a que se apaguen todas las luces rojas y haz clic en el botón verde tan rápido como puedas.</p>
+            <p style="font-size:0.85em; color: var(--text-muted);">Las luces se encenderán progresivamente. ¡Pulsa el botón en cuanto se apaguen! (Si pulsas antes, harás una salida falsa).</p>
             <div class="lights-box" id="lights-container">
                 <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
             </div>
-            <button id="mg-action-btn" class="start-btn" style="background:#333; cursor:not-allowed;" disabled>Esperando semáforo...</button>
+            <button id="mg-action-btn" class="start-btn" style="background:var(--primary); cursor:pointer;">¡ACELERAR / SALIR!</button>
         `;
 
         const lights = container.querySelectorAll('.light');
         const actionBtn = document.getElementById('mg-action-btn');
         let activeLights = 0;
         let startTime = 0;
-        let canClick = false;
-        let jumpedStart = false;
+        let lightsOut = false;
 
-        // Encender luces progresivamente cada 800ms
+        // Encender luces progresivamente cada 400ms
         const lightInterval = setInterval(() => {
             if(activeLights < 5) {
                 lights[activeLights].classList.add('active');
                 activeLights++;
             } else {
                 clearInterval(lightInterval);
-                // Tiempo aleatorio entre 1 y 3 segundos para apagar
-                const randomWait = Math.random() * 2000 + 1000;
+                // Tiempo aleatorio variable entre 1000ms (1s) y 2500ms (2.5s) antes de apagarse
+                const randomWait = Math.random() * 1500 + 1000;
                 setTimeout(() => {
-                    // Apagado de luces (¡Salida!)
                     lights.forEach(l => l.classList.remove('active'));
                     startTime = Date.now();
-                    canClick = true;
-                    actionBtn.style.background = "var(--success)";
-                    actionBtn.style.cursor = "pointer";
-                    actionBtn.innerText = "¡PULSA YA!";
+                    lightsOut = true;
                 }, randomWait);
             }
-        }, 600);
+        }, 400);
 
+        // El botón está siempre disponible
         actionBtn.onclick = () => {
-            if(!canClick) {
-                // Salida falsa
-                jumpedStart = true;
+            clearInterval(lightInterval);
+            container.style.display = 'none';
+
+            if (!lightsOut) {
+                // Salida falsa (se pulsó antes de que se apagaran las luces)
                 state.reputation -= 10;
-                addLog("¡Salida falsa! Te has movido antes de apagar los semáforos. Sanción de tiempo.", "danger");
-                container.style.display = 'none';
-                triggerRandomEvent();
+                state.money -= 5000;
+                addLog("¡SALIDA FALSA! Te moviste antes de tiempo. Penalización de los comisarios.", "danger");
             } else {
                 const reactionTime = Date.now() - startTime;
-                container.style.display = 'none';
-                
                 if(reactionTime < 300) {
                     state.reputation += 20;
                     state.money += 20000;
-                    addLog(`¡Salida increíble! Tiempo de reacción: ${reactionTime}ms. Ganas posiciones de oro.`, "success");
+                    addLog(`¡Salida prodigiosa! Reacción de ${reactionTime}ms. Ganas posiciones clave.`, "success");
                 } else if(reactionTime < 600) {
                     state.reputation += 5;
                     addLog(`Buena salida estándar. Tiempo de reacción: ${reactionTime}ms.`);
                 } else {
                     state.reputation -= 5;
-                    addLog(`Salida muy lenta. Te han ganado la cartera en la arrancada (${reactionTime}ms).`, "danger");
+                    addLog(`Salida muy lenta. Te han ganado la posición en la arrancada (${reactionTime}ms).`, "danger");
                 }
-                triggerRandomEvent();
             }
+            triggerRandomEvent();
         };
     }
 
@@ -511,20 +502,15 @@
             <div class="mg-title">Minijuego: Frenada al Límite</div>
             <p style="font-size:0.85em; color: var(--text-muted);">Haz clic en el botón de freno cuando la barra blanca esté dentro de la zona verde de frenada óptima.</p>
             <div class="brake-track" id="brake-track">
-                <div class="brake-target" style="left: 35% 'width': 20%;"></div>
+                <div class="brake-target" style="left: 40%; width: 18%;"></div>
                 <div class="brake-cursor" id="brake-cursor"></div>
             </div>
             <button class="start-btn" style="background:var(--primary); margin-top:10px;" onclick="executeBrake()">¡CLAVAR FRENO!</button>
         `;
 
-        // Ajustar dinámicamente el target verde vía JS
-        const targetDiv = container.querySelector('.brake-target');
-        targetDiv.style.left = "40%";
-        targetDiv.style.width = "18%";
-
         window.isBrakingActive = true;
         window.cursorPos = 0;
-        window.cursorDir = 2; // Velocidad de movimiento
+        window.cursorDir = 2.5; 
 
         window.brakeInterval = setInterval(() => {
             if(!window.isBrakingActive) return;
@@ -538,6 +524,7 @@
     }
 
     function executeBrake() {
+        if(!window.isBrakingActive) return;
         window.isBrakingActive = false;
         clearInterval(window.brakeInterval);
         const container = document.getElementById('minigame-panel');
