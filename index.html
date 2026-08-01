@@ -78,7 +78,19 @@
             background-color: #08080a; border-bottom: 4px solid var(--primary); padding: 20px; display: flex; flex-direction: column; gap: 15px;
         }
         .driver-info { display: flex; justify-content: space-between; align-items: center; font-size: 1.25em; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        .country-display { display: flex; align-items: center; gap: 8px; }
         
+        /* Estilos globales para las banderas en miniatura */
+        .flag-icon {
+            width: 26px;
+            height: 18px;
+            object-fit: cover;
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            display: inline-block;
+            vertical-align: middle;
+        }
+
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .stat-badge { background: #16161d; padding: 10px; border-radius: 8px; font-size: 0.8em; font-weight: 700; border: 1px solid #222; text-align: center; }
         .stat-badge span { display: block; color: var(--accent); font-size: 1.2em; margin-top: 3px; font-weight: 900; }
@@ -143,17 +155,17 @@
     <div class="form-group">
         <label>País de Origen</label>
         <select id="input-country">
-            <option value="🇪🇸 España">🇪🇸 España</option>
-            <option value="🇦🇷 Argentina">🇦🇷 Argentina</option>
-            <option value="🇲🇽 México">🇲🇽 México</option>
-            <option value="🇨🇴 Colombia">🇨🇴 Colombia</option>
-            <option value="🇧🇷 Brasil">🇧🇷 Brasil</option>
-            <option value="🇬🇧 Reino Unido">🇬🇧 Reino Unido</option>
-            <option value="🇮🇹 Italia">🇮🇹 Italia</option>
-            <option value="🇫🇷 Francia">🇫🇷 Francia</option>
-            <option value="🇩🇪 Alemania">🇩🇪 Alemania</option>
-            <option value="🇳🇱 Países Bajos">🇳🇱 Países Bajos</option>
-            <option value="🇲🇨 Mónaco">🇲🇨 Mónaco</option>
+            <option value="es">España</option>
+            <option value="ar">Argentina</option>
+            <option value="mx">México</option>
+            <option value="co">Colombia</option>
+            <option value="br">Brasil</option>
+            <option value="gb">Reino Unido</option>
+            <option value="it">Italia</option>
+            <option value="fr">Francia</option>
+            <option value="de">Alemania</option>
+            <option value="nl">Países Bajos</option>
+            <option value="mc">Mónaco</option>
         </select>
     </div>
 
@@ -187,7 +199,10 @@
     <header>
         <div class="driver-info">
             <span id="ui-driver-name">Piloto</span>
-            <span id="ui-driver-country">🇪🇸 España</span>
+            <div class="country-display">
+                <img id="ui-driver-flag" class="flag-icon" src="" alt="Bandera">
+                <span id="ui-driver-country-name">España</span>
+            </div>
         </div>
         <div class="stats-grid">
             <div class="stat-badge">Ritmo<span id="stat-pace">0</span></div>
@@ -223,9 +238,24 @@
 </div>
 
 <script>
+    // Diccionario con los nombres bonitos de cada país asociado a su código para las banderas SVG
+    const countriesData = {
+        es: { name: "España" },
+        ar: { name: "Argentina" },
+        mx: { name: "México" },
+        co: { name: "Colombia" },
+        br: { name: "Brasil" },
+        gb: { name: "Reino Unido" },
+        it: { name: "Italia" },
+        fr: { name: "Francia" },
+        de: { name: "Alemania" },
+        nl: { name: "Países Bajos" },
+        mc: { name: "Mónaco" }
+    };
+
     let state = {
         name: "Rookie",
-        country: "🇪🇸 España",
+        countryCode: "es",
         category: "Fórmula 3",
         money: 50000,
         reputation: 15,
@@ -241,10 +271,14 @@
         selectedArchetype = type;
     }
 
+    function getFlagUrl(code) {
+        return `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
+    }
+
     function initGame() {
         const nameInput = document.getElementById('input-name').value.trim();
         state.name = nameInput === "" ? "Rookie" : nameInput;
-        state.country = document.getElementById('input-country').value;
+        state.countryCode = document.getElementById('input-country').value;
 
         if(selectedArchetype === 'agresivo') { state.attributes.aggression += 25; state.attributes.tires -= 10; }
         else if(selectedArchetype === 'calculador') { state.attributes.tires += 20; state.attributes.pace += 5; }
@@ -255,7 +289,8 @@
         document.getElementById('game-container').style.display = 'flex';
 
         updateUI();
-        addLog(`Bienvenido al gran circo, ${state.name} (${state.country}). Tu carrera da comienzo.`);
+        const countryName = countriesData[state.countryCode].name;
+        addLog(`Bienvenido al gran circo, ${state.name} <img src="${getFlagUrl(state.countryCode)}" class="flag-icon"> (${countryName}). Tu carrera da comienzo.`);
         triggerRandomEvent();
     }
 
@@ -375,8 +410,10 @@
     }
 
     function updateUI() {
+        const countryInfo = countriesData[state.countryCode];
         document.getElementById('ui-driver-name').innerText = state.name;
-        document.getElementById('ui-driver-country').innerText = state.country;
+        document.getElementById('ui-driver-flag').src = getFlagUrl(state.countryCode);
+        document.getElementById('ui-driver-country-name').innerText = countryInfo.name;
         document.getElementById('stat-pace').innerText = state.attributes.pace;
         document.getElementById('stat-aggro').innerText = state.attributes.aggression;
         document.getElementById('stat-tires').innerText = state.attributes.tires;
@@ -390,13 +427,15 @@
     // --- GESTOR DE EVENTOS Y MINIJUEGOS ---
     function triggerRandomEvent() {
         updateUI();
+        const countryName = countriesData[state.countryCode].name;
+        const flagHtml = `<img src="${getFlagUrl(state.countryCode)}" class="flag-icon">`;
 
         if(state.reputation >= 40 && state.category === "Fórmula 3") {
             state.category = "Fórmula 2";
-            addLog(`¡Ascenso de ${state.name} (${state.country}) a la categoría de F2 por su brillante rendimiento!`, "success");
+            addLog(`¡Ascenso de ${state.name} ${flagHtml} (${countryName}) a la categoría de F2 por su brillante rendimiento!`, "success");
         } else if(state.reputation >= 80 && state.category === "Fórmula 2") {
             state.category = "Fórmula 1";
-            addLog(`¡${state.name} (${state.country}) HA LLEGADO A LA FÓRMULA 1! El gran sueño automovilístico es tuyo.`, "success");
+            addLog(`¡${state.name} ${flagHtml} (${countryName}) HA LLEGADO A LA FÓRMULA 1! El gran sueño automovilístico es tuyo.`, "success");
         }
 
         const randomIndex = Math.floor(Math.random() * randomEvents.length);
@@ -479,10 +518,11 @@
                 addLog(`¡SALIDA FALSA! ${state.name} se movió antes de tiempo. Penalización de los comisarios.`, "danger");
             } else {
                 const reactionTime = Date.now() - startTime;
+                const flagHtml = `<img src="${getFlagUrl(state.countryCode)}" class="flag-icon">`;
                 if(reactionTime < 300) {
                     state.reputation += 20;
                     state.money += 20000;
-                    addLog(`¡Salida prodigiosa de ${state.country}! Reacción de ${reactionTime}ms. Ganas posiciones clave.`, "success");
+                    addLog(`¡Salida prodigiosa de ${state.name} ${flagHtml}! Reacción de ${reactionTime}ms. Ganas posiciones clave.`, "success");
                 } else if(reactionTime < 600) {
                     state.reputation += 5;
                     addLog(`Buena salida estándar. Tiempo de reacción: ${reactionTime}ms.`);
@@ -533,7 +573,7 @@
         if(window.cursorPos >= 40 && window.cursorPos <= 58) {
             state.reputation += 15;
             state.devPoints += 1;
-            addLog(`¡Frenada milimétrica perfecta de ${state.country}! Te metes por el interior ganando la posición.`, "success");
+            addLog("¡Frenada milimétrica perfecta! Te metes por el interior ganando la posición.", "success");
         } else {
             state.money -= 15000;
             addLog("Calculas mal la frenada y bloqueas neumáticos, yéndote recto por la escapatoria.", "danger");
