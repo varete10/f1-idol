@@ -32,8 +32,8 @@
             box-sizing: border-box;
         }
 
-        /* --- PANTALLA DE CREACIÓN --- */
-        #setup-container {
+        /* --- PANTALLA DE CREACIÓN Y MODALES --- */
+        #setup-container, #market-modal, #season-summary-modal {
             max-width: 600px;
             width: 100%;
             background-color: var(--panel-bg);
@@ -44,6 +44,17 @@
             border-top: 6px solid var(--primary);
             text-align: center;
             margin: auto;
+        }
+
+        #market-modal, #season-summary-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .form-group { margin-bottom: 25px; text-align: left; }
@@ -121,24 +132,25 @@
         }
         .mg-title { font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; font-size: 1.1em; }
         
-        /* Semáforo Minijuego */
         .lights-box { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
         .light { width: 35px; height: 35px; background: #222; border-radius: 50%; border: 2px solid #444; transition: background 0.2s; }
         .light.active { background: var(--primary); box-shadow: 0 0 15px var(--primary); }
 
-        /* Barra de Frenada Minijuego */
         .brake-track { width: 100%; height: 30px; background: #222; border-radius: 15px; position: relative; overflow: hidden; margin: 20px 0; cursor: pointer; }
         .brake-target { position: absolute; height: 100%; background: rgba(0, 230, 118, 0.4); border-left: 2px dashed var(--success); border-right: 2px dashed var(--success); }
         .brake-cursor { position: absolute; width: 6px; height: 100%; background: white; top: 0; left: 0; box-shadow: 0 0 10px white; }
 
-        /* Minijuego de Marchas (Shift Timing) */
         .rpm-bar { width: 100%; height: 25px; background: #222; border-radius: 12px; position: relative; overflow: hidden; margin: 20px 0; }
         .rpm-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--success), #ffb703, var(--primary)); transition: width 0.05s linear; }
 
-        /* Minijuego de DRS / Botón de Adelantamiento */
         .drs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
         .drs-tile { background: #181820; border: 2px solid #2a2a35; height: 70px; border-radius: 8px; font-size: 1.5em; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
         .drs-tile:hover { background: #22222d; }
+
+        /* Tarjetas de ofertas de fichajes */
+        .offer-card { background: #181820; border: 2px solid #2a2a35; border-radius: 10px; padding: 15px; margin-bottom: 15px; text-align: left; }
+        .offer-card h4 { margin: 0 0 8px 0; color: var(--accent); }
+        .offer-card p { margin: 4px 0; font-size: 0.9em; color: var(--text-muted); }
 
         /* Consola de logs inferior */
         #log-panel { background-color: #050507; padding: 15px 30px; font-size: 0.85em; color: #777; height: 110px; overflow-y: auto; border-top: 1px solid #1a1a22; }
@@ -202,6 +214,20 @@
     <button class="start-btn" onclick="initGame()">Comenzar Trayectoria</button>
 </div>
 
+<!-- MODAL DE RESUMEN DE TEMPORADA -->
+<div id="season-summary-modal">
+    <h2 id="summary-title" style="color: var(--primary); text-transform: uppercase; margin-top: 0;">Fin de Temporada</h2>
+    <p id="summary-text" style="color: var(--text-muted); text-align: left; line-height: 1.6;"></p>
+    <button class="start-btn" onclick="openMarketWindow()">Ir al Mercado de Fichajes</button>
+</div>
+
+<!-- MODAL DE MERCADO DE FICHAJES -->
+<div id="market-modal">
+    <h2 style="color: var(--accent); text-transform: uppercase; margin-top: 0;">Mercado de Fichajes</h2>
+    <p style="color: var(--text-muted); margin-bottom: 20px;">Tu contrato actual ha expirado. Selecciona tu nuevo destino para la siguiente temporada basándote en tu reputación y objetivos:</p>
+    <div id="offers-list"></div>
+</div>
+
 <!-- INTERFAZ PRINCIPAL -->
 <div id="game-container">
     <header>
@@ -219,10 +245,10 @@
             <div class="stat-badge">Lluvia<span id="stat-rain">0</span></div>
         </div>
         <div class="stats-grid" style="border-top: 1px solid #1a1a22; padding-top: 10px;">
-            <div class="stat-badge">Categoría<span id="stat-cat" style="color:white; font-size:1em;">F3</span></div>
+            <div class="stat-badge">Temporada<span id="stat-season">1</span></div>
             <div class="stat-badge">Reputación<span id="stat-rep">0</span></div>
             <div class="stat-badge">Fondos<span id="stat-money" class="money">0</span></div>
-            <div class="stat-badge">Puntos Dev<span id="stat-dev" class="points">0</span></div>
+            <div class="stat-badge">Eventos<span id="stat-events">0/6</span></div>
         </div>
     </header>
 
@@ -263,15 +289,18 @@
     let state = {
         name: "Rookie",
         countryCode: "es",
-        category: "Fórmula 3",
+        team: "Prema F3 (Academy)",
+        season: 1,
+        eventsCompleted: 0,
         money: 50000,
         reputation: 15,
         devPoints: 1,
-        attributes: { pace: 45, aggression: 45, tires: 45, rain: 45 }
+        attributes: { pace: 45, aggression: 45, tires: 45, rain: 45 },
+        statsRecord: { wins: 0, podiums: 0, crashes: 0 }
     };
 
     let selectedArchetype = 'agresivo';
-    let lastEventIndex = -1; // Control para evitar repetir el evento/minijuego idéntico consecutivo
+    let lastEventIndex = -1;
 
     function selectArchetype(element, type) {
         document.querySelectorAll('.archetype-card').forEach(c => c.classList.remove('selected'));
@@ -298,16 +327,16 @@
 
         updateUI();
         const countryName = countriesData[state.countryCode].name;
-        addLog(`Bienvenido al gran circo, ${state.name} <img src="${getFlagUrl(state.countryCode)}" class="flag-icon"> (${countryName}). Tu carrera da comienzo.`);
+        addLog(`Bienvenido al gran circo, ${state.name} <img src="${getFlagUrl(state.countryCode)}" class="flag-icon"> (${countryName}). Tu carrera da comienzo en ${state.team}.`);
         triggerRandomEvent();
     }
 
-    // --- BANCO EXPANDIDO DE EVENTOS Y MINIJUEGOS ---
+    // --- BANCO MASIVO DE EVENTOS Y MINIJUEGOS (VARIEDAD GARANTIZADA) ---
     const randomEvents = [
         {
             title: "Semáforo en Blanco: La Salida",
             image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1000&auto=format&fit=crop",
-            description: "Los monoplazas toman posiciones en la parrilla. Los motores rugen a altas revoluciones. Los cinco semáforos rojos empiezan a encenderse uno a uno... ¡Pulsa cuando se apaguen, pero cuidado con anticiparte!",
+            description: "Los monoplazas toman posiciones en la parrilla. Los cinco semáforos rojos empiezan a encenderse uno a uno... ¡Pulsa cuando se apaguen!",
             isMinigame: true,
             minigameType: "startLights"
         },
@@ -341,22 +370,21 @@
                     text: "Tirarme por el exterior arriesgando el monoplaza",
                     action: () => {
                         if(state.attributes.aggression > 55) {
-                            state.reputation += 15;
+                            state.reputation += 15; state.statsRecord.wins++;
                             addLog("¡Maniobra brillante y valiente por fuera! Mantienes el coche y ganas la posición.", "success");
                         } else {
-                            state.money -= 12000;
-                            state.reputation -= 5;
+                            state.money -= 12000; state.reputation -= 5; state.statsRecord.crashes++;
                             addLog("Calculas mal la adherencia exterior y golpeas el muro lateral.", "danger");
                         }
-                        triggerRandomEvent();
+                        progressEvent();
                     }
                 },
                 {
                     text: "Levantar el pie con prudencia táctica",
                     action: () => {
-                        state.money += 8000;
+                        state.money += 8000; state.statsRecord.podiums++;
                         addLog("Evitas un accidente innecesario y aseguras puntos estables para el campeonato.");
-                        triggerRandomEvent();
+                        progressEvent();
                     }
                 }
             ]
@@ -370,22 +398,21 @@
                     text: "Quedarme en pista con slicks confiando en mi tacto",
                     action: () => {
                         if(state.attributes.rain > 60) {
-                            state.reputation += 20;
-                            state.money += 35000;
+                            state.reputation += 20; state.money += 35000; state.statsRecord.wins++;
                             addLog("¡Espectáculo puro bajo el diluvio! Controlas el coche a la perfección.", "success");
                         } else {
-                            state.money -= 25000;
+                            state.money -= 25000; state.statsRecord.crashes++;
                             addLog("Patinas en la primera curva mojada y destrozas el suelo plano del coche.", "danger");
                         }
-                        triggerRandomEvent();
+                        progressEvent();
                     }
                 },
                 {
                     text: "Entrar a boxes a montar compuesto intermedio de lluvia",
                     action: () => {
-                        state.devPoints += 1;
+                        state.devPoints += 1; state.statsRecord.podiums++;
                         addLog("Parada conservadora limpia. Ganas confianza y recoges datos de telemetría (+1 Puntos Dev).");
-                        triggerRandomEvent();
+                        progressEvent();
                     }
                 }
             ]
@@ -400,16 +427,15 @@
                     action: () => {
                         state.reputation -= 15;
                         addLog("Tus mecánicos están furiosos en el box tras tus declaraciones incendiarias.", "danger");
-                        triggerRandomEvent();
+                        progressEvent();
                     }
                 },
                 {
                     text: "Elogiar el trabajo duro del equipo en la fábrica",
                     action: () => {
-                        state.reputation += 10;
-                        state.money += 15000;
+                        state.reputation += 10; state.money += 15000;
                         addLog("El equipo te adora por tu lealtad corporativa. Los patrocinadores te recompensan.");
-                        triggerRandomEvent();
+                        progressEvent();
                     }
                 }
             ]
@@ -422,19 +448,114 @@
                 {
                     text: "Aceptar el contrato y el dinero extra",
                     action: () => {
-                        state.money += 40000;
-                        state.attributes.pace -= 2;
+                        state.money += 40000; state.attributes.pace -= 2;
                         addLog("Cofres llenos de dinero, aunque tus horas de simulador se han reducido ligeramente.");
-                        triggerRandomEvent();
+                        progressEvent();
                     }
                 },
                 {
                     text: "Rechazarlo para centrarte 100% en el rendimiento deportivo",
                     action: () => {
-                        state.attributes.pace += 3;
-                        state.reputation += 5;
+                        state.attributes.pace += 3; state.reputation += 5;
                         addLog("Priorizas la gloria deportiva. Tu enfoque en pista es absoluto.");
-                        triggerRandomEvent();
+                        progressEvent();
+                    }
+                }
+            ]
+        },
+        {
+            title: "Fallo Mecánico Critico en Clasificación",
+            image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1000&auto=format&fit=crop",
+            description: "A falta de dos minutos para terminar la sesión de clasificación, notas una pérdida grave de presión hidráulica en la dirección asistida.",
+            choices: [
+                {
+                    text: "Arriesgar y salir a marcar un último tiempo a ciegas",
+                    action: () => {
+                        if(state.attributes.pace > 55) {
+                            state.reputation += 12; state.statsRecord.wins++;
+                            addLog("¡Vuelta heroica sin dirección asistida! Te metes entre los tres primeros.", "success");
+                        } else {
+                            state.money -= 20000; state.statsRecord.crashes++;
+                            addLog("El sistema falla por completo en la frenada y golpeas las barreras de neumáticos.", "danger");
+                        }
+                        progressEvent();
+                    }
+                },
+                {
+                    text: "Abortar la vuelta y guardar el motor en el box",
+                    action: () => {
+                        state.reputation -= 5;
+                        addLog("Salvas componentes valiosos del motor, pero sales retrasado en la parrilla.");
+                        progressEvent();
+                    }
+                }
+            ]
+        },
+        {
+            title: "Tensión en el muro con tu Ingeniero",
+            image: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=1000&auto=format&fit=crop",
+            description: "Tu ingeniero te pide por radio que dejes pasar a tu compañero de equipo por órdenes de jerarquía corporativa. Vas más rápido que él.",
+            choices: [
+                {
+                    text: "Ignorar la orden de equipo y adelantarle sin piedad",
+                    action: () => {
+                        state.reputation += 10; state.attributes.aggression += 3; state.statsRecord.wins++;
+                        addLog("Demuestras carácter ganador. La afición enloquece con tu arrojo.", "success");
+                        progressEvent();
+                    }
+                },
+                {
+                    text: "Obedecer disciplinadamente las órdenes del muro",
+                    action: () => {
+                        state.money += 20000; state.reputation += 5; state.statsRecord.podiums++;
+                        addLog("El jefe de equipo premia tu profesionalidad y compromiso con el constructor.");
+                        progressEvent();
+                    }
+                }
+            ]
+        },
+        {
+            title: "Pruebas de Aerodinámica en el túnel de viento",
+            image: "https://images.unsplash.com/photo-1508020282124-3b2d16c29b13?q=80&w=1000&auto=format&fit=crop",
+            description: "Tienes la oportunidad de probar un nuevo alerón delantero experimental diseñado en fábrica para mejorar el paso por curva rápida.",
+            choices: [
+                {
+                    text: "Probarlo a fondo asumiendo posible inestabilidad trasera",
+                    action: () => {
+                        state.attributes.pace += 4; state.devPoints += 1;
+                        addLog("El nuevo paquete aerodinámico responde de maravilla en las curvas de alta velocidad.");
+                        progressEvent();
+                    }
+                },
+                {
+                    text: "Descartarlo y mantener la configuración conservadora estable",
+                    action: () => {
+                        state.attributes.tires += 3;
+                        addLog("Mantienes el equilibrio óptimo del monoplaza sin sorpresas de última hora.");
+                        progressEvent();
+                    }
+                }
+            ]
+        },
+        {
+            title: "Incidente en el Pit Lane con los mecánicos",
+            image: "https://images.unsplash.com/photo-1541443131876-44b032227854?q=80&w=1000&auto=format&fit=crop",
+            description: "Durante una parada caótica, frenas tarde en tu cajón y golpeas ligeramente el gato delantero. El mecánico principal se asusta pero está bien.",
+            choices: [
+                {
+                    text: "Disculparte personalmente y regalarles una cena al equipo",
+                    action: () => {
+                        state.money -= 10000; state.reputation += 10;
+                        addLog("Tus mecánicos te perdonan al instante y redoblan esfuerzos en las siguientes paradas.");
+                        progressEvent();
+                    }
+                },
+                {
+                    text: "Culpar al sistema de semáforos automáticos del box",
+                    action: () => {
+                        state.reputation -= 10;
+                        addLog("El ambiente en el garaje se vuelve frío y distante tras tus reproches.");
+                        progressEvent();
                     }
                 }
             ]
@@ -465,27 +586,25 @@
         document.getElementById('stat-aggro').innerText = state.attributes.aggression;
         document.getElementById('stat-tires').innerText = state.attributes.tires;
         document.getElementById('stat-rain').innerText = state.attributes.rain;
-        document.getElementById('stat-cat').innerText = state.category;
+        document.getElementById('stat-season').innerText = state.season;
         document.getElementById('stat-rep').innerText = state.reputation;
         document.getElementById('stat-money').innerText = formatMoney(state.money);
-        document.getElementById('stat-dev').innerText = state.devPoints;
+        document.getElementById('stat-events').innerText = `${state.eventsCompleted}/6`;
     }
 
-    // --- GESTOR DE EVENTOS Y MINIJUEGOS (GARANTIZANDO NINGUNA REPETICIÓN CONSECUTIVA) ---
+    // --- PROGRESIÓN Y CONTROL DE TEMPORADA ---
+    function progressEvent() {
+        state.eventsCompleted++;
+        if(state.eventsCompleted >= 6) {
+            triggerSeasonSummary();
+        } else {
+            triggerRandomEvent();
+        }
+    }
+
     function triggerRandomEvent() {
         updateUI();
-        const countryName = countriesData[state.countryCode].name;
-        const flagHtml = `<img src="${getFlagUrl(state.countryCode)}" class="flag-icon">`;
 
-        if(state.reputation >= 40 && state.category === "Fórmula 3") {
-            state.category = "Fórmula 2";
-            addLog(`¡Ascenso de ${state.name} ${flagHtml} (${countryName}) a la categoría de F2 por su brillante rendimiento!`, "success");
-        } else if(state.reputation >= 80 && state.category === "Fórmula 2") {
-            state.category = "Fórmula 1";
-            addLog(`¡${state.name} ${flagHtml} (${countryName}) HA LLEGADO A LA FÓRMULA 1! El gran sueño automovilístico es tuyo.`, "success");
-        }
-
-        // Seleccionar un índice aleatorio diferente al último ejecutado
         let randomIndex;
         do {
             randomIndex = Math.floor(Math.random() * randomEvents.length);
@@ -532,12 +651,99 @@
         }
     }
 
-    // --- MINIJUEGO 1: SEMÁFORO DE SALIDA ---
+    // --- SISTEMA DE RESUMEN DE TEMPORADA ---
+    function triggerSeasonSummary() {
+        document.getElementById('game-container').style.display = 'none';
+        const modal = document.getElementById('season-summary-modal');
+        modal.style.display = 'block';
+
+        document.getElementById('summary-title').innerText = `Resumen Temporada ${state.season}`;
+        
+        let reportText = `¡Has completado la temporada ${state.season} pilotando para <strong>${state.team}</strong>!<br><br>`;
+        reportText += `• <strong>Victorias / Grandes momentos:</strong> ${state.statsRecord.wins}<br>`;
+        reportText += `• <strong>Podios / Decisiones tácticas limpias:</strong> ${state.statsRecord.podiums}<br>`;
+        reportText += `• <strong>Incidentes / Accidentes graves:</strong> ${state.statsRecord.crashes}<br>`;
+        reportText += `• <strong>Reputación acumulada:</strong> ${state.reputation} puntos<br>`;
+        reportText += `• <strong>Fondos actuales en cuenta:</strong> ${formatMoney(state.money)}<br><br>`;
+
+        if(state.reputation >= 60) {
+            reportText += `<em>"Tus actuaciones han sido estelares. Los equipos punteros del paddock están pujando fuertemente por tus servicios."</em>`;
+        } else if(state.reputation >= 30) {
+            reportText += `<em>"Has consolidado tu presencia de forma solvente en la categoría. Varias escuderías de mitad de tabla te ofrecen asientos estables."</em>`;
+        } else {
+            reportText += `<em>"Ha sido una temporada difícil con altibajos. Los equipos se muestran cautelosos ante tu falta de consistencia."</em>`;
+        }
+
+        document.getElementById('summary-text').innerHTML = reportText;
+    }
+
+    // --- SISTEMA DE FICHAJES ---
+    function openMarketWindow() {
+        document.getElementById('season-summary-modal').style.display = 'none';
+        const marketModal = document.getElementById('market-modal');
+        marketModal.style.display = 'block';
+
+        const offersList = document.getElementById('offers-list');
+        offersList.innerHTML = '';
+
+        // Generar ofertas basadas en la reputación actual
+        let availableOffers = [];
+
+        if (state.reputation < 35) {
+            availableOffers = [
+                { team: "Prema F3 (Continuidad)", salary: 50000, repReq: 0, carLevel: "Medio-Bajo (F3)" },
+                { team: "Hitech Grand Prix", salary: 75000, repReq: 20, carLevel: "Medio (F3)" },
+                { team: "Trident Racing", salary: 90000, repReq: 25, carLevel: "Competitivo (F3)" }
+            ];
+        } else if (state.reputation < 70) {
+            availableOffers = [
+                { team: "Carlin Motorsport (F2)", salary: 150000, repReq: 35, carLevel: "Competitivo (F2)" },
+                { team: "ART Grand Prix (F2)", salary: 180000, repReq: 45, carLevel: "Top (F2)" },
+                { team: "Williams Racing (F1)", salary: 350000, repReq: 60, carLevel: "Desarrollo (F1)" }
+            ];
+        } else {
+            availableOffers = [
+                { team: "Alpine F1 Team", salary: 800000, repReq: 70, carLevel: "Punto de mira (F1)" },
+                { team: "Scuderia Ferrari", salary: 1500000, repReq: 85, carLevel: "Leyenda / Podio (F1)" },
+                { team: "Red Bull Racing", salary: 2000000, repReq: 90, carLevel: "Campeonato Mundial (F1)" }
+            ];
+        }
+
+        availableOffers.forEach(offer => {
+            const card = document.createElement('div');
+            card.className = 'offer-card';
+            card.innerHTML = `
+                <h4>${offer.team}</h4>
+                <p><strong>Salario Anual:</strong> <span style="color:var(--success)">${formatMoney(offer.salary)}</span></p>
+                <p><strong>Nivel de Monoplaza:</strong> ${offer.carLevel}</p>
+                <p><strong>Reputación Requerida:</strong> ${offer.repReq}</p>
+                <button class="start-btn" style="margin-top:10px; padding:10px; font-size:0.9em;" onclick="signContract('${offer.team}', ${offer.salary})">Fichar por ${offer.team}</button>
+            `;
+            offersList.appendChild(card);
+        });
+    }
+
+    function signContract(teamName, salary) {
+        state.team = teamName;
+        state.money += salary;
+        state.season++;
+        state.eventsCompleted = 0;
+        state.statsRecord = { wins: 0, podiums: 0, crashes: 0 };
+
+        document.getElementById('market-modal').style.display = 'none';
+        document.getElementById('game-container').style.display = 'flex';
+
+        const flagHtml = `<img src="${getFlagUrl(state.countryCode)}" class="flag-icon">`;
+        addLog(`¡NUEVO CONTRATO! ${state.name} ${flagHtml} ficha oficialmente por <strong>${teamName}</strong> para la Temporada ${state.season}.`, "success");
+        triggerRandomEvent();
+    }
+
+    // --- MINIJUEGOS ---
     function renderStartLightsMinigame(container) {
         container.style.display = 'block';
         container.innerHTML = `
             <div class="mg-title">Minijuego: Reflejos de Salida</div>
-            <p style="font-size:0.85em; color: var(--text-muted);">Las luces se encenderán progresivamente. ¡Pulsa el botón en cuanto se apaguen! (Si pulsas antes, harás una salida falsa).</p>
+            <p style="font-size:0.85em; color: var(--text-muted);">Las luces se encenderán progresivamente. ¡Pulsa el botón en cuanto se apaguen!</p>
             <div class="lights-box" id="lights-container">
                 <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
             </div>
@@ -570,34 +776,30 @@
             container.style.display = 'none';
 
             if (!lightsOut) {
-                state.reputation -= 10;
-                state.money -= 5000;
-                addLog(`¡SALIDA FALSA! ${state.name} se movió antes de tiempo. Penalización de los comisarios.`, "danger");
+                state.reputation -= 10; state.money -= 5000; state.statsRecord.crashes++;
+                addLog(`¡SALIDA FALSA! ${state.name} se movió antes de tiempo. Penalización de comisarios.`, "danger");
             } else {
                 const reactionTime = Date.now() - startTime;
-                const flagHtml = `<img src="${getFlagUrl(state.countryCode)}" class="flag-icon">`;
                 if(reactionTime < 300) {
-                    state.reputation += 20;
-                    state.money += 20000;
-                    addLog(`¡Salida prodigiosa de ${state.name} ${flagHtml}! Reacción de ${reactionTime}ms. Ganas posiciones clave.`, "success");
+                    state.reputation += 20; state.money += 20000; state.statsRecord.wins++;
+                    addLog(`¡Salida prodigiosa! Reacción de ${reactionTime}ms. Ganas posiciones clave.`, "success");
                 } else if(reactionTime < 600) {
-                    state.reputation += 5;
+                    state.reputation += 5; state.statsRecord.podiums++;
                     addLog(`Buena salida estándar. Tiempo de reacción: ${reactionTime}ms.`);
                 } else {
                     state.reputation -= 5;
-                    addLog(`Salida muy lenta. Te han ganado la posición en la arrancada (${reactionTime}ms).`, "danger");
+                    addLog(`Salida lenta. Te han ganado la posición en la arrancada (${reactionTime}ms).`, "danger");
                 }
             }
-            triggerRandomEvent();
+            progressEvent();
         };
     }
 
-    // --- MINIJUEGO 2: ZONA DE FRENADA ---
     function renderHardBrakeMinigame(container) {
         container.style.display = 'block';
         container.innerHTML = `
             <div class="mg-title">Minijuego: Frenada al Límite</div>
-            <p style="font-size:0.85em; color: var(--text-muted);">Haz clic en el botón de freno cuando la barra blanca esté dentro de la zona verde de frenada óptima.</p>
+            <p style="font-size:0.85em; color: var(--text-muted);">Haz clic en el botón de freno cuando la barra blanca esté dentro de la zona verde óptima.</p>
             <div class="brake-track" id="brake-track">
                 <div class="brake-target" style="left: 40%; width: 18%;"></div>
                 <div class="brake-cursor" id="brake-cursor"></div>
@@ -628,22 +830,20 @@
         container.style.display = 'none';
 
         if(window.cursorPos >= 40 && window.cursorPos <= 58) {
-            state.reputation += 15;
-            state.devPoints += 1;
+            state.reputation += 15; state.devPoints += 1; state.statsRecord.wins++;
             addLog("¡Frenada milimétrica perfecta! Te metes por el interior ganando la posición.", "success");
         } else {
-            state.money -= 15000;
+            state.money -= 15000; state.statsRecord.crashes++;
             addLog("Calculas mal la frenada y bloqueas neumáticos, yéndote recto por la escapatoria.", "danger");
         }
-        triggerRandomEvent();
+        progressEvent();
     }
 
-    // --- NUEVO MINIJUEGO 3: CAMBIO DE MARCHAS (SHIFT TIMING) ---
     function renderShiftTimingMinigame(container) {
         container.style.display = 'block';
         container.innerHTML = `
             <div class="mg-title">Minijuego: Cambio de Marchas Preciso</div>
-            <p style="font-size:0.85em; color: var(--text-muted);">Observa las revoluciones y haz clic en '¡SUBIR MARCHA!' justo cuando la barra alcance la zona óptima (roja/amarilla).</p>
+            <p style="font-size:0.85em; color: var(--text-muted);">Haz clic en '¡SUBIR MARCHA!' justo cuando la barra alcance la zona óptima.</p>
             <div class="rpm-bar">
                 <div class="rpm-fill" id="rpm-fill"></div>
             </div>
@@ -670,19 +870,17 @@
         container.style.display = 'none';
 
         if(window.rpmProgress >= 75 && window.rpmProgress <= 92) {
-            state.attributes.pace += 2;
-            state.reputation += 10;
-            addLog("¡Cambio de marcha perfecto sin pérdida de par motor! Ganas décimas valiosas en recta.", "success");
+            state.attributes.pace += 2; state.reputation += 10; state.statsRecord.podiums++;
+            addLog("¡Cambio de marcha perfecto sin pérdida de par motor! Ganas décimas valiosas.", "success");
         } else if(window.rpmProgress > 92) {
-            state.money -= 8000;
-            addLog("¡Corte de inyección por sobrepasarse de revoluciones! Pierbes impulso vital.", "danger");
+            state.money -= 8000; state.statsRecord.crashes++;
+            addLog("¡Corte de inyección por sobrepasarse de revoluciones! Pierdes impulso vital.", "danger");
         } else {
             addLog("Cambio demasiado temprano. El motor sube perezoso de vueltas.");
         }
-        triggerRandomEvent();
+        progressEvent();
     }
 
-    // --- NUEVO MINIJUEGO 4: ACTIVACIÓN DRS (AGilidad mental) ---
     function renderDrsMinigame(container) {
         container.style.display = 'block';
         const targetIndex = Math.floor(Math.random() * 3);
@@ -695,7 +893,7 @@
 
         container.innerHTML = `
             <div class="mg-title">Minijuego: Zona DRS Activa</div>
-            <p style="font-size:0.85em; color: var(--text-muted);">El sistema de reducción de resistencia se ha habilitado de forma intermitente. ¡Haz clic en el panel correcto!</p>
+            <p style="font-size:0.85em; color: var(--text-muted);">El sistema de reducción de resistencia parpadea. ¡Haz clic en el panel correcto!</p>
             <div class="drs-grid">
                 ${tilesHtml}
             </div>
@@ -707,14 +905,13 @@
         container.style.display = 'none';
 
         if(selectedIndex === window.correctDrsIndex) {
-            state.reputation += 12;
-            state.money += 15000;
+            state.reputation += 12; state.money += 15000; state.statsRecord.wins++;
             addLog("¡Apertura de DRS perfecta en el momento justo! Adelantas limpiamente al rival.", "success");
         } else {
             state.reputation -= 5;
             addLog("Fallaste el panel del volante y el DRS no se abrió a tiempo. Te quedas bloqueado.", "danger");
         }
-        triggerRandomEvent();
+        progressEvent();
     }
 </script>
 </body>
