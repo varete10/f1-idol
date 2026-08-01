@@ -80,7 +80,6 @@
         .driver-info { display: flex; justify-content: space-between; align-items: center; font-size: 1.25em; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
         .country-display { display: flex; align-items: center; gap: 8px; }
         
-        /* Estilos globales para las banderas en miniatura */
         .flag-icon {
             width: 26px;
             height: 18px;
@@ -131,6 +130,15 @@
         .brake-track { width: 100%; height: 30px; background: #222; border-radius: 15px; position: relative; overflow: hidden; margin: 20px 0; cursor: pointer; }
         .brake-target { position: absolute; height: 100%; background: rgba(0, 230, 118, 0.4); border-left: 2px dashed var(--success); border-right: 2px dashed var(--success); }
         .brake-cursor { position: absolute; width: 6px; height: 100%; background: white; top: 0; left: 0; box-shadow: 0 0 10px white; }
+
+        /* Minijuego de Marchas (Shift Timing) */
+        .rpm-bar { width: 100%; height: 25px; background: #222; border-radius: 12px; position: relative; overflow: hidden; margin: 20px 0; }
+        .rpm-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--success), #ffb703, var(--primary)); transition: width 0.05s linear; }
+
+        /* Minijuego de DRS / Botón de Adelantamiento */
+        .drs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .drs-tile { background: #181820; border: 2px solid #2a2a35; height: 70px; border-radius: 8px; font-size: 1.5em; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
+        .drs-tile:hover { background: #22222d; }
 
         /* Consola de logs inferior */
         #log-panel { background-color: #050507; padding: 15px 30px; font-size: 0.85em; color: #777; height: 110px; overflow-y: auto; border-top: 1px solid #1a1a22; }
@@ -238,7 +246,6 @@
 </div>
 
 <script>
-    // Diccionario con los nombres bonitos de cada país asociado a su código para las banderas SVG
     const countriesData = {
         es: { name: "España" },
         ar: { name: "Argentina" },
@@ -264,6 +271,7 @@
     };
 
     let selectedArchetype = 'agresivo';
+    let lastEventIndex = -1; // Control para evitar repetir el evento/minijuego idéntico consecutivo
 
     function selectArchetype(element, type) {
         document.querySelectorAll('.archetype-card').forEach(c => c.classList.remove('selected'));
@@ -294,7 +302,7 @@
         triggerRandomEvent();
     }
 
-    // --- BANCO DE EVENTOS Y MINIJUEGOS ---
+    // --- BANCO EXPANDIDO DE EVENTOS Y MINIJUEGOS ---
     const randomEvents = [
         {
             title: "Semáforo en Blanco: La Salida",
@@ -311,9 +319,23 @@
             minigameType: "hardBrake"
         },
         {
+            title: "Salida fulgurante: Cambio de Marchas",
+            image: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=1000&auto=format&fit=crop",
+            description: "Es momento de engranar marchas con precisión milimétrica al alcanzar la zona de revoluciones óptima en plena recta principal.",
+            isMinigame: true,
+            minigameType: "shiftTiming"
+        },
+        {
+            title: "Zona de Activación de DRS",
+            image: "https://images.unsplash.com/photo-1508020282124-3b2d16c29b13?q=80&w=1000&auto=format&fit=crop",
+            description: "Te sitúas a menos de un segundo del coche de delante. El sistema DRS parpadea en tu volante. ¡Encuentra el panel activo para abrir el alerón!",
+            isMinigame: true,
+            minigameType: "drsActivation"
+        },
+        {
             title: "Duelo cuerpo a cuerpo en la chicane",
             image: "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1000&auto=format&fit=crop",
-            description: "Tu rival te cierra la puerta bruscamente en una chicane estrecha. ¿Intentas arriesgar por el Piano exterior o levantas para evitar el desastre?",
+            description: "Tu rival te cierra la puerta bruscamente en una chicane estrecha. ¿Intentas arriesgar por el piano exterior o levantas para evitar el desastre?",
             choices: [
                 {
                     text: "Tirarme por el exterior arriesgando el monoplaza",
@@ -371,7 +393,7 @@
         {
             title: "Pregunta trampa de la Prensa en el Corralito",
             image: "https://images.unsplash.com/photo-1538561558231-1e967a5b3a44?q=80&w=1000&auto=format&fit=crop",
-            description: "Un periodista te pregunta directamente: '¿Es verdad que tu coche actual es una basura infcable y por eso no logras la pole position?'",
+            description: "Un periodista te pregunta directamente: '¿Es verdad que tu coche actual es una basura infiable y por eso no logras la pole position?'",
             choices: [
                 {
                     text: "Cargar duramente contra los mecánicos y el coche",
@@ -387,6 +409,31 @@
                         state.reputation += 10;
                         state.money += 15000;
                         addLog("El equipo te adora por tu lealtad corporativa. Los patrocinadores te recompensan.");
+                        triggerRandomEvent();
+                    }
+                }
+            ]
+        },
+        {
+            title: "Oferta de Patrocinio Comercial",
+            image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1000&auto=format&fit=crop",
+            description: "Una marca de bebidas energéticas te ofrece un contrato lucrativo pero te exige asistir a largas sesiones de marketing antes de cada carrera.",
+            choices: [
+                {
+                    text: "Aceptar el contrato y el dinero extra",
+                    action: () => {
+                        state.money += 40000;
+                        state.attributes.pace -= 2;
+                        addLog("Cofres llenos de dinero, aunque tus horas de simulador se han reducido ligeramente.");
+                        triggerRandomEvent();
+                    }
+                },
+                {
+                    text: "Rechazarlo para centrarte 100% en el rendimiento deportivo",
+                    action: () => {
+                        state.attributes.pace += 3;
+                        state.reputation += 5;
+                        addLog("Priorizas la gloria deportiva. Tu enfoque en pista es absoluto.");
                         triggerRandomEvent();
                     }
                 }
@@ -424,7 +471,7 @@
         document.getElementById('stat-dev').innerText = state.devPoints;
     }
 
-    // --- GESTOR DE EVENTOS Y MINIJUEGOS ---
+    // --- GESTOR DE EVENTOS Y MINIJUEGOS (GARANTIZANDO NINGUNA REPETICIÓN CONSECUTIVA) ---
     function triggerRandomEvent() {
         updateUI();
         const countryName = countriesData[state.countryCode].name;
@@ -438,7 +485,13 @@
             addLog(`¡${state.name} ${flagHtml} (${countryName}) HA LLEGADO A LA FÓRMULA 1! El gran sueño automovilístico es tuyo.`, "success");
         }
 
-        const randomIndex = Math.floor(Math.random() * randomEvents.length);
+        // Seleccionar un índice aleatorio diferente al último ejecutado
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * randomEvents.length);
+        } while (randomIndex === lastEventIndex && randomEvents.length > 1);
+
+        lastEventIndex = randomIndex;
         const event = randomEvents[randomIndex];
 
         const imgEl = document.getElementById('event-image');
@@ -463,6 +516,10 @@
                 renderStartLightsMinigame(mgPanel);
             } else if(event.minigameType === "hardBrake") {
                 renderHardBrakeMinigame(mgPanel);
+            } else if(event.minigameType === "shiftTiming") {
+                renderShiftTimingMinigame(mgPanel);
+            } else if(event.minigameType === "drsActivation") {
+                renderDrsMinigame(mgPanel);
             }
         } else {
             event.choices.forEach(choice => {
@@ -535,7 +592,7 @@
         };
     }
 
-    // --- MINIJUEGOS 2: ZONA DE FRENADA ---
+    // --- MINIJUEGO 2: ZONA DE FRENADA ---
     function renderHardBrakeMinigame(container) {
         container.style.display = 'block';
         container.innerHTML = `
@@ -577,6 +634,85 @@
         } else {
             state.money -= 15000;
             addLog("Calculas mal la frenada y bloqueas neumáticos, yéndote recto por la escapatoria.", "danger");
+        }
+        triggerRandomEvent();
+    }
+
+    // --- NUEVO MINIJUEGO 3: CAMBIO DE MARCHAS (SHIFT TIMING) ---
+    function renderShiftTimingMinigame(container) {
+        container.style.display = 'block';
+        container.innerHTML = `
+            <div class="mg-title">Minijuego: Cambio de Marchas Preciso</div>
+            <p style="font-size:0.85em; color: var(--text-muted);">Observa las revoluciones y haz clic en '¡SUBIR MARCHA!' justo cuando la barra alcance la zona óptima (roja/amarilla).</p>
+            <div class="rpm-bar">
+                <div class="rpm-fill" id="rpm-fill"></div>
+            </div>
+            <button class="start-btn" style="background:var(--primary);" onclick="executeShift()">¡SUBIR MARCHA!</button>
+        `;
+
+        window.isShiftingActive = true;
+        window.rpmProgress = 0;
+
+        window.shiftInterval = setInterval(() => {
+            if(!window.isShiftingActive) return;
+            window.rpmProgress += 2.2;
+            if(window.rpmProgress > 100) window.rpmProgress = 100;
+            const fillEl = document.getElementById('rpm-fill');
+            if(fillEl) fillEl.style.width = window.rpmProgress + "%";
+        }, 25);
+    }
+
+    function executeShift() {
+        if(!window.isShiftingActive) return;
+        window.isShiftingActive = false;
+        clearInterval(window.shiftInterval);
+        const container = document.getElementById('minigame-panel');
+        container.style.display = 'none';
+
+        if(window.rpmProgress >= 75 && window.rpmProgress <= 92) {
+            state.attributes.pace += 2;
+            state.reputation += 10;
+            addLog("¡Cambio de marcha perfecto sin pérdida de par motor! Ganas décimas valiosas en recta.", "success");
+        } else if(window.rpmProgress > 92) {
+            state.money -= 8000;
+            addLog("¡Corte de inyección por sobrepasarse de revoluciones! Pierbes impulso vital.", "danger");
+        } else {
+            addLog("Cambio demasiado temprano. El motor sube perezoso de vueltas.");
+        }
+        triggerRandomEvent();
+    }
+
+    // --- NUEVO MINIJUEGO 4: ACTIVACIÓN DRS (AGilidad mental) ---
+    function renderDrsMinigame(container) {
+        container.style.display = 'block';
+        const targetIndex = Math.floor(Math.random() * 3);
+        window.correctDrsIndex = targetIndex;
+
+        let tilesHtml = '';
+        for(let i=0; i<3; i++) {
+            tilesHtml += `<div class="drs-tile" onclick="checkDrs(${i})">⚡</div>`;
+        }
+
+        container.innerHTML = `
+            <div class="mg-title">Minijuego: Zona DRS Activa</div>
+            <p style="font-size:0.85em; color: var(--text-muted);">El sistema de reducción de resistencia se ha habilitado de forma intermitente. ¡Haz clic en el panel correcto!</p>
+            <div class="drs-grid">
+                ${tilesHtml}
+            </div>
+        `;
+    }
+
+    function checkDrs(selectedIndex) {
+        const container = document.getElementById('minigame-panel');
+        container.style.display = 'none';
+
+        if(selectedIndex === window.correctDrsIndex) {
+            state.reputation += 12;
+            state.money += 15000;
+            addLog("¡Apertura de DRS perfecta en el momento justo! Adelantas limpiamente al rival.", "success");
+        } else {
+            state.reputation -= 5;
+            addLog("Fallaste el panel del volante y el DRS no se abrió a tiempo. Te quedas bloqueado.", "danger");
         }
         triggerRandomEvent();
     }
