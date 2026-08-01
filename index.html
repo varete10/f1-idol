@@ -589,19 +589,28 @@
         }
 
         /* --- MOTOR DE EVENTOS --- */
+        /* --- MOTOR DE EVENTOS (Corregido) --- */
         function processEventChoice(choiceIndex) {
             if (!currentEvent) return;
-            const choice = currentEvent.choices[choiceIndex];
+            
+            // CORRECCIÓN: Obtener las opciones correctamente a través de la función
+            const choices = currentEvent.getChoices();
+            const choice = choices[choiceIndex];
             
             const r = Math.random() * 100;
             let outcome;
             
-            if (r < choice.successChance) { outcome = choice.onSuccess(); showNotification("¡Éxito en la acción!"); }
-            else { outcome = choice.onFail(); showNotification("Fallo en la acción...", true); }
+            if (r < choice.successChance) { 
+                outcome = choice.onSuccess(); 
+                showNotification("¡Éxito en la acción!"); 
+            }
+            else { 
+                outcome = choice.onFail(); 
+                showNotification("Fallo en la acción...", true); 
+            }
 
             applyOutcome(outcome);
         }
-
         function applyOutcome(out) {
             // Manejo de puntos de campeonato por resultados de evento
             if(out.type === "win") {
@@ -814,6 +823,7 @@
         }
 
 
+        /* --- GENERADOR DE EVENTOS (Corregido: Sin porcentajes) --- */
         function triggerRandomEvent() {
             // Verificar si metemos un minijuego o evento de texto
             const isMinigame = Math.random() < 0.4; // 40% chance de minijuego interactivo
@@ -839,11 +849,15 @@
                     document.getElementById('weather-overlay').style.display = 'block';
                 }
 
+                // Generar los botones sin mostrar la probabilidad
                 const choices = currentEvent.getChoices();
                 choices.forEach((choice, index) => {
                     const btn = document.createElement('button');
                     btn.className = 'choice-btn';
-                    btn.innerHTML = `<span>${choice.text}</span> <span style="color:var(--text-muted); font-size:0.8em;">(${Math.min(100, Math.floor(choice.successChance))}%)</span>`;
+                    
+                    // CORRECCIÓN: Eliminada la etiqueta <span> con los porcentajes matemáticos
+                    btn.innerHTML = `<span>${choice.text}</span>`;
+                    
                     btn.onclick = () => processEventChoice(index);
                     document.getElementById('choices-panel').appendChild(btn);
                 });
