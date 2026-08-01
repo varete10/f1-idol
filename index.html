@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leyenda de la F1 - Arcade & Strategy</title>
+    
+    <!-- FAVICON DINÁMICO (SVG en línea para que funcione al instante sin archivos externos) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff1801'/%3E%3Cstop offset='100%25' stop-color='%2300f0ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M10 50 L35 15 L85 15 L95 50 L85 85 L35 85 Z' fill='%23121216' stroke='url(%23grad)' stroke-width='8'/%3E%3Ctext x='5050' y='62' font-family='Montserrat, sans-serif' font-weight='900' font-size='42' fill='%23ffffff' text-anchor='middle'%3EF1%3C/text%3E%3C/svg%3E">
+
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -30,6 +34,68 @@
             justify-content: center;
             min-height: 100vh;
             box-sizing: border-box;
+        }
+
+        /* --- LOGO CORPORATIVO / DE PANTALLA --- */
+        .app-logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .f1-logo-badge {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #181820, #08080a);
+            border: 2px solid var(--accent);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+            overflow: hidden;
+        }
+
+        .f1-logo-badge::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .f1-logo-text {
+            font-size: 1.8em;
+            font-weight: 900;
+            font-style: italic;
+            background: linear-gradient(90deg, var(--text-main), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .app-title-group h1 {
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-main);
+            text-align: left;
+        }
+
+        .app-title-group span {
+            font-size: 0.75em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: block;
+            text-align: left;
         }
 
         /* --- PANTALLA DE CREACIÓN Y MODALES --- */
@@ -164,7 +230,17 @@
 
 <!-- PANTALLA DE CREACIÓN -->
 <div id="setup-container">
-    <h1 style="color: var(--primary); text-transform: uppercase; margin-top: 0; font-weight: 900;">Firma de Contrato</h1>
+    <!-- LOGO INTEGRADO EN LA PÁGINA DE PERSONALIZACIÓN -->
+    <div class="app-logo-container">
+        <div class="f1-logo-badge">
+            <span class="f1-logo-text">F1</span>
+        </div>
+        <div class="app-title-group">
+            <h1>Apex Legend</h1>
+            <span>Gestión & Paddock</span>
+        </div>
+    </div>
+
     <p style="color: var(--text-muted); margin-bottom: 25px;">Define tu identidad antes de entrar al Paddock.</p>
     
     <div class="form-group">
@@ -728,7 +804,6 @@
 
     // --- PROGRESIÓN Y CONTROL DE TEMPORADA ---
     function progressEvent() {
-        // Limpiar consumibles temporales tras resolverse el evento actual
         state.temporaryBoosts = { pace: 0, aggression: 0, tires: 0, rain: 0 };
 
         state.eventsCompleted++;
@@ -788,7 +863,6 @@
         }
     }
 
-    // --- SISTEMA DE RESUMEN DE TEMPORADA ---
     function triggerSeasonSummary() {
         document.getElementById('game-container').style.display = 'none';
         const modal = document.getElementById('season-summary-modal');
@@ -814,7 +888,6 @@
         document.getElementById('summary-text').innerHTML = reportText;
     }
 
-    // --- SISTEMA DE FICHAJES ---
     function openMarketWindow() {
         document.getElementById('season-summary-modal').style.display = 'none';
         const marketModal = document.getElementById('market-modal');
