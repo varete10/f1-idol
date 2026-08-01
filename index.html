@@ -5,10 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leyenda de la F1 - Arcade & Strategy</title>
     
-    <!-- FAVICON DINÁMICO (SVG en línea para que funcione al instante sin archivos externos) -->
+    <!-- FAVICON DINÁMICO (SVG en línea) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff1801'/%3E%3Cstop offset='100%25' stop-color='%2300f0ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M10 50 L35 15 L85 15 L95 50 L85 85 L35 85 Z' fill='%23121216' stroke='url(%23grad)' stroke-width='8'/%3E%3Ctext x='50' y='62' font-family='Montserrat, sans-serif' font-weight='900' font-size='42' fill='%23ffffff' text-anchor='middle'%3EF1%3C/text%3E%3C/svg%3E">
 
+    <!-- FUENTES Y LIBRERÍA DE ICONOS (FontAwesome 6.4.0) -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         :root {
             --bg-dark: #070709;
@@ -19,6 +22,7 @@
             --text-muted: #8c8c9e;
             --accent: #00f0ff;
             --success: #00e676;
+            --warning: #ffb703;
         }
 
         body {
@@ -99,8 +103,8 @@
         }
 
         /* --- PANTALLA DE CREACIÓN Y MODALES --- */
-        #setup-container, #market-modal, #season-summary-modal, #shop-modal {
-            max-width: 600px;
+        #setup-container, #market-modal, #season-summary-modal, #shop-modal, #career-hall-modal {
+            max-width: 650px;
             width: 100%;
             background-color: var(--panel-bg);
             border-radius: 16px;
@@ -110,9 +114,10 @@
             border-top: 6px solid var(--primary);
             text-align: center;
             margin: auto;
+            box-sizing: border-box;
         }
 
-        #market-modal, #season-summary-modal, #shop-modal {
+        #market-modal, #season-summary-modal, #shop-modal, #career-hall-modal {
             display: none;
             position: fixed;
             top: 50%;
@@ -136,7 +141,7 @@
         }
         .archetype-card:hover { border-color: var(--text-muted); }
         .archetype-card.selected { border-color: var(--primary); background: rgba(255, 24, 1, 0.08); }
-        .archetype-card h4 { margin: 0 0 5px 0; color: var(--text-main); }
+        .archetype-card h4 { margin: 0 0 5px 0; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
         .archetype-card p { margin: 0; font-size: 0.75em; color: var(--text-muted); }
 
         .start-btn {
@@ -171,7 +176,7 @@
         .stat-badge { background: #16161d; padding: 10px; border-radius: 8px; font-size: 0.8em; font-weight: 700; border: 1px solid #222; text-align: center; }
         .stat-badge span { display: block; color: var(--accent); font-size: 1.2em; margin-top: 3px; font-weight: 900; }
         .stat-badge .money { color: var(--success); }
-        .stat-badge .points { color: #ffb703; }
+        .stat-badge .points { color: var(--warning); }
 
         /* --- IMAGEN Y MULTIMEDIA --- */
         #image-container { width: 100%; height: 240px; background-color: #000; overflow: hidden; position: relative; }
@@ -180,7 +185,7 @@
 
         /* --- HISTORIA Y PANEL DE ACCIÓN --- */
         #story-panel { padding: 30px; font-size: 1.05em; line-height: 1.7; }
-        #event-title { color: var(--text-main); font-weight: 900; text-transform: uppercase; font-size: 1.6em; margin: 0 0 12px 0; letter-spacing: 0.5px; }
+        #event-title { color: var(--text-main); font-weight: 900; text-transform: uppercase; font-size: 1.6em; margin: 0 0 12px 0; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
         #event-description { color: var(--text-muted); margin-bottom: 0; }
         
         #choices-panel { padding: 0 30px 30px 30px; display: flex; flex-direction: column; gap: 12px; }
@@ -196,7 +201,7 @@
         #minigame-panel {
             background: #0d0d11; border: 2px dashed #333; padding: 25px; border-radius: 12px; text-align: center; margin: 0 30px 30px 30px; display: none;
         }
-        .mg-title { font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; font-size: 1.1em; }
+        .mg-title { font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; font-size: 1.1em; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
         .lights-box { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
         .light { width: 35px; height: 35px; background: #222; border-radius: 50%; border: 2px solid #444; transition: background 0.2s; }
@@ -207,16 +212,16 @@
         .brake-cursor { position: absolute; width: 6px; height: 100%; background: white; top: 0; left: 0; box-shadow: 0 0 10px white; }
 
         .rpm-bar { width: 100%; height: 25px; background: #222; border-radius: 12px; position: relative; overflow: hidden; margin: 20px 0; }
-        .rpm-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--success), #ffb703, var(--primary)); transition: width 0.05s linear; }
+        .rpm-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--success), var(--warning), var(--primary)); transition: width 0.05s linear; }
 
         .drs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-        .drs-tile { background: #181820; border: 2px solid #2a2a35; height: 70px; border-radius: 8px; font-size: 1.5em; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
-        .drs-tile:hover { background: #22222d; }
+        .drs-tile { background: #181820; border: 2px solid #2a2a35; height: 70px; border-radius: 8px; font-size: 1.5em; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; color: var(--accent); }
+        .drs-tile:hover { background: #22222d; border-color: var(--accent); }
 
         /* Tarjetas de ofertas de fichajes y tienda */
         .offer-card { background: #181820; border: 2px solid #2a2a35; border-radius: 10px; padding: 15px; margin-bottom: 15px; text-align: left; }
-        .offer-card h4 { margin: 0 0 8px 0; color: var(--accent); }
-        .offer-card p { margin: 4px 0; font-size: 0.9em; color: var(--text-muted); }
+        .offer-card h4 { margin: 0 0 8px 0; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+        .offer-card p { margin: 4px 0; font-size: 0.9em; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
         .offer-card.renewal { border-color: var(--success); background: rgba(0, 230, 118, 0.05); }
 
         /* Consola de logs inferior */
@@ -225,6 +230,7 @@
         #log-list li { margin-bottom: 6px; border-left: 3px solid #333; padding-left: 10px; }
         #log-list li.success { border-left-color: var(--success); color: #8cf5bf; }
         #log-list li.danger { border-left-color: var(--primary); color: #ff9999; }
+        #log-list li.warning { border-left-color: var(--warning); color: #ffe680; }
     </style>
 </head>
 <body>
@@ -242,15 +248,15 @@
         </div>
     </div>
 
-    <p style="color: var(--text-muted); margin-bottom: 25px;">Define tu identidad antes de entrar al Paddock.</p>
+    <p style="color: var(--text-muted); margin-bottom: 25px;"><i class="fa-solid id-card"></i> Define tu identidad y edad inicial antes de entrar al Paddock.</p>
     
     <div class="form-group">
-        <label>Nombre del Piloto</label>
+        <label><i class="fa-solid fa-user"></i> Nombre del Piloto</label>
         <input type="text" id="input-name" placeholder="Ej: Fernando Alonso" autocomplete="off">
     </div>
 
     <div class="form-group">
-        <label>País de Origen</label>
+        <label><i class="fa-solid fa-earth-americas"></i> País de Origen</label>
         <select id="input-country">
             <option value="es">España</option>
             <option value="ar">Argentina</option>
@@ -267,83 +273,100 @@
     </div>
 
     <div class="form-group">
-        <label>Estilo de Pilotaje</label>
+        <label><i class="fa-solid fa-cake-candles"></i> Edad de Inicio</label>
+        <select id="input-age">
+            <option value="18">18 Años (Joven Promesa - Larga carrera)</option>
+            <option value="22" selected>22 Años (Estándar - Equilibrio ideal)</option>
+            <option value="28">28 Años (Veterano en Plenitud - Experiencia alta)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label><i class="fa-solid fa-gauge-high"></i> Estilo de Pilotaje</label>
         <div class="archetypes">
             <div class="archetype-card selected" onclick="selectArchetype(this, 'agresivo')">
-                <h4>Kamikaze</h4>
+                <h4><i class="fa-solid fa-fire text-danger" style="color:var(--primary);"></i> Kamikaze</h4>
                 <p>Alto riesgo, adelantamientos imposibles y máxima garra.</p>
             </div>
             <div class="archetype-card" onclick="selectArchetype(this, 'calculador')">
-                <h4>Calculador</h4>
+                <h4><i class="fa-solid fa-brain" style="color:var(--accent);"></i> Calculador</h4>
                 <p>Estratega de gomas, excelente gestión a distancia.</p>
             </div>
             <div class="archetype-card" onclick="selectArchetype(this, 'lluvia')">
-                <h4>Mago del Agua</h4>
+                <h4><i class="fa-solid fa-cloud-rain" style="color:#00b4d8;"></i> Mago del Agua</h4>
                 <p>Maestría absoluta en condiciones de asfalto mojado.</p>
             </div>
             <div class="archetype-card" onclick="selectArchetype(this, 'puro')">
-                <h4>Talento Puro</h4>
+                <h4><i class="fa-solid fa-bolt" style="color:var(--warning);"></i> Talento Puro</h4>
                 <p>Velocidad explosiva a una vuelta en clasificación.</p>
             </div>
         </div>
     </div>
 
-    <button class="start-btn" onclick="initGame()">Comenzar Trayectoria</button>
+    <button class="start-btn" onclick="initGame()"><i class="fa-solid fa-flag-checkered"></i> Comenzar Trayectoria</button>
 </div>
 
 <!-- MODAL DE RESUMEN DE TEMPORADA -->
 <div id="season-summary-modal">
-    <h2 id="summary-title" style="color: var(--primary); text-transform: uppercase; margin-top: 0;">Fin de Temporada</h2>
+    <h2 id="summary-title" style="color: var(--primary); text-transform: uppercase; margin-top: 0; display:flex; align-items:center; justify-content:center; gap:10px;"><i class="fa-solid fa-trophy"></i> Fin de Temporada</h2>
     <p id="summary-text" style="color: var(--text-muted); text-align: left; line-height: 1.6;"></p>
-    <button class="start-btn" onclick="openMarketWindow()">Ir al Mercado de Fichajes</button>
+    <button class="start-btn" onclick="openMarketWindow()"><i class="fa-solid fa-handshake"></i> Ir al Mercado de Fichajes</button>
 </div>
 
 <!-- MODAL DE MERCADO DE FICHAJES -->
 <div id="market-modal">
-    <h2 style="color: var(--accent); text-transform: uppercase; margin-top: 0;">Mercado de Fichajes & Renovaciones</h2>
-    <p style="color: var(--text-muted); margin-bottom: 20px;">Tu contrato actual ha expirado. Tu escudería actual te ofrece renovar, o puedes valorar otras opciones:</p>
+    <h2 style="color: var(--accent); text-transform: uppercase; margin-top: 0; display:flex; align-items:center; justify-content:center; gap:10px;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Mercado de Fichajes & Renovaciones</h2>
+    <p style="color: var(--text-muted); margin-bottom: 20px;">Tu contrato actual ha expirado. Tu escudería actual te ofrece renovar directamente, o puedes valorar otras opciones en el paddock:</p>
     <div id="offers-list"></div>
 </div>
 
 <!-- MODAL DE TIENDA R&D & CONSUMIBLES -->
 <div id="shop-modal">
-    <h2 style="color: var(--accent); text-transform: uppercase; margin-top: 0;">🛒 Tienda del Equipo & R&D</h2>
+    <h2 style="color: var(--accent); text-transform: uppercase; margin-top: 0; display:flex; align-items:center; justify-content:center; gap:10px;"><i class="fa-solid fa-shop"></i> Tienda del Equipo & R&D</h2>
     <p style="color: var(--text-muted); margin-bottom: 20px;">Utiliza tus fondos para adquirir consumibles temporales (para el siguiente evento) o mejoras permanentes en el monoplaza.</p>
     
-    <h3 style="color: var(--text-main); text-align: left; border-bottom: 1px solid #222; padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">Consumibles Temporales (Próximo Evento)</h3>
+    <h3 style="color: var(--text-main); text-align: left; border-bottom: 1px solid #222; padding-bottom: 5px; font-size: 1em; text-transform: uppercase; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-bolt-lightning text-warning" style="color:var(--warning);"></i> Consumibles Temporales (Próximo Evento)</h3>
     <div id="shop-temp-list" style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;"></div>
 
-    <h3 style="color: var(--text-main); text-align: left; border-bottom: 1px solid #222; padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">Mejoras Permanentes (Inversión Alta)</h3>
+    <h3 style="color: var(--text-main); text-align: left; border-bottom: 1px solid #222; padding-bottom: 5px; font-size: 1em; text-transform: uppercase; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-gears" style="color:var(--accent);"></i> Mejoras Permanentes (Inversión Alta)</h3>
     <div id="shop-perm-list" style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px;"></div>
 
-    <button class="start-btn" style="background: #2a2a35;" onclick="closeShopModal()">Cerrar Tienda</button>
+    <button class="start-btn" style="background: #2a2a35;" onclick="closeShopModal()"><i class="fa-solid fa-xmark"></i> Cerrar Tienda</button>
+</div>
+
+<!-- MODAL DE SALÓN DE LA FAMA / HISTORIAL DE CARRERA (FIN DE JUEGO) -->
+<div id="career-hall-modal">
+    <h2 style="color: var(--warning); text-transform: uppercase; margin-top: 0; display:flex; align-items:center; justify-content:center; gap:10px;"><i class="fa-solid fa-medal"></i> Leyenda del Automovilismo: Retirada</h2>
+    <p id="hall-subtitle" style="color: var(--text-muted); margin-bottom: 15px;"></p>
+    <div id="hall-content" style="text-align: left; max-height: 50vh; overflow-y: auto; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;"></div>
+    <button class="start-btn" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> Iniciar Nueva Carrera</button>
 </div>
 
 <!-- INTERFAZ PRINCIPAL -->
 <div id="game-container">
     <header>
         <div class="driver-info">
-            <span id="ui-driver-name">Piloto</span>
+            <span id="ui-driver-name"><i class="fa-solid fa-user-helmet-safety"></i> Piloto</span>
             <div class="country-display">
                 <img id="ui-driver-flag" class="flag-icon" src="" alt="Bandera">
                 <span id="ui-driver-country-name">España</span>
             </div>
         </div>
         <div class="stats-grid">
-            <div class="stat-badge">Ritmo<span id="stat-pace">0</span></div>
-            <div class="stat-badge">Agresividad<span id="stat-aggro">0</span></div>
-            <div class="stat-badge">Gomas<span id="stat-tires">0</span></div>
-            <div class="stat-badge">Lluvia<span id="stat-rain">0</span></div>
+            <div class="stat-badge"><i class="fa-solid fa-gauge"></i> Ritmo<span id="stat-pace">0</span></div>
+            <div class="stat-badge"><i class="fa-solid fa-fire"></i> Agresividad<span id="stat-aggro">0</span></div>
+            <div class="stat-badge"><i class="fa-solid fa-car-burst"></i> Gomas<span id="stat-tires">0</span></div>
+            <div class="stat-badge"><i class="fa-solid fa-cloud-rain"></i> Lluvia<span id="stat-rain">0</span></div>
         </div>
         <div class="stats-grid" style="border-top: 1px solid #1a1a22; padding-top: 10px;">
-            <div class="stat-badge">Temporada<span id="stat-season">1</span></div>
-            <div class="stat-badge">Reputación<span id="stat-rep">0</span></div>
-            <div class="stat-badge">Fondos<span id="stat-money" class="money">0</span></div>
-            <div class="stat-badge">Eventos<span id="stat-events">0/6</span></div>
+            <div class="stat-badge"><i class="fa-solid fa-cake-candles"></i> Edad<span id="stat-age">0</span></div>
+            <div class="stat-badge"><i class="fa-solid fa-calendar-days"></i> Temporada<span id="stat-season">1</span></div>
+            <div class="stat-badge"><i class="fa-solid fa-star"></i> Reputación<span id="stat-rep">0</span></div>
+            <div class="stat-badge"><i class="fa-solid fa-wallet"></i> Fondos<span id="stat-money" class="money">0</span></div>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1a1a22; padding-top: 10px;">
-            <span style="font-size: 0.85em; color: var(--text-muted);">Inversión de capital disponible</span>
-            <button class="start-btn" style="padding: 8px 16px; font-size: 0.85em; width: auto; background-color: var(--accent); color: #000; font-weight: 900;" onclick="openShopModal()">🛒 Abrir Tienda R&D</button>
+            <span style="font-size: 0.85em; color: var(--text-muted); display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-circle-info"></i> Inversión de capital y estado físico del piloto</span>
+            <button class="start-btn" style="padding: 8px 16px; font-size: 0.85em; width: auto; background-color: var(--accent); color: #000; font-weight: 900;" onclick="openShopModal()"><i class="fa-solid fa-shop"></i> Abrir Tienda R&D</button>
         </div>
     </header>
 
@@ -396,6 +419,7 @@
     let state = {
         name: "Rookie",
         countryCode: "es",
+        age: 22,
         team: "Prema F3 (Academy)",
         season: 1,
         eventsCompleted: 0,
@@ -404,7 +428,8 @@
         devPoints: 1,
         attributes: { pace: 45, aggression: 45, tires: 45, rain: 45 },
         temporaryBoosts: { pace: 0, aggression: 0, tires: 0, rain: 0 },
-        statsRecord: { wins: 0, podiums: 0, crashes: 0 }
+        statsRecord: { wins: 0, podiums: 0, crashes: 0 },
+        careerHistory: [] // Historial temporada a temporada para el Salón de la Fama
     };
 
     let selectedArchetype = 'agresivo';
@@ -430,6 +455,7 @@
         const nameInput = document.getElementById('input-name').value.trim();
         state.name = nameInput === "" ? "Rookie" : nameInput;
         state.countryCode = document.getElementById('input-country').value;
+        state.age = parseInt(document.getElementById('input-age').value) || 22;
 
         if(selectedArchetype === 'agresivo') { state.attributes.aggression += 25; state.attributes.tires -= 10; }
         else if(selectedArchetype === 'calculador') { state.attributes.tires += 20; state.attributes.pace += 5; }
@@ -441,7 +467,7 @@
 
         updateUI();
         const countryName = countriesData[state.countryCode].name;
-        addLog(`Bienvenido al gran circo, ${state.name} <img src="${getFlagUrl(state.countryCode)}" class="flag-icon"> (${countryName}). Tu carrera da comienzo en ${state.team}.`);
+        addLog(`Bienvenido al gran circo, ${state.name} <img src="${getFlagUrl(state.countryCode)}" class="flag-icon"> (${countryName}, ${state.age} años). Tu carrera da comienzo en ${state.team}.`, "success");
         triggerRandomEvent();
     }
 
@@ -693,17 +719,17 @@
 
     function updateUI() {
         const countryInfo = countriesData[state.countryCode];
-        document.getElementById('ui-driver-name').innerText = state.name;
+        document.getElementById('ui-driver-name').innerHTML = `<i class="fa-solid fa-user-helmet-safety"></i> ${state.name}`;
         document.getElementById('ui-driver-flag').src = getFlagUrl(state.countryCode);
         document.getElementById('ui-driver-country-name').innerText = countryInfo.name;
         document.getElementById('stat-pace').innerText = getStat('pace');
         document.getElementById('stat-aggro').innerText = getStat('aggression');
         document.getElementById('stat-tires').innerText = getStat('tires');
         document.getElementById('stat-rain').innerText = getStat('rain');
+        document.getElementById('stat-age').innerText = state.age;
         document.getElementById('stat-season').innerText = state.season;
         document.getElementById('stat-rep').innerText = state.reputation;
         document.getElementById('stat-money').innerText = formatMoney(state.money);
-        document.getElementById('stat-events').innerText = `${state.eventsCompleted}/6`;
     }
 
     // --- TIENDA Y R&D ---
@@ -724,32 +750,32 @@
         tempContainer.innerHTML = `
             <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <h4 style="margin:0; color:var(--accent);">Gasolina de Alto Octanaje (+15 Ritmo)</h4>
+                    <h4 style="margin:0; color:var(--accent);"><i class="fa-solid fa-gas-pump"></i> Gasolina de Alto Octanaje (+15 Ritmo)</h4>
                     <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
                 </div>
                 <div style="text-align:right;">
                     <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">12.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'pace', 15, 12000)">Comprar</button>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'pace', 15, 12000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
                 </div>
             </div>
             <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <h4 style="margin:0; color:var(--accent);">Aditivo de Neumáticos (+15 Agresividad)</h4>
+                    <h4 style="margin:0; color:var(--accent);"><i class="fa-solid fa-fire-flame-curved"></i> Aditivo de Neumáticos (+15 Agresividad)</h4>
                     <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
                 </div>
                 <div style="text-align:right;">
                     <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">10.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'aggression', 15, 10000)">Comprar</button>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'aggression', 15, 10000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
                 </div>
             </div>
             <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <h4 style="margin:0; color:var(--accent);">Visera Hidrófuga Especial (+15 Lluvia)</h4>
+                    <h4 style="margin:0; color:var(--accent);"><i class="fa-solid fa-glasses"></i> Visera Hidrófuga Especial (+15 Lluvia)</h4>
                     <p style="margin:2px 0; font-size:0.85em;">Consumible exclusivo para el próximo evento.</p>
                 </div>
                 <div style="text-align:right;">
                     <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">10.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'rain', 15, 10000)">Comprar</button>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto;" onclick="buyItem('temp', 'rain', 15, 10000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
                 </div>
             </div>
         `;
@@ -757,42 +783,42 @@
         permContainer.innerHTML = `
             <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <h4 style="margin:0; color:#ffb703;">Simulador Avanzado de Fábrica (+2 Ritmo Perm.)</h4>
+                    <h4 style="margin:0; color:var(--warning);"><i class="fa-solid fa-desktop"></i> Simulador Avanzado de Fábrica (+2 Ritmo Perm.)</h4>
                     <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
                 </div>
                 <div style="text-align:right;">
                     <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">60.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:#ffb703; color:#000;" onclick="buyItem('perm', 'pace', 2, 60000)">Comprar</button>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:var(--warning); color:#000;" onclick="buyItem('perm', 'pace', 2, 60000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
                 </div>
             </div>
             <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <h4 style="margin:0; color:#ffb703;">Entrenamiento Psicológico & Reflejos (+2 Agres. Perm.)</h4>
+                    <h4 style="margin:0; color:var(--warning);"><i class="fa-solid fa-dumbbell"></i> Entrenamiento Psicológico & Reflejos (+2 Agres. Perm.)</h4>
                     <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
                 </div>
                 <div style="text-align:right;">
                     <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">55.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:#ffb703; color:#000;" onclick="buyItem('perm', 'aggression', 2, 55000)">Comprar</button>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:var(--warning); color:#000;" onclick="buyItem('perm', 'aggression', 2, 55000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
                 </div>
             </div>
             <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <h4 style="margin:0; color:#ffb703;">Especialista en Degradación de Gomas (+2 Gomas Perm.)</h4>
+                    <h4 style="margin:0; color:var(--warning);"><i class="fa-solid fa-circle-notch"></i> Especialista en Degradación de Gomas (+2 Gomas Perm.)</h4>
                     <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
                 </div>
                 <div style="text-align:right;">
                     <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">60.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:#ffb703; color:#000;" onclick="buyItem('perm', 'tires', 2, 60000)">Comprar</button>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:var(--warning); color:#000;" onclick="buyItem('perm', 'tires', 2, 60000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
                 </div>
             </div>
             <div class="offer-card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <h4 style="margin:0; color:#ffb703;">Túnel de Viento para Pista Mojada (+2 Lluvia Perm.)</h4>
+                    <h4 style="margin:0; color:var(--warning);"><i class="fa-solid fa-water"></i> Túnel de Viento para Pista Mojada (+2 Lluvia Perm.)</h4>
                     <p style="margin:2px 0; font-size:0.85em;">Mejora permanente de base.</p>
                 </div>
                 <div style="text-align:right;">
                     <span style="color:var(--success); font-weight:bold; display:block; margin-bottom:5px;">65.000$</span>
-                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:#ffb703; color:#000;" onclick="buyItem('perm', 'rain', 2, 65000)">Comprar</button>
+                    <button class="start-btn" style="padding:6px 12px; font-size:0.8em; width:auto; background:var(--warning); color:#000;" onclick="buyItem('perm', 'rain', 2, 65000)"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
                 </div>
             </div>
         `;
@@ -800,7 +826,7 @@
 
     function buyItem(type, stat, value, cost) {
         if(state.money < cost) {
-            addLog("Fondos insuficientes para realizar esta inversión en la tienda.", "danger");
+            addLog("<i class="fa-solid fa-triangle-exclamation"></i> Fondos insuficientes para realizar esta inversión en la tienda.", "danger");
             return;
         }
         state.money -= cost;
@@ -809,13 +835,13 @@
             addLog(`Has adquirido consumible temporal: +${value} en ${stat.toUpperCase()}. Se aplicará en el próximo evento.`, "success");
         } else {
             state.attributes[stat] += value;
-            addLog(`¡Mejora permanente instalada! +${value} en ${stat.toUpperCase()} de base.`, "success");
+            addLog(`¡Mejora permanente instalada! +${value} in ${stat.toUpperCase()} de base.`, "success");
         }
         updateUI();
         renderShopItems();
     }
 
-    // --- PROGRESIÓN Y CONTROL DE TEMPORADA ---
+    // --- PROGRESIÓN Y CONTROL DE TEMPORADA & EDAD ---
     function progressEvent() {
         state.temporaryBoosts = { pace: 0, aggression: 0, tires: 0, rain: 0 };
 
@@ -827,78 +853,103 @@
         }
     }
 
-    function triggerRandomEvent() {
-        updateUI();
-
-        let randomIndex;
-        do {
-            randomIndex = Math.floor(Math.random() * randomEvents.length);
-        } while (randomIndex === lastEventIndex && randomEvents.length > 1);
-
-        lastEventIndex = randomIndex;
-        const event = randomEvents[randomIndex];
-
-        const imgEl = document.getElementById('event-image');
-        if(event.image) {
-            imgEl.src = event.image;
-            imgEl.style.display = 'block';
-        } else {
-            imgEl.style.display = 'none';
-        }
-
-        document.getElementById('event-title').innerText = event.title;
-        document.getElementById('event-description').innerText = event.description;
-
-        const choicesPanel = document.getElementById('choices-panel');
-        const mgPanel = document.getElementById('minigame-panel');
-        choicesPanel.innerHTML = '';
-        mgPanel.style.display = 'none';
-        mgPanel.innerHTML = '';
-
-        if(event.isMinigame) {
-            if(event.minigameType === "startLights") {
-                renderStartLightsMinigame(mgPanel);
-            } else if(event.minigameType === "hardBrake") {
-                renderHardBrakeMinigame(mgPanel);
-            } else if(event.minigameType === "shiftTiming") {
-                renderShiftTimingMinigame(mgPanel);
-            } else if(event.minigameType === "drsActivation") {
-                renderDrsMinigame(mgPanel);
-            }
-        } else {
-            event.choices.forEach(choice => {
-                const btn = document.createElement('button');
-                btn.className = 'choice-btn';
-                btn.innerHTML = `<span>${choice.text}</span> <span>➜</span>`;
-                btn.onclick = () => choice.action();
-                choicesPanel.appendChild(btn);
-            });
-        }
-    }
-
     function triggerSeasonSummary() {
+        // Registrar temporada actual en el historial de carrera
+        state.careerHistory.push({
+            season: state.season,
+            age: state.age,
+            team: state.team,
+            wins: state.statsRecord.wins,
+            podiums: state.statsRecord.podiums,
+            crashes: state.statsRecord.crashes,
+            reputation: state.reputation,
+            money: state.money
+        });
+
+        // Aplicar evolución anual por edad
+        applyAgeProgression();
+
+        // Calcular umbral de retirada dinámico según estadísticas y rendimiento
+        // A mayor edad, mayor probabilidad de retirada. Si tiene buena reputación y rendimiento, aguanta más.
+        let retirementThreshold = 41 - Math.floor(state.reputation / 15); // Rango aprox entre 35 y 42 años
+        if (retirementThreshold < 35) retirementThreshold = 35;
+
+        if (state.age >= retirementThreshold) {
+            triggerRetirement();
+            return;
+        }
+
         document.getElementById('game-container').style.display = 'none';
         const modal = document.getElementById('season-summary-modal');
         modal.style.display = 'block';
 
-        document.getElementById('summary-title').innerText = `Resumen Temporada ${state.season}`;
+        document.getElementById('summary-title').innerHTML = `<i class="fa-solid fa-trophy"></i> Fin de Temporada ${state.season - 1} (Edad: ${state.age})`;
         
-        let reportText = `¡Has completado la temporada ${state.season} pilotando para <strong>${state.team}</strong>!<br><br>`;
-        reportText += `• <strong>Victorias / Grandes momentos:</strong> ${state.statsRecord.wins}<br>`;
-        reportText += `• <strong>Podios / Decisiones tácticas limpias:</strong> ${state.statsRecord.podiums}<br>`;
-        reportText += `• <strong>Incidentes / Accidentes graves:</strong> ${state.statsRecord.crashes}<br>`;
-        reportText += `• <strong>Reputación acumulada:</strong> ${state.reputation} puntos<br>`;
-        reportText += `• <strong>Fondos actuales en cuenta:</strong> ${formatMoney(state.money)}<br><br>`;
-
-        if(state.reputation >= 60) {
-            reportText += `<em>"Tus actuaciones han sido estelares. Los equipos punteros del paddock están pujando fuertemente por tus servicios."</em>`;
-        } else if(state.reputation >= 30) {
-            reportText += `<em>"Has consolidado tu presencia de forma solvente en la categoría. Varias escuderías de mitad de tabla te ofrecen asientos estables."</em>`;
-        } else {
-            reportText += `<em>"Ha sido una temporada difícil con altibajos. Los equipos se muestran cautelosos ante tu falta de consistencia."</em>`;
-        }
+        let reportText = `¡Has completado la temporada con éxito pilotando para <strong>${state.team}</strong>!<br><br>`;
+        reportText += `• <strong><i class="fa-solid fa-flag-checkered"></i> Victorias / Grandes momentos:</strong> ${state.statsRecord.wins}<br>`;
+        reportText += `• <strong><i class="fa-solid fa-award"></i> Podios / Decisiones tácticas limpias:</strong> ${state.statsRecord.podiums}<br>`;
+        reportText += `• <strong><i class="fa-solid fa-car-burst"></i> Incidentes / Accidentes graves:</strong> ${state.statsRecord.crashes}<br>`;
+        reportText += `• <strong><i class="fa-solid fa-star"></i> Reputación acumulada:</strong> ${state.reputation} puntos<br>`;
+        reportText += `• <strong><i class="fa-solid fa-wallet"></i> Fondos actuales en cuenta:</strong> ${formatMoney(state.money)}<br><br>`;
+        reportText += `<em><i class="fa-solid fa-hourglass-half"></i> Al cumplir ${state.age} años, tus atributos físicos y reflejos se han recalculado (veteranización).</em>`;
 
         document.getElementById('summary-text').innerHTML = reportText;
+    }
+
+    function applyAgeProgression() {
+        state.age++;
+        // A partir de los 33 años empieza la curva de veteranía:
+        // Gana experiencia (+ inteligencia / gestión de gomas / lluvia por veteranía), pero pierde reflejos ligeramente (ritmo / agresión)
+        if (state.age >= 33) {
+            let agingFactor = state.age - 32;
+            state.attributes.tires += 2;
+            state.attributes.rain += 1;
+            state.attributes.pace = Math.max(20, state.attributes.pace - (1 + Math.floor(agingFactor / 2)));
+            state.attributes.aggression = Math.max(20, state.attributes.aggression - 1);
+            addLog(`<i class="fa-solid fa-user-clock"></i> Con ${state.age} años, tu experiencia te otorga mayor sabiduría en pista (+Gomas), aunque tus reflejos puros disminuyen ligeramente (-Ritmo).`, "warning");
+        } else if (state.age <= 24) {
+            // Jóvenes promesas ganan ritmo más rápido
+            state.attributes.pace += 2;
+            state.attributes.aggression += 1;
+            addLog(`<i class="fa-solid fa-chart-line"></i> Tu juventud (${state.age} años) te permite evolucionar explosivamente en velocidad pura y reflejos (+Ritmo).`, "success");
+        }
+    }
+
+    function triggerRetirement() {
+        document.getElementById('game-container').style.display = 'none';
+        const modal = document.getElementById('career-hall-modal');
+        modal.style.display = 'block';
+
+        let totalWins = state.careerHistory.reduce((acc, curr) => acc + curr.wins, 0);
+        let totalPodiums = state.careerHistory.reduce((acc, curr) => acc + curr.podiums, 0);
+        let totalCrashes = state.careerHistory.reduce((acc, curr) => acc + curr.crashes, 0);
+
+        document.getElementById('hall-subtitle').innerHTML = `Tras <strong>${state.careerHistory.length} temporadas</strong> en activo y a los <strong>${state.age} años</strong>, ${state.name} cuelga el casco como una leyenda histórica del automovilismo.`;
+
+        let contentHtml = `
+            <div class="offer-card" style="border-color: var(--warning);">
+                <h4><i class="fa-solid fa-chart-pie"></i> Estadísticas Globales de Carrera</h4>
+                <p><i class="fa-solid fa-flag-checkered text-warning" style="color:var(--warning);"></i> <strong>Total Victorias:</strong> ${totalWins}</p>
+                <p><i class="fa-solid fa-award" style="color:var(--accent);"></i> <strong>Total Podios / Éxitos:</strong> ${totalPodiums}</p>
+                <p><i class="fa-solid fa-car-burst text-danger" style="color:var(--primary);"></i> <strong>Total Accidentes:</strong> ${totalCrashes}</p>
+                <p><i class="fa-solid fa-star" style="color:var(--warning);"></i> <strong>Reputación Final:</strong> ${state.reputation}</p>
+                <p><i class="fa-solid fa-wallet" style="color:var(--success);"></i> <strong>Patrimonio Acumulado:</strong> ${formatMoney(state.money)}</p>
+            </div>
+            <h3 style="color:var(--text-main); font-size:1.1em; text-transform:uppercase; margin-top:20px; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-timeline"></i> Hitos por Etapa / Temporada</h3>
+        `;
+
+        state.careerHistory.forEach(h => {
+            contentHtml += `
+                <div class="offer-card">
+                    <h4><i class="fa-solid fa-calendar-days"></i> Temporada ${h.season} (Edad: ${h.age})</h4>
+                    <p><i class="fa-solid fa-shield-halved"></i> <strong>Escudería:</strong> ${h.team}</p>
+                    <p><i class="fa-solid fa-trophy"></i> Victorias: ${h.wins} | Podios: ${h.podiums} | Incidentes: ${h.crashes}</p>
+                    <p><i class="fa-solid fa-star"></i> Reputación final de temporada: ${h.reputation}</p>
+                </div>
+            `;
+        });
+
+        document.getElementById('hall-content').innerHTML = contentHtml;
     }
 
     function openMarketWindow() {
@@ -931,7 +982,7 @@
             ];
         }
 
-        // Asegurarnos de que el equipo actual siempre aparezca entre las opciones de ofertas
+        // Asegurarnos de que el equipo actual siempre aparezca entre las opciones de renovación
         let currentTeamInList = availableTeams.find(t => t.team === state.team);
         if(!currentTeamInList) {
             availableTeams.unshift({ team: state.team, repReq: 0 });
@@ -940,17 +991,17 @@
         availableTeams.forEach(item => {
             const teamInfo = teamCatalog[item.team] || { level: "Competitivo", baseSalary: 100000 };
             const isCurrent = item.team === state.team;
-            const actionText = isCurrent ? "Renovar Contrato" : `Fichar por ${item.team}`;
+            const actionText = isCurrent ? "Renovar Contrato Actual" : `Fichar por ${item.team}`;
             const cardClass = isCurrent ? "offer-card renewal" : "offer-card";
             
             const card = document.createElement('div');
             card.className = cardClass;
             card.innerHTML = `
-                <h4>${item.team} ${isCurrent ? '<span style="color:var(--success); font-size:0.8em;">(Tu equipo actual)</span>' : ''}</h4>
-                <p><strong>${isCurrent ? 'Propuesta de Renovación Salarial' : 'Salario Anual'}:</strong> <span style="color:var(--success)">${formatMoney(teamInfo.baseSalary)}</span></p>
-                <p><strong>Nivel de Monoplaza:</strong> ${teamInfo.level}</p>
-                <p><strong>Reputación Requerida:</strong> ${item.repReq}</p>
-                <button class="start-btn" style="margin-top:10px; padding:10px; font-size:0.9em; ${isCurrent ? 'background:var(--success); color:#000;' : ''}" onclick="signContract('${item.team}', ${teamInfo.baseSalary}, ${isCurrent})">${actionText}</button>
+                <h4><i class="fa-solid fa-shield-halved"></i> ${item.team} ${isCurrent ? '<span style="color:var(--success); font-size:0.8em;">(Tu escudería actual)</span>' : ''}</h4>
+                <p><i class="fa-solid fa-wallet"></i> <strong>${isCurrent ? 'Propuesta de Renovación Salarial' : 'Salario Anual'}:</strong> <span style="color:var(--success)">${formatMoney(teamInfo.baseSalary)}</span></p>
+                <p><i class="fa-solid fa-gauge-high"></i> <strong>Nivel de Monoplaza:</strong> ${teamInfo.level}</p>
+                <p><i class="fa-solid fa-star"></i> <strong>Reputación Requerida:</strong> ${item.repReq}</p>
+                <button class="start-btn" style="margin-top:10px; padding:10px; font-size:0.9em; ${isCurrent ? 'background:var(--success); color:#000;' : ''}" onclick="signContract('${item.team}', ${teamInfo.baseSalary}, ${isCurrent})"><i class="fa-solid fa-pen-nib"></i> ${actionText}</button>
             `;
             offersList.appendChild(card);
         });
@@ -968,7 +1019,7 @@
 
         const flagHtml = `<img src="${getFlagUrl(state.countryCode)}" class="flag-icon">`;
         if(isRenewal) {
-            addLog(`¡RENOVACIÓN DE CONTRATO! ${state.name} ${flagHtml} extiende su vinculación con <strong>${teamName}</strong> para la Temporada ${state.season}.`, "success");
+            addLog(`¡RENOVACIÓN DE CONTRATO! ${state.name} ${flagHtml} extiende formalmente su vinculación con <strong>${teamName}</strong> para la Temporada ${state.season}.`, "success");
         } else {
             addLog(`¡NUEVO FICHAJE! ${state.name} ${flagHtml} cambia de aires y ficha por <strong>${teamName}</strong> para la Temporada ${state.season}.`, "success");
         }
@@ -979,12 +1030,12 @@
     function renderStartLightsMinigame(container) {
         container.style.display = 'block';
         container.innerHTML = `
-            <div class="mg-title">Minijuego: Reflejos de Salida</div>
+            <div class="mg-title"><i class="fa-solid fa-stopwatch"></i> Minijuego: Reflejos de Salida</div>
             <p style="font-size:0.85em; color: var(--text-muted);">Las luces se encenderán progresivamente. ¡Pulsa el botón en cuanto se apaguen!</p>
             <div class="lights-box" id="lights-container">
                 <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
             </div>
-            <button id="mg-action-btn" class="start-btn" style="background:var(--primary); cursor:pointer;">¡ACELERAR / SALIR!</button>
+            <button id="mg-action-btn" class="start-btn" style="background:var(--primary); cursor:pointer;"><i class="fa-solid fa-bolt"></i> ¡ACELERAR / SALIR!</button>
         `;
 
         const lights = container.querySelectorAll('.light');
@@ -1014,7 +1065,7 @@
 
             if (!lightsOut) {
                 state.reputation -= 10; state.money -= 5000; state.statsRecord.crashes++;
-                addLog(`¡SALIDA FALSA! ${state.name} se movió antes de tiempo. Penalización de comisarios.`, "danger");
+                addLog("¡SALIDA FALSA! Te moviste antes de tiempo. Penalización de comisarios.", "danger");
             } else {
                 const reactionTime = Date.now() - startTime;
                 if(reactionTime < 300) {
@@ -1035,13 +1086,13 @@
     function renderHardBrakeMinigame(container) {
         container.style.display = 'block';
         container.innerHTML = `
-            <div class="mg-title">Minijuego: Frenada al Límite</div>
+            <div class="mg-title"><i class="fa-solid fa-car-rear"></i> Minijuego: Frenada al Límite</div>
             <p style="font-size:0.85em; color: var(--text-muted);">Haz clic en el botón de freno cuando la barra blanca esté dentro de la zona verde óptima.</p>
             <div class="brake-track" id="brake-track">
                 <div class="brake-target" style="left: 40%; width: 18%;"></div>
                 <div class="brake-cursor" id="brake-cursor"></div>
             </div>
-            <button class="start-btn" style="background:var(--primary); margin-top:10px;" onclick="executeBrake()">¡CLAVAR FRENO!</button>
+            <button class="start-btn" style="background:var(--primary); margin-top:10px;" onclick="executeBrake()"><i class="fa-solid fa-hand"></i> ¡CLAVAR FRENO!</button>
         `;
 
         window.isBrakingActive = true;
@@ -1079,14 +1130,14 @@
     function renderShiftTimingMinigame(container) {
         container.style.display = 'block';
         container.innerHTML = `
-            <div class="mg-title">Minijuego: Cambio de Marchas Preciso</div>
+            <div class="mg-title"><i class="fa-solid fa-gears"></i> Minijuego: Cambio de Marchas Preciso</div>
             <p style="font-size:0.85em; color: var(--text-muted);">Pulsa primero en "Iniciar Aceleración" para arrancar las revoluciones y luego en "¡SUBIR MARCHA!" en el momento óptimo.</p>
             <div class="rpm-bar">
                 <div class="rpm-fill" id="rpm-fill"></div>
             </div>
             <div style="display: flex; gap: 10px;">
-                <button id="btn-start-shift" class="start-btn" style="background: var(--accent); color: #000;" onclick="startShiftRpm()">Iniciar Aceleración</button>
-                <button id="btn-execute-shift" class="start-btn" style="background: var(--primary); display: none;" onclick="executeShift()">¡SUBIR MARCHA!</button>
+                <button id="btn-start-shift" class="start-btn" style="background: var(--accent); color: #000;" onclick="startShiftRpm()"><i class="fa-solid fa-play"></i> Iniciar Aceleración</button>
+                <button id="btn-execute-shift" class="start-btn" style="background: var(--primary); display: none;" onclick="executeShift()"><i class="fa-solid fa-angles-up"></i> ¡SUBIR MARCHA!</button>
             </div>
         `;
 
@@ -1144,11 +1195,11 @@
 
         let tilesHtml = '';
         for(let i=0; i<3; i++) {
-            tilesHtml += `<div class="drs-tile" onclick="checkDrs(${i})">⚡</div>`;
+            tilesHtml += `<div class="drs-tile" onclick="checkDrs(${i})"><i class="fa-solid fa-bolt"></i></div>`;
         }
 
         container.innerHTML = `
-            <div class="mg-title">Minijuego: Zona DRS Activa</div>
+            <div class="mg-title"><i class="fa-solid fa-wing-ding"></i> Minijuego: Zona DRS Activa</div>
             <p style="font-size:0.85em; color: var(--text-muted);">El sistema de reducción de resistencia parpadea. ¡Haz clic en el panel correcto!</p>
             <div class="drs-grid">
                 ${tilesHtml}
@@ -1168,6 +1219,55 @@
             addLog("Fallaste el panel del volante y el DRS no se abrió a tiempo. Te quedas bloqueado.", "danger");
         }
         progressEvent();
+    }
+
+    function triggerRandomEvent() {
+        updateUI();
+
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * randomEvents.length);
+        } while (randomIndex === lastEventIndex && randomEvents.length > 1);
+
+        lastEventIndex = randomIndex;
+        const event = randomEvents[randomIndex];
+
+        const imgEl = document.getElementById('event-image');
+        if(event.image) {
+            imgEl.src = event.image;
+            imgEl.style.display = 'block';
+        } else {
+            imgEl.style.display = 'none';
+        }
+
+        document.getElementById('event-title').innerHTML = `<i class="fa-solid fa-flag-checkered"></i> ${event.title}`;
+        document.getElementById('event-description').innerText = event.description;
+
+        const choicesPanel = document.getElementById('choices-panel');
+        const mgPanel = document.getElementById('minigame-panel');
+        choicesPanel.innerHTML = '';
+        mgPanel.style.display = 'none';
+        mgPanel.innerHTML = '';
+
+        if(event.isMinigame) {
+            if(event.minigameType === "startLights") {
+                renderStartLightsMinigame(mgPanel);
+            } else if(event.minigameType === "hardBrake") {
+                renderHardBrakeMinigame(mgPanel);
+            } else if(event.minigameType === "shiftTiming") {
+                renderShiftTimingMinigame(mgPanel);
+            } else if(event.minigameType === "drsActivation") {
+                renderDrsMinigame(mgPanel);
+            }
+        } else {
+            event.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerHTML = `<span><i class="fa-solid fa-chevron-right text-danger" style="color:var(--primary);"></i> ${choice.text}</span> <span><i class="fa-solid fa-arrow-right"></i></span>`;
+                btn.onclick = () => choice.action();
+                choicesPanel.appendChild(btn);
+            });
+        }
     }
 </script>
 </body>
