@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leyenda de la F1 - Simulador Avanzado</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #f0f0f0;
+            --primary-color: #e10600;
+            --secondary-color: #1f1f1f;
+            --accent-color: #ff9800;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #game-container {
+            max-width: 900px;
+            width: 100%;
+            background-color: var(--secondary-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+            overflow: hidden;
+            border-top: 5px solid var(--primary-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Paneles de Estadísticas */
+        #stats-panel, #relations-panel {
+            background-color: #181818;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            font-size: 0.95em;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #relations-panel {
+            background-color: #1a1a1a;
+            border-bottom: 2px solid #444;
+            color: #aaa;
+        }
+
+        .stat-group { display: flex; gap: 20px; flex-wrap: wrap; }
+        .stat strong { color: #888; margin-right: 5px; }
+        .stat span { color: var(--text-color); font-weight: bold; }
+        .stat .highlight { color: var(--primary-color); font-size: 1.1em; }
+        .stat .rel-highlight { color: var(--accent-color); }
+
+        /* Pantalla de Historia */
+        #story-panel {
+            padding: 40px;
+            font-size: 1.15em;
+            line-height: 1.7;
+            min-height: 200px;
+            background: linear-gradient(to bottom, #222, #1f1f1f);
+        }
+
+        #event-title {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.8em;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        /* Botones de Decisión */
+        #choices-panel {
+            padding: 20px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #181818;
+        }
+
+        button.choice-btn {
+            background-color: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 15px 20px;
+            font-size: 1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button.choice-btn:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(225, 6, 0, 0.3);
+        }
+
+        /* Historial de logs */
+        #log-panel {
+            padding: 15px 40px;
+            font-size: 0.85em;
+            color: #888;
+            height: 120px;
+            overflow-y: auto;
+            border-top: 1px solid #333;
+            background-color: #111;
+        }
+
+        #log-list { list-style: none; padding: 0; margin: 0; }
+        #log-list li { margin-bottom: 5px; border-left: 2px solid #555; padding-left: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <!-- Panel Principal de Stats -->
+    <div id="stats-panel">
+        <div class="stat-group">
+            <div class="stat"><strong>Categoría:</strong> <span id="stat-category" class="highlight">Fórmula 4</span></div>
+            <div class="stat"><strong>Carrera:</strong> <span id="stat-race">1</span> / <span id="stat-max-races">3</span></div>
+        </div>
+        <div class="stat-group">
+            <div class="stat"><strong>Talento:</strong> <span id="stat-talent">50</span></div>
+            <div class="stat"><strong>Reputación:</strong> <span id="stat-rep">20</span></div>
+            <div class="stat"><strong>Dinero:</strong> <span id="stat-money" style="color: #4caf50;">1000$</span></div>
+        </div>
+    </div>
+
+    <!-- Panel de Relaciones -->
+    <div id="relations-panel">
+        <div class="stat"><strong>Ingeniero:</strong> <span id="rel-eng" class="rel-highlight">50</span>%</div>
+        <div class="stat"><strong>Jefe de Equipo:</strong> <span id="rel-boss" class="rel-highlight">50</span>%</div>
+        <div class="stat"><strong>Compañero:</strong> <span id="rel-mate" class="rel-highlight">50</span>%</div>
+    </div>
+
+    <div id="story-panel">
+        <h2 id="event-title">Cargando...</h2>
+        <p id="event-description">Preparando motores...</p>
+    </div>
+
+    <div id="choices-panel">
+        <!-- Generado dinámicamente -->
+    </div>
+
+    <div id="log-panel">
+        <ul id="log-list"></ul>
+    </div>
+</div>
+
+<script>
+    // --- 1. ESTADO DEL JUEGO (STATE) ---
+    let state = {
+        category: "Fórmula 4",
+        talent: 50,
+        money: 1000,
+        reputation: 20,
+        race: 1,
+        maxRaces: 3, // Temporada corta para probar rápido
+        rel: {
+            engineer: 50,
+            boss: 50,
+            mate: 50
+        },
+        temp: {
+            setupMod: 0, // Bonificador para clasificación
+            qualiPos: 20 // Posición de salida
+        }
+    };
+
+    // --- 2. BASE DE DATOS DE EVENTOS (JSON-like) ---
+    // Nota: Las funciones () => permiten que el texto sea dinámico según el estado.
+    const eventsDB = {
+        "start_season": {
+            title: () => `Inicio de Temporada: ${state.category}`,
+            description: () => `Acabas de firmar con un equipo de ${state.category}. El jefe de equipo te da la bienvenida y tu ingeniero ya está preparando la telemetría. Es hora del primer fin de semana de carrera.`,
+            choices: [
+                {
+                    text: "Ir al circuito para la Primera Carrera",
+                    action: () => "practice"
+                }
+            ]
+        },
+        "practice": {
+            title: () => `Gran Premio #${state.race} - Entrenamientos Libres`,
+            description: () => `El coche está en boxes. Tu ingeniero te pregunta en qué área quieres enfocar los reglajes (Setup). Tu relación con él es de ${state.rel.engineer}%.`,
+            choices: [
+                {
+                    text: "Reglaje Seguro (Priorizar ritmo de carrera)",
+                    action: () => {
+                        state.temp.setupMod = 0;
+                        updateRels(5, 0, 0); // Al ingeniero le gusta lo seguro
+                        addLog("Haces un setup conservador. El ingeniero está contento con los datos.");
+                        return "qualifying";
+                    }
+                },
+                {
+                    text: "Reglaje Agresivo (Priorizar vuelta a un solo giro)",
+                    action: () => {
+                        state.temp.setupMod = 15; // Gran bonus para clasificar
+                        updateRels(-5, 0, 0); 
+                        addLog("El coche es difícil de conducir. Te arriesgas mucho, al ingeniero no le hace gracia.");
+                        return "qualifying";
+                    }
+                },
+                {
+                    text: "Copiar el reglaje de mi compañero de equipo",
+                    action: () => {
+                        state.temp.setupMod = 5;
+                        updateRels(0, 0, -15); // Al compañero no le gusta
+                        addLog("Tu compañero se enfada por espiarle la telemetría, pero el coche va bien.");
+                        return "qualifying";
+                    }
+                }
+            ]
+        },
+        "qualifying": {
+            title: () => `Gran Premio #${state.race} - Clasificación`,
+            description: () => "Es hora de la verdad a una vuelta. Los neumáticos están en temperatura óptima. ¿Cuánto vas a empujar?",
+            choices: [
+                {
+                    text: "Ir al 100% rozando los muros",
+                    action: () => {
+                        let roll = Math.random() * 100 + state.talent + state.temp.setupMod;
+                        if (roll > 120) {
+                            state.temp.qualiPos = 1;
+                            updateStats(2, 0, 5);
+                            addLog("¡POLE POSITION! Vuelta mágica.");
+                        } else if (roll > 80) {
+                            state.temp.qualiPos = 5;
+                            addLog("Buena vuelta, sales 5º.");
+                        } else {
+                            state.temp.qualiPos = 18;
+                            updateRels(0, -10, 0);
+                            addLog("Cometes un error en la curva 3. Sales 18º y el jefe niega con la cabeza.");
+                        }
+                        return "race";
+                    }
+                },
+                {
+                    text: "Hacer una vuelta limpia y sin errores",
+                    action: () => {
+                        let roll = Math.random() * 50 + state.talent + state.temp.setupMod;
+                        state.temp.qualiPos = roll > 80 ? 8 : 12;
+                        addLog(`Vuelta decente y segura. Sales en la posición ${state.temp.qualiPos}.`);
+                        return "race";
+                    }
+                }
+            ]
+        },
+        "race": {
+            title: () => `Gran Premio #${state.race} - DÍA DE CARRERA`,
+            description: () => `Los semáforos se apagan. Sales en la posición ${state.temp.qualiPos}. ¿Cuál es tu estrategia para la carrera?`,
+            choices: [
+                {
+                    text: "Atacar desde el principio, gestionando poco los neumáticos.",
+                    action: () => resolveRace("aggressive")
+                },
+                {
+                    text: "Cuidar los neumáticos y esperar errores de los demás.",
+                    action: () => resolveRace("conservative")
+                }
+            ]
+        },
+        "post_race": {
+            title: () => `Resultados Finales - Carrera ${state.race}`,
+            description: () => {
+                let msg = `El fin de semana ha terminado. Tienes ${state.reputation} de Reputación. `;
+                msg += state.race < state.maxRaces 
+                    ? "Los mecánicos ya empaquetan todo para la siguiente carrera." 
+                    : "¡La temporada ha concluido! Es hora de revisar tu futuro.";
+                return msg;
+            },
+            choices: [
+                {
+                    text: "Continuar",
+                    action: () => {
+                        if (state.race < state.maxRaces) {
+                            state.race++;
+                            return "practice";
+                        } else {
+                            return "contract_market";
+                        }
+                    }
+                }
+            ]
+        },
+        "contract_market": {
+            title: () => "Final de Temporada: Mercado de Fichajes",
+            description: () => "Tu mánager te trae las ofertas sobre la mesa tras analizar tu rendimiento este año. Elige tu destino para la próxima temporada:",
+            choices: [
+                {
+                    // Condición: Siempre disponible (repetir categoría)
+                    text: () => `Quedarme en ${state.category} (Renovar)`,
+                    action: () => {
+                        updateStats(5, 1000, 0);
+                        state.race = 1;
+                        addLog("Renuevas contrato. Toca dominar esta categoría.");
+                        return "start_season";
+                    }
+                },
+                {
+                    // Condición: Solo si tiene reputación moderada y está en F4
+                    condition: () => state.reputation >= 40 && state.category === "Fórmula 4",
+                    text: "Firma con un equipo de Fórmula 3 (Salto de nivel)",
+                    action: () => {
+                        state.category = "Fórmula 3";
+                        state.race = 1;
+                        updateStats(10, 5000, 20);
+                        state.rel = { engineer: 50, boss: 50, mate: 50 }; // Nuevas relaciones
+                        addLog("¡Has subido a la Fórmula 3! Los coches son más rápidos y exigentes.");
+                        return "start_season";
+                    }
+                },
+                {
+                    // Condición: Solo si tiene buena rep y está en F3
+                    condition: () => state.reputation >= 80 && state.category === "Fórmula 3",
+                    text: "Firma con un equipo de Fórmula 2 (Antesala de la gloria)",
+                    action: () => {
+                        state.category = "Fórmula 2";
+                        state.race = 1;
+                        updateStats(15, 10000, 30);
+                        state.rel = { engineer: 50, boss: 50, mate: 50 };
+                        addLog("¡Estás en la Fórmula 2! Los ojeadores de F1 te vigilan.");
+                        return "start_season";
+                    }
+                },
+                {
+                    // Condición: Nivel experto
+                    condition: () => state.reputation >= 150 && state.category === "Fórmula 2",
+                    text: "Firma con un equipo de FÓRMULA 1 (El sueño definitivo)",
+                    action: () => {
+                        state.category = "Fórmula 1";
+                        state.race = 1;
+                        updateStats(20, 50000, 50);
+                        state.rel = { engineer: 50, boss: 50, mate: 50 };
+                        addLog("¡LO HAS LOGRADO! Eres piloto oficial de Fórmula 1.");
+                        return "start_season";
+                    }
+                }
+            ]
+        }
+    };
+
+    // --- 3. FUNCIONES DEL MOTOR LÓGICO ---
+
+    function updateStats(talent, money, reputation) {
+        state.talent += talent;
+        state.money += money;
+        state.reputation += reputation;
+    }
+
+    function updateRels(eng, boss, mate) {
+        state.rel.engineer = Math.max(0, Math.min(100, state.rel.engineer + eng));
+        state.rel.boss = Math.max(0, Math.min(100, state.rel.boss + boss));
+        state.rel.mate = Math.max(0, Math.min(100, state.rel.mate + mate));
+    }
+
+    function addLog(message) {
+        const logList = document.getElementById('log-list');
+        const newLog = document.createElement('li');
+        
+        // Reloj simple para el log
+        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+        newLog.innerHTML = `<em>[${time}]</em> ${message}`;
+        
+        logList.insertBefore(newLog, logList.firstChild);
+    }
+
+    function resolveRace(strategy) {
+        let finishPos = state.temp.qualiPos;
+        let rng = Math.random();
+
+        if (strategy === "aggressive") {
+            if (rng > 0.6) {
+                finishPos = Math.max(1, finishPos - 5); // Remonta mucho
+                updateStats(2, 500, 10);
+                updateRels(0, 5, 0);
+                addLog(`¡Carrera espectacular! Terminas en posición ${finishPos}. Al jefe le encanta tu agresividad.`);
+            } else if (rng < 0.2) {
+                finishPos = "DNF"; // Abandono
+                updateStats(0, -1000, -5);
+                updateRels(0, -15, 0);
+                addLog(`Explotas el motor por empujar demasiado. Abandono (DNF).`);
+            } else {
+                finishPos = Math.max(1, finishPos - 1);
+                addLog(`Mucho esfuerzo, pero los neumáticos caen al final. Terminas ${finishPos}º.`);
+            }
+        } else {
+            // Estrategia conservadora
+            if (rng > 0.3) {
+                finishPos = Math.max(1, finishPos - 2);
+                updateStats(1, 800, 5);
+                updateRels(5, 0, 0);
+                addLog(`Gestión de gomas perfecta. Ganas posiciones por paradas rivales y acabas ${finishPos}º.`);
+            } else {
+                finishPos = finishPos + 2; // Pierde ritmo
+                addLog(`Demasiado conservador. Te adelantan y acabas ${finishPos}º.`);
+            }
+        }
+
+        // Simular reacción del compañero de equipo
+        if (finishPos !== "DNF" && finishPos < 5) {
+            updateRels(0, 0, -5); // Envidia del compañero
+        }
+
+        return "post_race";
+    }
+
+    // --- 4. RENDERIZADO DE LA INTERFAZ ---
+
+    function renderEvent(eventId) {
+        const event = eventsDB[eventId];
+        
+        // Actualizar UI Estadísticas
+        document.getElementById('stat-category').innerText = state.category;
+        document.getElementById('stat-race').innerText = state.race;
+        document.getElementById('stat-max-races').innerText = state.maxRaces;
+        document.getElementById('stat-talent').innerText = state.talent;
+        document.getElementById('stat-money').innerText = state.money + "$";
+        document.getElementById('stat-rep').innerText = state.reputation;
+
+        // Actualizar UI Relaciones
+        document.getElementById('rel-eng').innerText = state.rel.engineer;
+        document.getElementById('rel-boss').innerText = state.rel.boss;
+        document.getElementById('rel-mate').innerText = state.rel.mate;
+
+        // Actualizar Textos (Manejando funciones dinámicas o strings)
+        const titleText = typeof event.title === 'function' ? event.title() : event.title;
+        const descText = typeof event.description === 'function' ? event.description() : event.description;
+        
+        document.getElementById('event-title').innerText = titleText;
+        document.getElementById('event-description').innerText = descText;
+
+        // Generar Botones
+        const choicesPanel = document.getElementById('choices-panel');
+        choicesPanel.innerHTML = ''; 
+
+        event.choices.forEach(choice => {
+            // Verificar si el botón tiene condiciones para mostrarse
+            if (choice.condition && !choice.condition()) {
+                return; // Si no cumple la condición, saltamos y no dibujamos el botón
+            }
+
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            
+            // El texto del botón también puede ser dinámico
+            const btnText = typeof choice.text === 'function' ? choice.text() : choice.text;
+            btn.innerHTML = `<span>${btnText}</span> <span>➜</span>`;
+            
+            btn.onclick = () => {
+                const nextEventId = choice.action();
+                renderEvent(nextEventId);
+            };
+            choicesPanel.appendChild(btn);
+        });
+    }
+
+    // --- INICIAR JUEGO ---
+    addLog("Bienvenido a tu carrera deportiva.");
+    renderEvent("start_season");
+
+</script>
+</body>
+</html>
