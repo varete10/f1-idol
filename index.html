@@ -3,116 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leyenda de la F1 - Infinite Career</title>
+    <title>Leyenda de la F1 - Arcade & Strategy</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0a0a0c;
-            --panel-bg: #151518;
-            --primary: #e10600;
-            --primary-hover: #ff1a1a;
+            --bg-dark: #070709;
+            --panel-bg: #121216;
+            --primary: #ff1801;
+            --primary-hover: #ff3822;
             --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-            --accent: #2e86de;
+            --text-muted: #8c8c9e;
+            --accent: #00f0ff;
+            --success: #00e676;
         }
 
         body {
             font-family: 'Montserrat', sans-serif;
             background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at 50% 0%, #2a0808 0%, #0a0a0c 50%);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 24, 1, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.1) 0%, transparent 40%);
             color: var(--text-main);
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
             min-height: 100vh;
+            box-sizing: border-box;
         }
 
+        /* --- PANTALLA DE CREACIÓN --- */
         #setup-container {
             max-width: 600px;
             width: 100%;
             background-color: var(--panel-bg);
             border-radius: 16px;
             padding: 40px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-            border-top: 5px solid var(--primary);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            border: 1px solid #222;
+            border-top: 6px solid var(--primary);
             text-align: center;
+            margin: auto;
         }
 
         .form-group { margin-bottom: 25px; text-align: left; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--text-muted); }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--text-muted); font-size: 0.9em; letter-spacing: 1px; text-transform: uppercase; }
         .form-group input, .form-group select {
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333;
-            background-color: #0a0a0a; color: white; font-family: 'Montserrat', sans-serif; font-size: 1em; box-sizing: border-box;
+            width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #2a2a35;
+            background-color: #08080a; color: white; font-family: 'Montserrat', sans-serif; font-size: 1em; box-sizing: border-box;
         }
 
-        .archetypes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 30px; }
+        .archetypes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
         .archetype-card {
-            background: #222; border: 2px solid #333; padding: 15px; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+            background: #181820; border: 2px solid #2a2a35; padding: 15px; border-radius: 10px; cursor: pointer; transition: all 0.2s; text-align: left;
         }
         .archetype-card:hover { border-color: var(--text-muted); }
-        .archetype-card.selected { border-color: var(--primary); background: #3a0808; }
-        .archetype-card h4 { margin: 0 0 5px 0; color: var(--primary); }
-        .archetype-card p { margin: 0; font-size: 0.8em; color: var(--text-muted); }
+        .archetype-card.selected { border-color: var(--primary); background: rgba(255, 24, 1, 0.08); }
+        .archetype-card h4 { margin: 0 0 5px 0; color: var(--text-main); }
+        .archetype-card p { margin: 0; font-size: 0.75em; color: var(--text-muted); }
 
         .start-btn {
-            background-color: var(--primary); color: white; border: none; padding: 15px 30px;
-            font-size: 1.2em; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; transition: background 0.3s;
+            background-color: var(--primary); color: white; border: none; padding: 16px 30px;
+            font-size: 1.1em; font-weight: 900; border-radius: 8px; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 1px; transition: background 0.3s;
         }
         .start-btn:hover { background-color: var(--primary-hover); }
 
+        /* --- CONTENEDOR DEL JUEGO --- */
         #game-container {
-            display: none; max-width: 850px; width: 100%; background-color: var(--panel-bg);
-            border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); overflow: hidden; border: 1px solid #333; flex-direction: column;
+            display: none; max-width: 900px; width: 100%; background-color: var(--panel-bg);
+            border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); overflow: hidden; border: 1px solid #222; flex-direction: column; margin: auto;
         }
 
         header {
-            background-color: #000; border-bottom: 4px solid var(--primary); padding: 15px 25px; display: flex; flex-direction: column; gap: 15px;
+            background-color: #08080a; border-bottom: 4px solid var(--primary); padding: 20px; display: flex; flex-direction: column; gap: 15px;
         }
-        .driver-info { display: flex; justify-content: space-between; align-items: center; font-size: 1.2em; font-weight: 900; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .stats-grid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-        .stat-badge { background: #222; padding: 8px 12px; border-radius: 8px; font-size: 0.85em; font-weight: 700; border: 1px solid #333; }
-        .stat-badge span { color: var(--accent); font-size: 1.1em; }
-        .stat-badge .money { color: #4cd137; }
-        .stat-badge .points { color: #fbc531; }
+        .driver-info { display: flex; justify-content: space-between; align-items: center; font-size: 1.25em; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .stat-badge { background: #16161d; padding: 10px; border-radius: 8px; font-size: 0.8em; font-weight: 700; border: 1px solid #222; text-align: center; }
+        .stat-badge span { display: block; color: var(--accent); font-size: 1.2em; margin-top: 3px; font-weight: 900; }
+        .stat-badge .money { color: var(--success); }
+        .stat-badge .points { color: #ffb703; }
 
-        #image-container { width: 100%; height: 220px; background-color: #000; overflow: hidden; position: relative; }
-        #event-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
-        #story-panel { padding: 30px; font-size: 1.1em; line-height: 1.8; }
-        #event-title { color: var(--text-main); font-weight: 900; text-transform: uppercase; font-size: 1.8em; margin: 0 0 10px 0; }
+        /* --- IMAGEN Y MULTIMEDIA --- */
+        #image-container { width: 100%; height: 240px; background-color: #000; overflow: hidden; position: relative; }
+        #event-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.75; transition: transform 0.5s; }
+        #image-container:hover #event-image { transform: scale(1.03); }
+
+        /* --- HISTORIA Y PANEL DE ACCIÓN --- */
+        #story-panel { padding: 30px; font-size: 1.05em; line-height: 1.7; }
+        #event-title { color: var(--text-main); font-weight: 900; text-transform: uppercase; font-size: 1.6em; margin: 0 0 12px 0; letter-spacing: 0.5px; }
         #event-description { color: var(--text-muted); margin-bottom: 0; }
+        
         #choices-panel { padding: 0 30px 30px 30px; display: flex; flex-direction: column; gap: 12px; }
         
         button.choice-btn {
-            background: linear-gradient(90deg, #1e1e1e 0%, #252525 100%); color: var(--text-main); border: 1px solid #444;
-            padding: 16px 20px; font-size: 1em; font-family: 'Montserrat', sans-serif; font-weight: 700; border-radius: 10px;
-            cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center;
+            background: #181820; color: var(--text-main); border: 1px solid #2a2a35;
+            padding: 16px 20px; font-size: 0.95em; font-family: 'Montserrat', sans-serif; font-weight: 700; border-radius: 10px;
+            cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;
         }
-        button.choice-btn:hover { background: var(--primary); border-color: var(--primary-hover); transform: translateY(-2px); }
+        button.choice-btn:hover { background: #22222d; border-color: var(--primary); transform: translateX(5px); }
+
+        /* --- ÁREA DE MINIJUEGOS INTERACTIVOS --- */
+        #minigame-panel {
+            background: #0d0d11; border: 2px dashed #333; padding: 25px; border-radius: 12px; text-align: center; margin-top: 10px; display: none;
+        }
+        .mg-title { font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; font-size: 1.1em; }
         
-        #log-panel { background-color: #0a0a0a; padding: 15px 30px; font-size: 0.85em; color: #666; height: 120px; overflow-y: auto; border-top: 1px solid #222; }
+        /* Semáforo Minijuego */
+        .lights-box { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
+        .light { width: 35px; height: 35px; background: #222; border-radius: 50%; border: 2px solid #444; transition: background 0.2s; }
+        .light.active { background: var(--primary); box-shadow: 0 0 15px var(--primary); }
+
+        /* Barra de Frenada Minijuego */
+        .brake-track { width: 100%; height: 30px; background: #222; border-radius: 15px; position: relative; overflow: hidden; margin: 20px 0; cursor: pointer; }
+        .brake-target { position: absolute; height: 100%; background: rgba(0, 230, 118, 0.4); border-left: 2px dashed var(--success); border-right: 2px dashed var(--success); }
+        .brake-cursor { position: absolute; width: 6px; height: 100%; background: white; top: 0; left: 0; box-shadow: 0 0 10px white; }
+
+        /* Consola de logs inferior */
+        #log-panel { background-color: #050507; padding: 15px 30px; font-size: 0.85em; color: #777; height: 110px; overflow-y: auto; border-top: 1px solid #1a1a22; }
         #log-list { list-style: none; padding: 0; margin: 0; }
-        #log-list li { margin-bottom: 8px; border-left: 3px solid #444; padding-left: 10px; }
-        #log-list li.success { border-left-color: #4cd137; color: #a0f098; }
+        #log-list li { margin-bottom: 6px; border-left: 3px solid #333; padding-left: 10px; }
+        #log-list li.success { border-left-color: var(--success); color: #8cf5bf; }
         #log-list li.danger { border-left-color: var(--primary); color: #ff9999; }
     </style>
 </head>
 <body>
 
+<!-- PANTALLA DE CREACIÓN -->
 <div id="setup-container">
-    <h1 style="color: var(--primary); text-transform: uppercase; margin-top: 0;">Firma tu Contrato</h1>
-    <p style="color: var(--text-muted);">Elige tu perfil para la lucha por el título.</p>
+    <h1 style="color: var(--primary); text-transform: uppercase; margin-top: 0; font-weight: 900;">Firma de Contrato</h1>
+    <p style="color: var(--text-muted); margin-bottom: 25px;">Define tu identidad antes de entrar al Paddock.</p>
     
     <div class="form-group">
         <label>Nombre del Piloto</label>
-        <input type="text" id="input-name" placeholder="Ej: Franco Colapinto" autocomplete="off">
+        <input type="text" id="input-name" placeholder="Ej: Fernando Alonso" autocomplete="off">
     </div>
 
     <div class="form-group">
         <label>Nacionalidad</label>
         <select id="input-country">
-            <option value="🇦🇷 ARG">🇦🇷 Argentina</option>
             <option value="🇪🇸 ESP">🇪🇸 España</option>
+            <option value="🇦🇷 ARG">🇦🇷 Argentina</option>
             <option value="🇲🇽 MEX">🇲🇽 México</option>
             <option value="🇨🇴 COL">🇨🇴 Colombia</option>
             <option value="🇧🇷 BRA">🇧🇷 Brasil</option>
@@ -122,58 +154,62 @@
     </div>
 
     <div class="form-group">
-        <label>Estilo de Pilotaje Inicial</label>
+        <label>Estilo de Pilotaje</label>
         <div class="archetypes">
             <div class="archetype-card selected" onclick="selectArchetype(this, 'agresivo')">
                 <h4>Kamikaze</h4>
-                <p>+ Agresividad<br>- Cuidado de Gomas</p>
+                <p>Alto riesgo, adelantamientos imposibles y máxima garra.</p>
             </div>
             <div class="archetype-card" onclick="selectArchetype(this, 'calculador')">
                 <h4>Calculador</h4>
-                <p>+ Gestión de Gomas<br>+ Ritmo Constante</p>
+                <p>Estratega de gomas, excelente gestión a distancia.</p>
             </div>
             <div class="archetype-card" onclick="selectArchetype(this, 'lluvia')">
                 <h4>Mago del Agua</h4>
-                <p>++ Habilidad en Lluvia<br>- Ritmo en Seco</p>
+                <p>Maestría absoluta en condiciones de asfalto mojado.</p>
             </div>
             <div class="archetype-card" onclick="selectArchetype(this, 'puro')">
                 <h4>Talento Puro</h4>
-                <p>++ Ritmo Base<br>- Agresividad</p>
+                <p>Velocidad explosiva a una vuelta en clasificación.</p>
             </div>
         </div>
     </div>
 
-    <button class="start-btn" onclick="initGame()">Comenzar Carrera</button>
+    <button class="start-btn" onclick="initGame()">Comenzar Trayectoria</button>
 </div>
 
+<!-- INTERFAZ PRINCIPAL -->
 <div id="game-container">
     <header>
         <div class="driver-info">
             <span id="ui-driver-name">Piloto</span>
-            <span id="ui-driver-country">🇦🇷 ARG</span>
+            <span id="ui-driver-country">🇪🇸 ESP</span>
         </div>
         <div class="stats-grid">
-            <div class="stat-badge">Ritmo: <span id="stat-pace">0</span></div>
-            <div class="stat-badge">Agresividad: <span id="stat-aggro">0</span></div>
-            <div class="stat-badge">Gomas: <span id="stat-tires">0</span></div>
-            <div class="stat-badge">Lluvia: <span id="stat-rain">0</span></div>
+            <div class="stat-badge">Ritmo<span id="stat-pace">0</span></div>
+            <div class="stat-badge">Agresividad<span id="stat-aggro">0</span></div>
+            <div class="stat-badge">Gomas<span id="stat-tires">0</span></div>
+            <div class="stat-badge">Lluvia<span id="stat-rain">0</span></div>
         </div>
-        <div class="stats-grid" style="border-top: 1px solid #333; padding-top: 10px;">
-            <div class="stat-badge">Categoría: <span id="stat-cat" style="color:white;">Fórmula 3</span></div>
-            <div class="stat-badge">Reputación: <span id="stat-rep">0</span></div>
-            <div class="stat-badge">Fondos: <span id="stat-money" class="money">0</span></div>
-            <div class="stat-badge">Puntos Dev: <span id="stat-dev" class="points">0</span></div>
+        <div class="stats-grid" style="border-top: 1px solid #1a1a22; padding-top: 10px;">
+            <div class="stat-badge">Categoría<span id="stat-cat" style="color:white; font-size:1em;">F3</span></div>
+            <div class="stat-badge">Reputación<span id="stat-rep">0</span></div>
+            <div class="stat-badge">Fondos<span id="stat-money" class="money">0</span></div>
+            <div class="stat-badge">Puntos Dev<span id="stat-dev" class="points">0</span></div>
         </div>
     </header>
 
     <div id="image-container">
-        <img id="event-image" src="" alt="Evento F1">
+        <img id="event-image" src="" alt="F1 Visual">
     </div>
 
     <div id="story-panel">
         <h2 id="event-title">Cargando...</h2>
         <p id="event-description">...</p>
     </div>
+
+    <!-- PANEL DE MINIJUEGOS INTERACTIVOS -->
+    <div id="minigame-panel"></div>
 
     <div id="choices-panel"></div>
 
@@ -185,11 +221,11 @@
 <script>
     let state = {
         name: "Rookie",
-        country: "🇦🇷 ARG",
+        country: "🇪🇸 ESP",
         category: "Fórmula 3",
-        money: 60000,
+        money: 50000,
         reputation: 15,
-        devPoints: 2,
+        devPoints: 1,
         attributes: { pace: 45, aggression: 45, tires: 45, rain: 45 }
     };
 
@@ -215,175 +251,104 @@
         document.getElementById('game-container').style.display = 'flex';
 
         updateUI();
-        addLog(`Bienvenido al gran circo, ${state.name}.`);
+        addLog(`Bienvenido al gran circo, ${state.name}. Tu carrera da comienzo.`);
         triggerRandomEvent();
     }
 
-    // --- BANCO DE MULTIPLES EVENTOS ALEATORIOS (SISTEMA DE INFINITAS POSIBILIDADES) ---
+    // --- BANCO DE EVENTOS Y MINIJUEGOS ---
     const randomEvents = [
         {
-            title: "Duelo al límite en la Curva 1",
+            title: "Semáforo en Blanco: La Salida",
             image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1000&auto=format&fit=crop",
-            description: "Te estás jugando la posición de podio con tu mayor rival. Al llegar a la frenada fuerte, te deja un hueco muy ajustado por el interior.",
-            choices: [
-                {
-                    text: "Tirarme sin dudar (Requiere alta Agresividad)",
-                    action: () => {
-                        if(state.attributes.aggression > 60) {
-                            state.reputation += 15;
-                            addLog("¡Adelantamiento por orejas! Tu rival frena antes y te metes al podio.", "success");
-                        } else {
-                            state.money -= 15000;
-                            state.reputation -= 5;
-                            addLog("Calculas mal la frenada, golpeas a tu rival y rompes la suspensión.", "danger");
-                        }
-                        triggerRandomEvent();
-                    }
-                },
-                {
-                    text: "Levantar el pie y asegurar puntos (Juego Limpio)",
-                    action: () => {
-                        state.money += 10000;
-                        state.reputation += 5;
-                        addLog("Decisión madura. Terminas la carrera limpiamente y sumas buenos puntos.");
-                        triggerRandomEvent();
-                    }
-                }
-            ]
+            description: "Los monoplazas toman posiciones en la parrilla. Los motores rugen a altas revoluciones. Los cinco semáforos rojos empiezan a encenderse uno a uno... ¡Prepárate para reaccionar al apagado!",
+            isMinigame: true,
+            minigameType: "startLights"
         },
         {
-            title: "Llamada de último minuto del Ingeniero",
+            title: "Frenada Crítica al Final de Recta",
             image: "https://images.unsplash.com/photo-1541443131876-44b032227854?q=80&w=1000&auto=format&fit=crop",
-            description: "Por radio se escucha: 'Los neumáticos traseros están al límite. Si seguimos así pincharemos, pero si bajamos el ritmo nos van a adelantar dos coches'.",
+            description: "Vienes rebufando a tu rival principal. Al final de la recta de alta velocidad hay que clavar los frenos de carbón en el cartel de los 50 metros.",
+            isMinigame: true,
+            minigameType: "hardBrake"
+        },
+        {
+            title: "Duelo cuerpo a cuerpo en la chicane",
+            image: "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1000&auto=format&fit=crop",
+            description: "Tu rival te cierra la puerta bruscamente en una chicane estrecha. ¿Intentas arriesgar por el Piano exterior o levantas para evitar el desastre?",
             choices: [
                 {
-                    text: "Confiar en mi técnica de conservación (Requiere Gomas altas)",
+                    text: "Tirarme por el exterior arriesgando el monoplaza",
                     action: () => {
-                        if(state.attributes.tires > 55) {
-                            state.reputation += 10;
-                            state.devPoints += 1;
-                            addLog("Controlas el desgaste a la perfección y mantienes la posición.", "success");
+                        // Comprobación basada pura y exclusivamente en el atributo oculto de agresión
+                        if(state.attributes.aggression > 55) {
+                            state.reputation += 15;
+                            addLog("¡Maniobra brillante y valiente por fuera! Mantienes el coche y ganas la posición.", "success");
                         } else {
-                            state.attributes.pace -= 2;
-                            addLog("Destrozas las gomas del todo. Te adelantan en la última recta.");
+                            state.money -= 12000;
+                            state.reputation -= 5;
+                            addLog("Calculas mal la adherencia exterior y golpeas el muro lateral.", "danger");
                         }
                         triggerRandomEvent();
                     }
                 },
                 {
-                    text: "Entrar a boxes a cambiar gomas de inmediato",
+                    text: "Levantar el pie con prudencia táctica",
                     action: () => {
-                        state.money -= 8000;
-                        state.devPoints += 2;
-                        addLog("Parada rápida. Vuelas con gomas nuevas y aprendes valiosos datos (+2 Puntos Dev).");
+                        state.money += 8000;
+                        addLog("Evitas un accidente innecesario y aseguras puntos estables para el campeonato.");
                         triggerRandomEvent();
                     }
                 }
             ]
         },
         {
-            title: "Trampa de la Prensa en el Paddock",
-            image: "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1000&auto=format&fit=crop",
-            description: "Un periodista sensacionalista te intercepta: 'Todo el mundo dice que tu compañero de equipo es mucho más rápido que tú y que el coche ganador lo lleva él. ¿Qué opinas?'.",
+            title: "Llamada de emergencia en boxes: El Clima",
+            image: "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?q=80&w=1000&auto=format&fit=crop",
+            description: "Empiezan a caer relámpagos sobre el asfalto. El ingeniero grita por radio: '¿Qué hacemos con las gomas? ¿Seguimos con seco o ponemos intermedios?'",
             choices: [
                 {
-                    text: "Atacar a la prensa: 'Mi compañero lleva el mismo coche, si no gano es porque el equipo me boicotea'.",
+                    text: "Quedarme en pista con slicks confiando en mi tacto",
+                    action: () => {
+                        if(state.attributes.rain > 60) {
+                            state.reputation += 20;
+                            state.money += 35000;
+                            addLog("¡Espectáculo puro bajo el diluvio! Controlas el coche a la perfección.", "success");
+                        } else {
+                            state.money -= 25000;
+                            addLog("Patinas en la primera curva mojada y destrozas el suelo plano del coche.", "danger");
+                        }
+                        triggerRandomEvent();
+                    }
+                },
+                {
+                    text: "Entrar a boxes a montar compuesto intermedio de lluvia",
+                    action: () => {
+                        state.devPoints += 1;
+                        addLog("Parada conservadora limpia. Ganas confianza y recoges datos de telemetría (+1 Puntos Dev).");
+                        triggerRandomEvent();
+                    }
+                }
+            ]
+        },
+        {
+            title: "Pregunta trampa de la Prensa en el Corralito",
+            image: "https://images.unsplash.com/photo-1538561558231-1e967a5b3a44?q=80&w=1000&auto=format&fit=crop",
+            description: "Un periodista te pregunta directamente: '¿Es verdad que tu coche actual es una basura infcable y por eso no logras la pole position?'",
+            choices: [
+                {
+                    text: "Cargar duramente contra los mecánicos y el coche",
                     action: () => {
                         state.reputation -= 15;
-                        addLog("Escándalo mediático. El jefe de equipo te llama la atención en su despacho.", "danger");
+                        addLog("Tus mecánicos están furiosos en el box tras tus declaraciones incendiarias.", "danger");
                         triggerRandomEvent();
                     }
                 },
                 {
-                    text: "Elegancia pura: 'Trabajamos en equipo, yo solo tengo que demostrar mi velocidad en la pista'.",
+                    text: "Elogiar el trabajo duro del equipo en la fábrica",
                     action: () => {
                         state.reputation += 10;
                         state.money += 15000;
-                        addLog("Los patrocinadores adoran tu templanza y te dan una prima económica extra.", "success");
-                        triggerRandomEvent();
-                    }
-                }
-            ]
-        },
-        {
-            title: "Tormenta Inesperada",
-            image: "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?q=80&w=1000&auto=format&fit=crop",
-            description: "El cielo se vuelve completamente negro en el circuito. Empiezan a caer gotas dispersas en el sector 2.",
-            choices: [
-                {
-                    text: "Arriesgar y quedarme en pista con slicks (Requiere alto nivel de Lluvia)",
-                    action: () => {
-                        if(state.attributes.rain > 65) {
-                            state.reputation += 25;
-                            state.money += 50000;
-                            addLog("¡Espectacular! Demuestras reflejos de cirujano bajo el agua y ganas posiciones clave.", "success");
-                        } else {
-                            state.money -= 20000;
-                            addLog("Te estampas contra las protecciones al pisar un charco con slicks.", "danger");
-                        }
-                        triggerRandomEvent();
-                    }
-                },
-                {
-                    text: "Entrar a poner gomas de lluvia intermedia inmediatamente",
-                    action: () => {
-                        state.devPoints += 1;
-                        addLog("Decisión conservadora pero segura. Acabas la carrera sin incidentes.");
-                        triggerRandomEvent();
-                    }
-                }
-            ]
-        },
-        {
-            title: "Día de Entrenamiento en el Simulador",
-            image: "https://images.unsplash.com/photo-1538561558231-1e967a5b3a44?q=80&w=1000&auto=format&fit=crop",
-            description: "Tienes un día libre entre carreras. Puedes elegir en qué enfocar tus horas en la fábrica para mejorar tu perfil como piloto.",
-            choices: [
-                {
-                    text: "Entrenar Ritmo Puro (+5 Ritmo)",
-                    action: () => {
-                        state.attributes.pace += 5;
-                        addLog("Analizas cada milisegundo de telemetría. Tu ritmo mejora.", "success");
-                        triggerRandomEvent();
-                    }
-                },
-                {
-                    text: "Trabajar en Reflejos y Agresividad (+5 Agresividad)",
-                    action: () => {
-                        state.attributes.aggression += 5;
-                        addLog("Practicas adelantamientos al límite en el simulador.", "success");
-                        triggerRandomEvent();
-                    }
-                },
-                {
-                    text: "Descansar y estudiar telemetría de frenada (+5 Gomas)",
-                    action: () => {
-                        state.attributes.tires += 5;
-                        addLog("Comprendes mejor cómo alargar la vida útil de los compuestos.", "success");
-                        triggerRandomEvent();
-                    }
-                }
-            ]
-        },
-        {
-            title: "Oferta de Patrocinador Personal",
-            image: "https://images.unsplash.com/photo-1629824647363-23df2a7bc018?q=80&w=1000&auto=format&fit=crop",
-            description: "Una marca de bebidas energéticas quiere patrocinarte, pero te exigen postear contenido polémico en redes sociales sobre tus rivales.",
-            choices: [
-                {
-                    text: "Aceptar el contrato (+30,000$, -10 Reputación)",
-                    action: () => {
-                        state.money += 30000;
-                        state.reputation -= 10;
-                        addLog("Dinero rápido en el banco, aunque la vieja guardia te critica por payaso en redes.", "success");
-                        triggerRandomEvent();
-                    }
-                },
-                {
-                    text: "Rechazarlo. Mantener la deportividad",
-                    action: () => {
-                        state.reputation += 5;
-                        addLog("Rechazas el dinero fácil por cuidar tu imagen profesional.");
+                        addLog("El equipo te adora por tu lealtad corporativa. Los patrocinadores te recompensan.");
                         triggerRandomEvent();
                     }
                 }
@@ -419,24 +384,23 @@
         document.getElementById('stat-dev').innerText = state.devPoints;
     }
 
-    // Mecanismo selector aleatorio infinito
+    // --- GESTOR DE EVENTOS Y MINIJUEGOS ---
     function triggerRandomEvent() {
         updateUI();
 
-        // Control de progresión para cambiar de categoría automáticamente si cumples requisitos
+        // Control de progresión de categorías
         if(state.reputation >= 40 && state.category === "Fórmula 3") {
             state.category = "Fórmula 2";
-            addLog("¡Ascenso oficial a la Fórmula 2 por tu gran reputación!", "success");
-        } else if(state.reputation >= 90 && state.category === "Fórmula 2") {
+            addLog("¡Ascenso a la categoría de F2 por tu brillante rendimiento!", "success");
+        } else if(state.reputation >= 80 && state.category === "Fórmula 2") {
             state.category = "Fórmula 1";
-            addLog("¡HAS LLEGADO A LA FÓRMULA 1! El sueño es una realidad.", "success");
+            addLog("¡HAS LLEGADO A LA FÓRMULA 1! El gran sueño automovilístico es tuyo.", "success");
         }
 
-        // Elegir un evento al azar de la lista
         const randomIndex = Math.floor(Math.random() * randomEvents.length);
         const event = randomEvents[randomIndex];
 
-        const imgEl = document.getElementById('image-image') || document.getElementById('event-image');
+        const imgEl = document.getElementById('event-image');
         if(event.image) {
             imgEl.src = event.image;
             imgEl.style.display = 'block';
@@ -448,18 +412,147 @@
         document.getElementById('event-description').innerText = event.description;
 
         const choicesPanel = document.getElementById('choices-panel');
-        choicesPanel.innerHTML = ''; 
+        const mgPanel = document.getElementById('minigame-panel');
+        choicesPanel.innerHTML = '';
+        mgPanel.style.display = 'none';
+        mgPanel.innerHTML = '';
 
-        event.choices.forEach(choice => {
-            const btn = document.createElement('button');
-            btn.className = 'choice-btn';
-            btn.innerHTML = `<span>${choice.text}</span> <span>➜</span>`;
-            
-            btn.onclick = () => {
-                choice.action();
-            };
-            choicesPanel.appendChild(btn);
-        });
+        // Si es un evento con minijuego interactivo
+        if(event.isMinigame) {
+            if(event.minigameType === "startLights") {
+                renderStartLightsMinigame(mgPanel);
+            } else if(event.minigameType === "hardBrake") {
+                renderHardBrakeMinigame(mgPanel);
+            }
+        } else {
+            // Opciones de texto tradicionales ocultando pistas de atributos
+            event.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerHTML = `<span>${choice.text}</span> <span>➜</span>`;
+                btn.onclick = () => choice.action();
+                choicesPanel.appendChild(btn);
+            });
+        }
+    }
+
+    // --- MINIJUEGO 1: SEMÁFORO DE SALIDA ---
+    function renderStartLightsMinigame(container) {
+        container.style.display = 'block';
+        container.innerHTML = `
+            <div class="mg-title">Minijuego: Reflejos de Salida</div>
+            <p style="font-size:0.85em; color: var(--text-muted);">Espera a que se apaguen todas las luces rojas y haz clic en el botón verde tan rápido como puedas.</p>
+            <div class="lights-box" id="lights-container">
+                <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+            </div>
+            <button id="mg-action-btn" class="start-btn" style="background:#333; cursor:not-allowed;" disabled>Esperando semáforo...</button>
+        `;
+
+        const lights = container.querySelectorAll('.light');
+        const actionBtn = document.getElementById('mg-action-btn');
+        let activeLights = 0;
+        let startTime = 0;
+        let canClick = false;
+        let jumpedStart = false;
+
+        // Encender luces progresivamente cada 800ms
+        const lightInterval = setInterval(() => {
+            if(activeLights < 5) {
+                lights[activeLights].classList.add('active');
+                activeLights++;
+            } else {
+                clearInterval(lightInterval);
+                // Tiempo aleatorio entre 1 y 3 segundos para apagar
+                const randomWait = Math.random() * 2000 + 1000;
+                setTimeout(() => {
+                    // Apagado de luces (¡Salida!)
+                    lights.forEach(l => l.classList.remove('active'));
+                    startTime = Date.now();
+                    canClick = true;
+                    actionBtn.style.background = "var(--success)";
+                    actionBtn.style.cursor = "pointer";
+                    actionBtn.innerText = "¡PULSA YA!";
+                }, randomWait);
+            }
+        }, 600);
+
+        actionBtn.onclick = () => {
+            if(!canClick) {
+                // Salida falsa
+                jumpedStart = true;
+                state.reputation -= 10;
+                addLog("¡Salida falsa! Te has movido antes de apagar los semáforos. Sanción de tiempo.", "danger");
+                container.style.display = 'none';
+                triggerRandomEvent();
+            } else {
+                const reactionTime = Date.now() - startTime;
+                container.style.display = 'none';
+                
+                if(reactionTime < 300) {
+                    state.reputation += 20;
+                    state.money += 20000;
+                    addLog(`¡Salida increíble! Tiempo de reacción: ${reactionTime}ms. Ganas posiciones de oro.`, "success");
+                } else if(reactionTime < 600) {
+                    state.reputation += 5;
+                    addLog(`Buena salida estándar. Tiempo de reacción: ${reactionTime}ms.`);
+                } else {
+                    state.reputation -= 5;
+                    addLog(`Salida muy lenta. Te han ganado la cartera en la arrancada (${reactionTime}ms).`, "danger");
+                }
+                triggerRandomEvent();
+            }
+        };
+    }
+
+    // --- MINIJUEGOS 2: ZONA DE FRENADA ---
+    function renderHardBrakeMinigame(container) {
+        container.style.display = 'block';
+        container.innerHTML = `
+            <div class="mg-title">Minijuego: Frenada al Límite</div>
+            <p style="font-size:0.85em; color: var(--text-muted);">Haz clic en el botón de freno cuando la barra blanca esté dentro de la zona verde de frenada óptima.</p>
+            <div class="brake-track" id="brake-track">
+                <div class="brake-target" style="left: 35% 'width': 20%;"></div>
+                <div class="brake-cursor" id="brake-cursor"></div>
+            </div>
+            <button class="start-btn" style="background:var(--primary); margin-top:10px;" onclick="executeBrake()">¡CLAVAR FRENO!</button>
+        `;
+
+        // Ajustar dinámicamente el target verde vía JS
+        const targetDiv = container.querySelector('.brake-target');
+        targetDiv.style.left = "40%";
+        targetDiv.style.width = "18%";
+
+        window.isBrakingActive = true;
+        window.cursorPos = 0;
+        window.cursorDir = 2; // Velocidad de movimiento
+
+        window.brakeInterval = setInterval(() => {
+            if(!window.isBrakingActive) return;
+            window.cursorPos += window.cursorDir;
+            if(window.cursorPos >= 98 || window.cursorPos <= 0) {
+                window.cursorDir *= -1;
+            }
+            const cursorEl = document.getElementById('brake-cursor');
+            if(cursorEl) cursorEl.style.left = window.cursorPos + "%";
+        }, 20);
+    }
+
+    function executeBrake() {
+        window.isBrakingActive = false;
+        clearInterval(window.brakeInterval);
+        const container = document.getElementById('minigame-panel');
+        container.style.display = 'none';
+
+        // Zona verde está entre 40 y 58
+        if(window.cursorPos >= 40 && window.cursorPos <= 58) {
+            state.reputation += 15;
+            state.devPoints += 1;
+            addLog("¡Frenada milimétrica perfecta! Te metes por el interior ganando la posición.", "success");
+        } else {
+            state.money -= 15000;
+            addLog("Calculas mal la frenada y bloqueas neumáticos, yéndote recto por la escapatoria.", "danger");
+        }
+        triggerRandomEvent();
     }
 </script>
 </body>
