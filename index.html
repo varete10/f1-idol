@@ -350,7 +350,7 @@
         {
             title: "Salida fulgurante: Cambio de Marchas",
             image: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=1000&auto=format&fit=crop",
-            description: "Es momento de engranar marchas con precisión milimétrica al alcanzar la zona de revoluciones óptima en plena recta principal.",
+            description: "Es momento de engranar marchas con precisión milimétrica. Prepara el motor y pulsa cuando te veas listo para acelerar la barra de revoluciones.",
             isMinigame: true,
             minigameType: "shiftTiming"
         },
@@ -686,7 +686,6 @@
         const offersList = document.getElementById('offers-list');
         offersList.innerHTML = '';
 
-        // Generar ofertas basadas en la reputación actual
         let availableOffers = [];
 
         if (state.reputation < 35) {
@@ -843,12 +842,25 @@
         container.style.display = 'block';
         container.innerHTML = `
             <div class="mg-title">Minijuego: Cambio de Marchas Preciso</div>
-            <p style="font-size:0.85em; color: var(--text-muted);">Haz clic en '¡SUBIR MARCHA!' justo cuando la barra alcance la zona óptima.</p>
+            <p style="font-size:0.85em; color: var(--text-muted);">Pulsa primero en "Iniciar Aceleración" para arrancar las revoluciones y luego en "¡SUBIR MARCHA!" en el momento óptimo.</p>
             <div class="rpm-bar">
                 <div class="rpm-fill" id="rpm-fill"></div>
             </div>
-            <button class="start-btn" style="background:var(--primary);" onclick="executeShift()">¡SUBIR MARCHA!</button>
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-start-shift" class="start-btn" style="background: var(--accent); color: #000;" onclick="startShiftRpm()">Iniciar Aceleración</button>
+                <button id="btn-execute-shift" class="start-btn" style="background: var(--primary); display: none;" onclick="executeShift()">¡SUBIR MARCHA!</button>
+            </div>
         `;
+
+        window.isShiftingActive = false;
+        window.rpmProgress = 0;
+    }
+
+    function startShiftRpm() {
+        const startBtn = document.getElementById('btn-start-shift');
+        const executeBtn = document.getElementById('btn-execute-shift');
+        if(startBtn) startBtn.style.display = 'none';
+        if(executeBtn) executeBtn.style.display = 'block';
 
         window.isShiftingActive = true;
         window.rpmProgress = 0;
@@ -856,14 +868,19 @@
         window.shiftInterval = setInterval(() => {
             if(!window.isShiftingActive) return;
             window.rpmProgress += 2.2;
-            if(window.rpmProgress > 100) window.rpmProgress = 100;
+            if(window.rpmProgress > 100) {
+                window.rpmProgress = 100;
+                window.isShiftingActive = false;
+                clearInterval(window.shiftInterval);
+                executeShift(); // Si llega al 100% solo, se pasa de rosca
+            }
             const fillEl = document.getElementById('rpm-fill');
             if(fillEl) fillEl.style.width = window.rpmProgress + "%";
         }, 25);
     }
 
     function executeShift() {
-        if(!window.isShiftingActive) return;
+        if(!window.isShiftingActive && window.rpmProgress < 75) return; // Evita doble ejecución
         window.isShiftingActive = false;
         clearInterval(window.shiftInterval);
         const container = document.getElementById('minigame-panel');
@@ -876,7 +893,8 @@
             state.money -= 8000; state.statsRecord.crashes++;
             addLog("¡Corte de inyección por sobrepasarse de revoluciones! Pierdes impulso vital.", "danger");
         } else {
-            addLog("Cambio demasiado temprano. El motor sube perezoso de vueltas.");
+            state.money -= 4000;
+            addLog("Cambio demasiado temprano. El motor sube perezoso de vueltas y pierdes tracción.", "danger");
         }
         progressEvent();
     }
