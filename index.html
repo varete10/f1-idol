@@ -180,7 +180,7 @@
 
         /* --- IMAGEN Y MULTIMEDIA --- */
         #image-container { width: 100%; height: 240px; background-color: #000; overflow: hidden; position: relative; }
-        #event-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.75; transition: transform 0.5s; }
+        #event-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: transform 0.5s; }
         #image-container:hover #event-image { transform: scale(1.03); }
 
         /* --- HISTORIA Y PANEL DE ACCIÓN --- */
@@ -237,7 +237,6 @@
 
 <!-- PANTALLA DE CREACIÓN -->
 <div id="setup-container">
-    <!-- LOGO INTEGRADO EN LA PÁGINA DE PERSONALIZACIÓN -->
     <div class="app-logo-container">
         <div class="f1-logo-badge">
             <span class="f1-logo-text">F1</span>
@@ -429,7 +428,7 @@
         attributes: { pace: 45, aggression: 45, tires: 45, rain: 45 },
         temporaryBoosts: { pace: 0, aggression: 0, tires: 0, rain: 0 },
         statsRecord: { wins: 0, podiums: 0, crashes: 0 },
-        careerHistory: [] // Historial temporada a temporada para el Salón de la Fama
+        careerHistory: []
     };
 
     let selectedArchetype = 'agresivo';
@@ -471,50 +470,50 @@
         triggerRandomEvent();
     }
 
-    // --- BANCO MASIVO DE EVENTOS Y MINIJUEGOS ---
+    // --- BANCO MASIVO DE EVENTOS EXCLUSIVOS DE FÓRMULA 1 ---
     const randomEvents = [
         {
             title: "Semáforo en Blanco: La Salida",
             image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1000&auto=format&fit=crop",
-            description: "Los monoplazas toman posiciones en la parrilla. Los cinco semáforos rojos empiezan a encenderse uno a uno... ¡Pulsa cuando se apaguen!",
+            description: "Los monoplazas monoplaza de competición de máxima categoría toman posiciones en la parrilla. Los cinco semáforos rojos empiezan a encenderse uno a uno... ¡Pulsa cuando se apaguen!",
             isMinigame: true,
             minigameType: "startLights"
         },
         {
             title: "Frenada Crítica al Final de Recta",
-            image: "https://images.unsplash.com/photo-1541443131876-44b032227854?q=80&w=1000&auto=format&fit=crop",
-            description: "Vienes rebufando a tu rival principal. Al final de la recta de alta velocidad hay que clavar los frenos de carbón en el cartel de los 50 metros.",
+            image: "https://images.unsplash.com/photo-1508020282124-3b2d16c29b13?q=80&w=1000&auto=format&fit=crop",
+            description: "Vienes rebufando a tu rival principal en plena recta de alta velocidad. Hay que clavar los frenos carbón-carbón de un F1 en el cartel exacto.",
             isMinigame: true,
             minigameType: "hardBrake"
         },
         {
             title: "Salida fulgurante: Cambio de Marchas",
             image: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=1000&auto=format&fit=crop",
-            description: "Es momento de engranar marchas con precisión milimétrica. Pulsa 'Iniciar Aceleración' y sube de marcha en el momento óptimo.",
+            description: "Es momento de engranar marchas con las levas del volante con precisión milimétrica. Pulsa 'Iniciar Aceleración' y sube de marcha en el momento óptimo.",
             isMinigame: true,
             minigameType: "shiftTiming"
         },
         {
             title: "Zona de Activación de DRS",
-            image: "https://images.unsplash.com/photo-1508020282124-3b2d16c29b13?q=80&w=1000&auto=format&fit=crop",
-            description: "Te sitúas a menos de un segundo del coche de delante. El sistema DRS parpadea en tu volante. ¡Encuentra el panel activo para abrir el alerón!",
+            image: "https://images.unsplash.com/photo-1541443131876-44b032227854?q=80&w=1000&auto=format&fit=crop",
+            description: "Te sitúas a menos de un segundo del coche de delante. El sistema DRS parpadea en tu volante. ¡Encuentra el panel activo para abrir el alerón trasero!",
             isMinigame: true,
             minigameType: "drsActivation"
         },
         {
             title: "Duelo cuerpo a cuerpo en la chicane",
             image: "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1000&auto=format&fit=crop",
-            description: "Tu rival te cierra la puerta bruscamente en una chicane estrecha. ¿Intentas arriesgar por el piano exterior o levantas para evitar el desastre?",
+            description: "Tu rival te cierra la puerta bruscamente con su monoplaza en una chicane estrecha. ¿Intentas arriesgar por el piano exterior o levantas?",
             choices: [
                 {
-                    text: "Tirarme por el exterior arriesgando el monoplaza",
+                    text: "Tirarme por el exterior arriesgando el alerón",
                     action: () => {
                         if(getStat('aggression') > 55) {
                             state.reputation += 15; state.statsRecord.wins++;
-                            addLog("¡Maniobra brillante y valiente por fuera! Mantienes el coche y ganas la posición.", "success");
+                            addLog("¡Maniobra brillante y valiente por fuera! Mantienes el monoplaza y ganas la posición.", "success");
                         } else {
                             state.money -= 12000; state.reputation -= 5; state.statsRecord.crashes++;
-                            addLog("Calculas mal la adherencia exterior y golpeas el muro lateral.", "danger");
+                            addLog("Calculas mal la adherencia exterior y golpeas el muro de contención con el pontón.", "danger");
                         }
                         progressEvent();
                     }
@@ -523,7 +522,7 @@
                     text: "Levantar el pie con prudencia táctica",
                     action: () => {
                         state.money += 8000; state.statsRecord.podiums++;
-                        addLog("Evitas un accidente innecesario y aseguras puntos estables para el campeonato.");
+                        addLog("Evitas un accidente innecesario de monoplazas y aseguras puntos estables para el campeonato.");
                         progressEvent();
                     }
                 }
@@ -532,17 +531,17 @@
         {
             title: "Llamada de emergencia en boxes: El Clima",
             image: "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?q=80&w=1000&auto=format&fit=crop",
-            description: "Empiezan a caer relámpagos sobre el asfalto. El ingeniero grita por radio: '¿Qué hacemos con las gomas? ¿Seguimos con seco o ponemos intermedios?'",
+            description: "Empiezan a caer relámpagos sobre el asfalto. El ingeniero grita por radio: '¿Qué hacemos con los neumáticos de seco? ¿Ponemos intermedios de lluvia?'",
             choices: [
                 {
                     text: "Quedarme en pista con slicks confiando en mi tacto",
                     action: () => {
                         if(getStat('rain') > 60) {
                             state.reputation += 20; state.money += 35000; state.statsRecord.wins++;
-                            addLog("¡Espectáculo puro bajo el diluvio! Controlas el coche a la perfección.", "success");
+                            addLog("¡Espectáculo puro bajo el diluvio! Controlas el monoplaza a la perfección.", "success");
                         } else {
                             state.money -= 25000; state.statsRecord.crashes++;
-                            addLog("Patinas en la primera curva mojada y destrozas el suelo plano del coche.", "danger");
+                            addLog("Patinas en la primera curva mojada y destrozas el suelo plano aerodinámico del coche.", "danger");
                         }
                         progressEvent();
                     }
@@ -551,22 +550,22 @@
                     text: "Entrar a boxes a montar compuesto intermedio de lluvia",
                     action: () => {
                         state.devPoints += 1; state.statsRecord.podiums++;
-                        addLog("Parada conservadora limpia. Ganas confianza y recoges datos de telemetría (+1 Puntos Dev).");
+                        addLog("Parada conservadora limpia en el pit lane. Ganas confianza y recoges telemetría (+1 Puntos Dev).");
                         progressEvent();
                     }
                 }
             ]
         },
         {
-            title: "Pregunta trampa de la Prensa en el Corralito",
+            title: "Pregunta trampa de la Prensa en el Paddock",
             image: "https://images.unsplash.com/photo-1538561558231-1e967a5b3a44?q=80&w=1000&auto=format&fit=crop",
-            description: "Un periodista te pregunta directamente: '¿Es verdad que tu coche actual es una basura infiable y por eso no logras la pole position?'",
+            description: "Un periodista te pregunta directamente en el corralito de prensa: '¿Es verdad que tu unidad de potencia actual es una basura y por eso no logras la pole?'",
             choices: [
                 {
-                    text: "Cargar duramente contra los mecánicos y el coche",
+                    text: "Cargar duramente contra los motoristas y el equipo",
                     action: () => {
                         state.reputation -= 15;
-                        addLog("Tus mecánicos están furiosos en el box tras tus declaraciones incendiarias.", "danger");
+                        addLog("Tus mecánicos y los ingenieros de fábrica están furiosos tras tus declaraciones.", "danger");
                         progressEvent();
                     }
                 },
@@ -583,13 +582,13 @@
         {
             title: "Oferta de Patrocinio Comercial",
             image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1000&auto=format&fit=crop",
-            description: "Una marca de bebidas energéticas te ofrece un contrato lucrativo pero te exige asistir a largas sesiones de marketing antes de cada carrera.",
+            description: "Una marca internacional de alta relojería te ofrece un contrato lucrativo pero te exige asistir a largas sesiones de marketing previas al Gran Premio.",
             choices: [
                 {
                     text: "Aceptar el contrato y el dinero extra",
                     action: () => {
                         state.money += 40000; state.attributes.pace -= 2;
-                        addLog("Cofres llenos de dinero, aunque tus horas de simulador se han reducido ligeramente.");
+                        addLog("Cofres llenos de dinero, aunque tus horas en el simulador del equipo se han reducido ligeramente.");
                         progressEvent();
                     }
                 },
@@ -597,7 +596,7 @@
                     text: "Rechazarlo para centrarte 100% en el rendimiento deportivo",
                     action: () => {
                         state.attributes.pace += 3; state.reputation += 5;
-                        addLog("Priorizas la gloria deportiva. Tu enfoque en pista es absoluto.");
+                        addLog("Priorizas la gloria en pista. Tu enfoque con el monoplaza es absoluto.");
                         progressEvent();
                     }
                 }
@@ -606,17 +605,17 @@
         {
             title: "Fallo Mecánico Crítico en Clasificación",
             image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1000&auto=format&fit=crop",
-            description: "A falta de dos minutos para terminar la sesión de clasificación, notas una pérdida grave de presión hidráulica en la dirección asistida.",
+            description: "A falta de dos minutos para terminar la Q3, notas una pérdida grave de presión hidráulica en la dirección asistida de tu monoplaza.",
             choices: [
                 {
                     text: "Arriesgar y salir a marcar un último tiempo a ciegas",
                     action: () => {
                         if(getStat('pace') > 55) {
                             state.reputation += 12; state.statsRecord.wins++;
-                            addLog("¡Vuelta heroica sin dirección asistida! Te metes entre los tres primeros.", "success");
+                            addLog("¡Vuelta heroica sin dirección asistida! Te metes entre los tres primeros de la parrilla.", "success");
                         } else {
                             state.money -= 20000; state.statsRecord.crashes++;
-                            addLog("El sistema falla por completo en la frenada y golpeas las barreras de neumáticos.", "danger");
+                            addLog("El sistema falla por completo en la frenada y golpeas las barreras TECPRO.", "danger");
                         }
                         progressEvent();
                     }
@@ -625,7 +624,7 @@
                     text: "Abortar la vuelta y guardar el motor en el box",
                     action: () => {
                         state.reputation -= 5;
-                        addLog("Salvas componentes valiosos del motor, pero sales retrasado en la parrilla.");
+                        addLog("Salvas componentes valiosos de la unidad de potencia, pero sales retrasado.");
                         progressEvent();
                     }
                 }
@@ -634,13 +633,13 @@
         {
             title: "Tensión en el muro con tu Ingeniero",
             image: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=1000&auto=format&fit=crop",
-            description: "Tu ingeniero te pide por radio que dejes pasar a tu compañero de equipo por órdenes de jerarquía corporativa. Vas más rápido que él.",
+            description: "Tu ingeniero te pide por radio que dejes pasar a tu compañero de equipo por órdenes de jerarquía. Vas visiblemente más rápido que él.",
             choices: [
                 {
                     text: "Ignorar la orden de equipo y adelantarle sin piedad",
                     action: () => {
                         state.reputation += 10; state.attributes.aggression += 3; state.statsRecord.wins++;
-                        addLog("Demuestras carácter ganador. La afición enloquece con tu arrojo.", "success");
+                        addLog("Demuestras carácter ganador al volante. La afición enloquece con tu arrojo.", "success");
                         progressEvent();
                     }
                 },
@@ -657,7 +656,7 @@
         {
             title: "Pruebas de Aerodinámica en el túnel de viento",
             image: "https://images.unsplash.com/photo-1508020282124-3b2d16c29b13?q=80&w=1000&auto=format&fit=crop",
-            description: "Tienes la oportunidad de probar un nuevo alerón delantero experimental diseñado en fábrica para mejorar el paso por curva rápida.",
+            description: "Tienes la oportunidad de probar un nuevo paquete de pontones y alerón trasero experimental diseñado para mejorar la carga aerodinámica en curvas rápidas.",
             choices: [
                 {
                     text: "Probarlo a fondo asumiendo posible inestabilidad trasera",
@@ -680,21 +679,21 @@
         {
             title: "Incidente en el Pit Lane con los mecánicos",
             image: "https://images.unsplash.com/photo-1541443131876-44b032227854?q=80&w=1000&auto=format&fit=crop",
-            description: "Durante una parada caótica, frenas tarde en tu cajón y golpeas ligeramente el gato delantero. El mecánico principal se asusta pero está bien.",
+            description: "Durante una parada caótica en boxes, frenas tarde en tu cajón y golpeas ligeramente el gato delantero. El mecánico principal se asusta pero está bien.",
             choices: [
                 {
                     text: "Disculparte personalmente y regalarles una cena al equipo",
                     action: () => {
                         state.money -= 10000; state.reputation += 10;
-                        addLog("Tus mecánicos te perdonan al instante y redoblan esfuerzos en las siguientes paradas.");
+                        addLog("Tus mecánicos te perdonan al instante y redoblan esfuerzos en las siguientes paradas.", "success");
                         progressEvent();
                     }
                 },
                 {
-                    text: "Culpar al sistema de semáforos automáticos del box",
+                    text: "Culpar al sistema automático del semáforo del box",
                     action: () => {
                         state.reputation -= 10;
-                        addLog("El ambiente en el garaje se vuelve frío y distante tras tus reproches.");
+                        addLog("El ambiente en el garaje del equipo se vuelve frío y distante tras tus reproches.", "danger");
                         progressEvent();
                     }
                 }
@@ -826,7 +825,7 @@
 
     function buyItem(type, stat, value, cost) {
         if(state.money < cost) {
-            addLog("<i class="fa-solid fa-triangle-exclamation"></i> Fondos insuficientes para realizar esta inversión en la tienda.", "danger");
+            addLog(`<i class="fa-solid fa-triangle-exclamation"></i> Fondos insuficientes para realizar esta inversión en la tienda.`, "danger");
             return;
         }
         state.money -= cost;
@@ -835,7 +834,7 @@
             addLog(`Has adquirido consumible temporal: +${value} en ${stat.toUpperCase()}. Se aplicará en el próximo evento.`, "success");
         } else {
             state.attributes[stat] += value;
-            addLog(`¡Mejora permanente instalada! +${value} in ${stat.toUpperCase()} de base.`, "success");
+            addLog(`¡Mejora permanente instalada! +${value} en ${stat.toUpperCase()} de base.`, "success");
         }
         updateUI();
         renderShopItems();
@@ -854,7 +853,6 @@
     }
 
     function triggerSeasonSummary() {
-        // Registrar temporada actual en el historial de carrera
         state.careerHistory.push({
             season: state.season,
             age: state.age,
@@ -866,12 +864,9 @@
             money: state.money
         });
 
-        // Aplicar evolución anual por edad
         applyAgeProgression();
 
-        // Calcular umbral de retirada dinámico según estadísticas y rendimiento
-        // A mayor edad, mayor probabilidad de retirada. Si tiene buena reputación y rendimiento, aguanta más.
-        let retirementThreshold = 41 - Math.floor(state.reputation / 15); // Rango aprox entre 35 y 42 años
+        let retirementThreshold = 41 - Math.floor(state.reputation / 15);
         if (retirementThreshold < 35) retirementThreshold = 35;
 
         if (state.age >= retirementThreshold) {
@@ -898,8 +893,6 @@
 
     function applyAgeProgression() {
         state.age++;
-        // A partir de los 33 años empieza la curva de veteranía:
-        // Gana experiencia (+ inteligencia / gestión de gomas / lluvia por veteranía), pero pierde reflejos ligeramente (ritmo / agresión)
         if (state.age >= 33) {
             let agingFactor = state.age - 32;
             state.attributes.tires += 2;
@@ -908,7 +901,6 @@
             state.attributes.aggression = Math.max(20, state.attributes.aggression - 1);
             addLog(`<i class="fa-solid fa-user-clock"></i> Con ${state.age} años, tu experiencia te otorga mayor sabiduría en pista (+Gomas), aunque tus reflejos puros disminuyen ligeramente (-Ritmo).`, "warning");
         } else if (state.age <= 24) {
-            // Jóvenes promesas ganan ritmo más rápido
             state.attributes.pace += 2;
             state.attributes.aggression += 1;
             addLog(`<i class="fa-solid fa-chart-line"></i> Tu juventud (${state.age} años) te permite evolucionar explosivamente en velocidad pura y reflejos (+Ritmo).`, "success");
@@ -982,7 +974,6 @@
             ];
         }
 
-        // Asegurarnos de que el equipo actual siempre aparezca entre las opciones de renovación
         let currentTeamInList = availableTeams.find(t => t.team === state.team);
         if(!currentTeamInList) {
             availableTeams.unshift({ team: state.team, repReq: 0 });
