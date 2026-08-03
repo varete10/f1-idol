@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="wivdth=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APEX — Carrera de un piloto</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230B0D10'/%3E%3Cpath d='M6 22 L12 10 h5 L11 22z' fill='%23FFB000'/%3E%3Cpath d='M15 22 L21 10 h5 L20 22z' fill='%23E8ECF2'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -177,6 +177,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-v
 }
 .res-item .k{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase}
 .res-item .v{font-family:var(--mono);font-weight:700;font-size:15px}
+button.res-item{font-family:inherit;color:var(--txt);text-align:left;position:relative;transition:border-color .15s,background .15s,transform .12s}
+button.res-item:hover{border-color:var(--amber);background:#151A20;transform:translateY(-1px)}
+button.res-item::after{content:"";position:absolute;right:7px;bottom:6px;width:5px;height:5px;border-right:1.5px solid var(--dim);border-bottom:1.5px solid var(--dim);transform:rotate(-45deg)}
+button.res-item:hover::after{border-color:var(--amber)}
+.res-shop{display:inline-flex;align-items:center;gap:9px;background:var(--amber);color:#0B0D10;border:1px solid var(--amber);border-radius:var(--r);padding:6px 16px;font-family:var(--disp);font-weight:900;font-size:17px;letter-spacing:.06em;text-transform:uppercase;transition:filter .15s,transform .1s}
+.res-shop:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.res-shop .n{font-family:var(--mono);font-size:11px;font-weight:700;background:rgba(0,0,0,.22);border-radius:99px;padding:1px 7px}
 
 /* ---------- LAYOUT ---------- */
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:12px;align-items:start}
@@ -432,6 +439,7 @@ table.tbl td.n{font-family:var(--mono);text-align:right}
   .session-head{grid-template-columns:110px minmax(0,1fr)}
   .res{width:100%;margin-left:0}
   .res-item{flex:1;min-width:0}
+  .res-shop{flex:1 0 100%;justify-content:center}
   .picks,.grid2,.grid3{grid-template-columns:1fr}
   .hero-top,.setup-body,.stage{padding-left:20px;padding-right:20px}
   .choices,.mg{padding-left:20px;padding-right:20px}
@@ -536,9 +544,14 @@ table.tbl td.n{font-family:var(--mono);text-align:right}
       <div class="res">
         <div class="res-item"><div class="k">Temporada</div><div class="v" id="ui-season">1</div></div>
         <div class="res-item"><div class="k">Reputación</div><div class="v" id="ui-rep">10</div></div>
-        <div class="res-item"><div class="k">Fondos</div><div class="v" id="ui-money" style="color:var(--green)">0</div></div>
-        <div class="res-item"><div class="k">Desarrollo</div><div class="v" id="ui-dev" style="color:var(--purple)">0</div></div>
+        <button class="res-item" onclick="openShop('Piloto')" title="Gastar fondos en entrenamiento y marca personal">
+          <div class="k">Fondos</div><div class="v" id="ui-money" style="color:var(--green)">0</div></button>
+        <button class="res-item" onclick="openShop('Coche')" title="Invertir puntos de desarrollo en el coche">
+          <div class="k">Desarrollo</div><div class="v" id="ui-dev" style="color:var(--purple)">0</div></button>
         <div class="res-item"><div class="k">Puntos</div><div class="v" id="ui-pts" style="color:var(--amber)">0</div></div>
+        <button class="res-shop" onclick="openShop()" title="Desarrollo y entrenamiento">
+          <span id="ui-shop-icon" style="line-height:0"></span> Mejorar
+          <span class="n" id="ui-shop-n">0</span></button>
       </div>
     </div>
 
@@ -603,7 +616,6 @@ table.tbl td.n{font-family:var(--mono);text-align:right}
     </div>
 
     <nav class="nav">
-      <button onclick="openShop()">Desarrollo y entrenamiento</button>
       <button onclick="openStandings()">Clasificación completa</button>
       <button onclick="openCalendar()">Calendario</button>
       <button onclick="openProfile()">Ficha del piloto</button>
@@ -915,6 +927,14 @@ function renderTopbar() {
   $('ui-money').textContent = money(S.money);
   $('ui-dev').textContent = S.dev;
   $('ui-pts').textContent = S.pts;
+  $('ui-shop-icon').innerHTML = icon('cart', 17, '#0B0D10');
+  const affordable = SHOP.filter(i => {
+    const owned = (i.id === 'mgr' && S.perks.includes('mgr')) || (i.id === 'spon' && S.perks.includes('spon'));
+    return !owned && (i.cur === 'money' ? S.money >= i.cost : S.dev >= i.cost);
+  }).length;
+  const badge = $('ui-shop-n');
+  badge.textContent = affordable;
+  badge.style.display = affordable ? '' : 'none';
 }
 
 function renderSession() {
